@@ -1,5 +1,5 @@
 {
-  "name": "reflex",
+  "name": "@ryanmorr/reflex",
   "description": "Reactive DOM",
   "version": "0.1.0",
   "license": "Unlicense",
@@ -38,5 +38,6 @@
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-node-resolve": "^4.2.3",
     "sinon": "^7.3.1"
-  }
+  },
+  "dependencies": {}
 }
