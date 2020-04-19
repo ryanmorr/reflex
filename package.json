@@ -39,5 +39,8 @@
     "rollup-plugin-node-resolve": "^4.2.3",
     "sinon": "^7.3.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@ryanmorr/create-store": "^0.1.0",
+    "htm": "^3.0.4"
+  }
 }
