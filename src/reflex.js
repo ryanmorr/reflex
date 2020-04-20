@@ -1,5 +1,8 @@
 import htm from 'htm';
 import createStore from '@ryanmorr/create-store';
+import { scheduleRender } from '@ryanmorr/schedule-render';
+
+const renderQueue = new Map();
 
 function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
@@ -40,15 +43,42 @@ function getNode(node) {
 }
 
 function observeAttribute(element, store, name) {
-    store.subscribe((value) => patchAttribute(element, name, value));
+    let prevValue = store();
+    const attrNode = element.getAttributeNode(name);
+    store.subscribe((nextValue) => {
+        if (nextValue !== prevValue) {
+            if (renderQueue.has(attrNode)) {
+                renderQueue.set(attrNode, nextValue);
+            } else {
+                renderQueue.set(attrNode, nextValue);
+                scheduleRender(() => {
+                    const value = renderQueue.get(attrNode);
+                    patchAttribute(element, name, value);
+                    renderQueue.delete(attrNode);
+                    prevValue = value;
+                });
+            }
+        }
+    });
 }
 
 function observeNode(store) {
     let prevValue = store();
     let prevNode = createNode(prevValue);
     store.subscribe((nextValue) => {
-        prevNode = patchNode(prevNode, nextValue);
-        prevValue = nextValue;
+        if (nextValue !== prevValue && !(prevValue == null && nextValue == null)) {
+            if (renderQueue.has(prevNode)) {
+                renderQueue.set(prevNode, nextValue);
+            } else {
+                renderQueue.set(prevNode, nextValue);
+                scheduleRender(() => {
+                    const value = renderQueue.get(prevNode);
+                    renderQueue.delete(prevNode);
+                    prevNode = patchNode(prevNode, value);
+                    prevValue = value;
+                });
+            }
+        }
     });
     return prevNode;
 }

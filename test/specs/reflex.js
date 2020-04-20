@@ -9,33 +9,42 @@ describe('reflex', () => {
         expect(el.ownerDocument).to.equal(document);
     });
 
-    it('should update a text node', () => {
+    it('should update a text node', (done) => {
         const text = val();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
         text('foo');
-        expect(el.outerHTML).to.equal('<div>foo</div>');
+        requestAnimationFrame(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+            done();
+        });
     });
 
-    it('should update an element', () => {
+    it('should update an element', (done) => {
         const child = val();
         const el = html`<div>${child}</div>`;
 
         expect(el.innerHTML).to.equal('');
 
         child(html`<span />`);
-        expect(el.outerHTML).to.equal('<div><span></span></div>');
+        requestAnimationFrame(() => {
+            expect(el.outerHTML).to.equal('<div><span></span></div>');
+            done();
+        });
     });
 
-    it('should update an attribute', () => {
+    it('should update an attribute', (done) => {
         const attr = val();
         const el = html`<div id=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
         attr('foo');
-        expect(el.outerHTML).to.equal('<div id="foo"></div>');
+        requestAnimationFrame(() => {
+            expect(el.outerHTML).to.equal('<div id="foo"></div>');
+            done();
+        });
     });
 });

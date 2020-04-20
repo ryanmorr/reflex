@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@ryanmorr/create-store": "^0.1.0",
+    "@ryanmorr/schedule-render": "^2.0.1",
     "htm": "^3.0.4"
   }
 }
