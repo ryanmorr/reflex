@@ -43,9 +43,14 @@ function getNode(node) {
 }
 
 function observeAttribute(element, store, name) {
+    let firstRender = true;
     let prevValue = store();
     const attrNode = element.getAttributeNode(name);
     store.subscribe((nextValue) => {
+        if (firstRender) {
+            firstRender = false;
+            return;
+        }
         if (nextValue !== prevValue) {
             if (renderQueue.has(attrNode)) {
                 renderQueue.set(attrNode, nextValue);
@@ -63,10 +68,15 @@ function observeAttribute(element, store, name) {
 }
 
 function observeNode(store) {
+    let firstRender = true;
     let prevValue = store();
     let prevNode = createNode(prevValue);
     store.subscribe((nextValue) => {
-        if (nextValue !== prevValue && !(prevValue == null && nextValue == null)) {
+        if (firstRender) {
+            firstRender = false;
+            return;
+        }
+        if (nextValue !== prevValue) {
             if (renderQueue.has(prevNode)) {
                 renderQueue.set(prevNode, nextValue);
             } else {
