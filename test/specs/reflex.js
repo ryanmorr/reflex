@@ -1,4 +1,4 @@
-import { html, val } from '../../src/reflex';
+import { html, store } from '../../src/reflex';
 
 describe('reflex', () => {
     it('should create a DOM element', () => {
@@ -10,12 +10,12 @@ describe('reflex', () => {
     });
 
     it('should update a text node', (done) => {
-        const text = val();
+        const text = store();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        text('foo');
+        text.set('foo');
         requestAnimationFrame(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
             done();
@@ -23,12 +23,12 @@ describe('reflex', () => {
     });
 
     it('should update an element', (done) => {
-        const child = val();
+        const child = store();
         const el = html`<div>${child}</div>`;
 
         expect(el.innerHTML).to.equal('');
 
-        child(html`<span />`);
+        child.set(html`<span />`);
         requestAnimationFrame(() => {
             expect(el.outerHTML).to.equal('<div><span></span></div>');
             done();
@@ -36,12 +36,12 @@ describe('reflex', () => {
     });
 
     it('should update an attribute', (done) => {
-        const attr = val();
+        const attr = store();
         const el = html`<div id=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        attr('foo');
+        attr.set('foo');
         requestAnimationFrame(() => {
             expect(el.outerHTML).to.equal('<div id="foo"></div>');
             done();

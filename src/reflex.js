@@ -44,7 +44,7 @@ function getNode(node) {
 
 function observeAttribute(element, store, name) {
     let firstRender = true;
-    let prevValue = store();
+    let prevValue = store.get();
     const attrNode = element.getAttributeNode(name);
     store.subscribe((nextValue) => {
         if (firstRender) {
@@ -69,7 +69,7 @@ function observeAttribute(element, store, name) {
 
 function observeNode(store) {
     let firstRender = true;
-    let prevValue = store();
+    let prevValue = store.get();
     let prevNode = createNode(prevValue);
     store.subscribe((nextValue) => {
         if (firstRender) {
@@ -96,7 +96,7 @@ function observeNode(store) {
 function patchAttribute(element, name, value) {
     if (isStore(value)) {
         const store = value;
-        value = store();
+        value = store.get();
         observeAttribute(element, store, name);
     }
     if (value != null) {
@@ -119,12 +119,10 @@ function patchNode(prevNode, nextValue) {
 
 export const html = htm.bind(createElement);
 
-export const val = createStore((get, set) => (value) => {
+export const store = createStore((get, set) => (value) => {
     set(value);
-    return (...args) => {
-        if (args.length > 0) {
-            set(...args);
-        }
-        return get();
+    return {
+        get,
+        set,
     };
 });
