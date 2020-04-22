@@ -55,51 +55,37 @@ function getNode(node) {
     return createNode(node);
 }
 
-function observeAttribute(element, store, name, prevValue) {
-    let firstRender = true;
+function observeAttribute(element, store, name, prevVal) {
     const attrNode = element.getAttributeNode(name);
-    store.subscribe((nextValue) => {
-        if (firstRender) {
-            firstRender = false;
-            return;
-        }
-        if (nextValue !== prevValue) {
-            if (renderQueue.has(attrNode)) {
-                renderQueue.set(attrNode, nextValue);
-            } else {
-                renderQueue.set(attrNode, nextValue);
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) {           
+            if (!renderQueue.has(attrNode)) {
                 scheduleRender(() => {
                     const value = renderQueue.get(attrNode);
-                    patchAttribute(element, name, prevValue, value);
+                    patchAttribute(element, name, prevVal, value);
                     renderQueue.delete(attrNode);
-                    prevValue = value;
+                    prevVal = value;
                 });
             }
+            renderQueue.set(attrNode, nextVal);
         }
     });
 }
 
 function observeNode(store) {
-    let firstRender = true;
-    let prevValue = store.get();
-    let prevNode = createNode(prevValue);
-    store.subscribe((nextValue) => {
-        if (firstRender) {
-            firstRender = false;
-            return;
-        }
-        if (nextValue !== prevValue) {
-            if (renderQueue.has(prevNode)) {
-                renderQueue.set(prevNode, nextValue);
-            } else {
-                renderQueue.set(prevNode, nextValue);
+    let prevVal = store.get();
+    let prevNode = createNode(prevVal);
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) { 
+            if (!renderQueue.has(prevNode)) {
                 scheduleRender(() => {
                     const value = renderQueue.get(prevNode);
                     renderQueue.delete(prevNode);
                     prevNode = patchNode(prevNode, value);
-                    prevValue = value;
+                    prevVal = value;
                 });
             }
+            renderQueue.set(prevNode, nextVal);
         }
     });
     return prevNode;
