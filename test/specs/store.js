@@ -313,36 +313,82 @@ describe('store', () => {
     });
 
     it('should update an event listener', (done) => {
-        const onClick = store();
-        const el = html`<div onclick=${onClick} />`;
+        const clickHandler = store();
+        const el = html`<div onclick=${clickHandler} />`;
 
-        const addEventListenerSpy = sinon.spy(el, 'addEventListener');
+        const addEventSpy = sinon.spy(el, 'addEventListener');
 
         const callback = sinon.spy();
-        onClick.set(callback);
+        clickHandler.set(callback);
 
         requestAnimationFrame(() => {
-            expect(addEventListenerSpy.callCount).to.equal(1);
-            expect(addEventListenerSpy.args[0][0]).to.equal('click');
-            expect(addEventListenerSpy.args[0][1]).to.equal(callback);
+            expect(addEventSpy.callCount).to.equal(1);
+            expect(addEventSpy.args[0][0]).to.equal('click');
+            expect(addEventSpy.args[0][1]).to.equal(callback);
             done();
         });
     });
 
     it('should remove an event listener', (done) => {
         const callback = sinon.spy();
-        const onClick = store(callback);
-        const el = html`<div onclick=${onClick} />`;
+        const clickHandler = store(callback);
+        const el = html`<div onclick=${clickHandler} />`;
 
-        const removeEventListenerSpy = sinon.spy(el, 'removeEventListener');
+        const removeEventSpy = sinon.spy(el, 'removeEventListener');
 
-        onClick.set(null);
+        clickHandler.set(null);
 
         requestAnimationFrame(() => {
-            expect(removeEventListenerSpy.callCount).to.equal(1);
-            expect(removeEventListenerSpy.args[0][0]).to.equal('click');
-            expect(removeEventListenerSpy.args[0][1]).to.equal(callback);
+            expect(removeEventSpy.callCount).to.equal(1);
+            expect(removeEventSpy.args[0][0]).to.equal('click');
+            expect(removeEventSpy.args[0][1]).to.equal(callback);
             done();
+        });
+    });
+    
+    it('should update event listeners', (done) => {
+        const clickHandler = store();
+        const el = html`<div onclick=${clickHandler} />`;
+
+        const event1 = new CustomEvent('click');
+        const onClick1 = sinon.spy();
+        const addEventSpy = sinon.spy(el, 'addEventListener');
+        const removeEventSpy = sinon.spy(el, 'removeEventListener');
+
+        clickHandler.set(onClick1);
+        requestAnimationFrame(() => {
+            el.dispatchEvent(event1);
+            expect(onClick1.callCount).to.equal(1);
+            const call1 = onClick1.getCall(0);
+            expect(call1.thisValue).to.equal(el);
+            expect(call1.args[0]).to.equal(event1);
+
+            expect(addEventSpy.callCount).to.equal(1);
+            expect(addEventSpy.args[0][0]).to.equal('click');
+            expect(addEventSpy.args[0][1]).to.equal(onClick1);
+            expect(removeEventSpy.callCount).to.equal(0);
+
+            const event2 = new CustomEvent('click');
+            const onClick2 = sinon.spy();
+
+            clickHandler.set(onClick2);
+            requestAnimationFrame(() => {
+                el.dispatchEvent(event2);
+                expect(onClick1.callCount).to.equal(1);
+                expect(onClick2.callCount).to.equal(1);
+                const call2 = onClick2.getCall(0);
+                expect(call2.thisValue).to.equal(el);
+                expect(call2.args[0]).to.equal(event2);
+
+                expect(addEventSpy.callCount).to.equal(2);
+                expect(addEventSpy.args[1][0]).to.equal('click');
+                expect(addEventSpy.args[1][1]).to.equal(onClick2);
+                expect(removeEventSpy.callCount).to.equal(1);
+                expect(removeEventSpy.args[0][0]).to.equal('click');
+                expect(removeEventSpy.args[0][1]).to.equal(onClick1);
+
+                done();
+            });
         });
     });
 
