@@ -23,7 +23,7 @@ function createElement(nodeName, attributes, ...children) {
     const element = document.createElement(nodeName);
     if (attributes) {
         for (const name in attributes) {
-            patchAttribute(element, name, attributes[name]);
+            patchAttribute(element, name, null, attributes[name]);
         }
     }
     if (children) {
@@ -55,9 +55,8 @@ function getNode(node) {
     return createNode(node);
 }
 
-function observeAttribute(element, store, name) {
+function observeAttribute(element, store, name, prevValue) {
     let firstRender = true;
-    let prevValue = store.get();
     const attrNode = element.getAttributeNode(name);
     store.subscribe((nextValue) => {
         if (firstRender) {
@@ -71,7 +70,7 @@ function observeAttribute(element, store, name) {
                 renderQueue.set(attrNode, nextValue);
                 scheduleRender(() => {
                     const value = renderQueue.get(attrNode);
-                    patchAttribute(element, name, value);
+                    patchAttribute(element, name, prevValue, value);
                     renderQueue.delete(attrNode);
                     prevValue = value;
                 });
@@ -106,14 +105,42 @@ function observeNode(store) {
     return prevNode;
 }
 
-function patchAttribute(element, name, value) {
-    if (isStore(value)) {
-        const store = value;
-        value = store.get();
-        observeAttribute(element, store, name);
+function patchAttribute(element, name, prevVal, nextVal) {
+    if (isStore(nextVal)) {
+        const store = nextVal;
+        nextVal = store.get();
+        observeAttribute(element, store, name, nextVal);
     }
-    if (value != null) {
-        element.setAttribute(name, value);
+    if (name === 'class') {
+		name = 'className';
+    }
+    if (name === 'style') {
+        if (typeof nextVal === 'string') {
+            element.style.cssText = nextVal;
+        } else {
+            for (const key in nextVal) {
+                const style = nextVal == null || nextVal[key] == null ? '' : nextVal[key];
+                if (key.includes('-')) {
+                    element.style.setProperty(key, style);
+                } else {
+                    element.style[key] = style;
+                }
+            }
+        }
+    } else if (name.startsWith('on') && (typeof prevVal === 'function' || typeof nextVal === 'function')) {
+        name = name.slice(2).toLowerCase();
+        if (nextVal) {
+            element.addEventListener(name, nextVal);
+        }
+        if (prevVal) {
+            element.removeEventListener(name, prevVal);
+        }
+    } else if (name !== 'list' && name !== 'form' && name in element) {
+        element[name] = nextVal == null ? '' : nextVal;
+    } else if (nextVal == null || nextVal === false) {
+        element.removeAttribute(name);
+    } else {
+        element.setAttribute(name, nextVal);
     }
 }
 
