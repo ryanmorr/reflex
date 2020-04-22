@@ -187,6 +187,32 @@ describe('store', () => {
         });
     });
 
+    it('should update the class attribute as an array', (done) => {
+        const className = store(['foo', 'bar']);
+        const el = html`<div class=${className}></div>`;
+        
+        expect(el.className).to.equal('foo bar');
+
+        className.set(['foo', 'baz', 'qux']);
+        requestAnimationFrame(() => {
+            expect(el.className).to.equal('foo baz qux');
+            done();
+        });
+    });
+
+    it('should update the class attribute as an object', (done) => {    
+        const className = store({foo: true, bar: true, baz: true});
+        const el = html`<div class=${className}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz');
+
+        className.set({foo: false, bar: true, baz: false, qux: true});
+        requestAnimationFrame(() => {
+            expect(el.className).to.equal('bar qux');
+            done();
+        });
+    });
+
     it('should update CSS styles as a string', (done) => {
         const style = store('width: 100px; height: 200px');
         const el = html`<div style=${style}></div>`;

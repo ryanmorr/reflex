@@ -35,6 +35,24 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div id="foo" class="bar"></div>');
     });
 
+    it('should support the class attribute as an array', () => {
+        const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz');
+    });
+
+    it('should support the class attribute as an object', () => {        
+        const el = html`<div class=${{foo: true, bar: true, baz: true}}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz');
+    });
+
+    it('should alias className to class', () => {
+        const el = html`<div className="foo"></div>`;
+        
+        expect(el.className).to.equal('foo');
+    });
+
     it('should support boolean attributes', () => {
         const el = html`<input disabled />`;
 

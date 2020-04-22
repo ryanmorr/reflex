@@ -10,6 +10,27 @@ function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
 }
 
+function createClass(obj) {
+    let output = '';
+    if (typeof obj === 'string') {
+        return obj;
+    }
+    if (Array.isArray(obj) && obj.length > 0) {
+        for (let i = 0, len = obj.length, tmp; i < len; i++) {
+            if ((tmp = createClass(obj[i])) !== '') {
+                output += (output && ' ') + tmp;
+            }
+        }
+    } else {
+        for (const cls in obj) {
+            if (obj[cls]) {
+                output += (output && ' ') + cls;
+            }
+        }
+    }
+    return output;
+}
+
 function arrayToFrag(nodes) {
     return nodes.reduce((frag, node) => {
         if (node != null) {
@@ -121,6 +142,9 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     }
     if (name === 'class') {
 		name = 'className';
+    }
+    if (name === 'class' || name === 'className') {
+        nextVal = createClass(nextVal);
     }
     if (name === 'style') {
         if (typeof nextVal === 'string') {
