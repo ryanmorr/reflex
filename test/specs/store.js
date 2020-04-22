@@ -1,14 +1,6 @@
 import { html, store } from '../../src/reflex';
 
-describe('reflex', () => {
-    it('should create a DOM element', () => {
-        const el = html`<div></div>`;
-
-        expect(el.nodeType).to.equal(1);
-        expect(el.outerHTML).to.equal('<div></div>');
-        expect(el.ownerDocument).to.equal(document);
-    });
-
+describe('store', () => {
     it('should update a text node', (done) => {
         const text = store();
         const el = html`<div>${text}</div>`;
