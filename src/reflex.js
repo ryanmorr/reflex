@@ -152,11 +152,12 @@ export function html(...args) {
 
 export const store = createStore((get, set) => (value) => {
     set(value);
+    const setValue = (val) => set(val, get());
     return {
         get,
-        set,
+        set: setValue,
         update(callback) {
-            set(callback(get()));
+            return setValue(callback(get()));
         }
     };
 });

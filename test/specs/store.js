@@ -14,10 +14,10 @@ describe('store', () => {
         
         expect(value.get()).to.equal('foo');
 
-        value.set('bar');
+        expect(value.set('bar')).to.equal('bar');
         expect(value.get()).to.equal('bar');
 
-        value.set('baz');
+        expect(value.set('baz')).to.equal('baz');
         expect(value.get()).to.equal('baz');
     });
 
@@ -26,10 +26,10 @@ describe('store', () => {
         
         expect(value.get()).to.equal(1);
 
-        value.update((val) => val + 10);
+        expect(value.update((val) => val + 10)).to.equal(11);
         expect(value.get()).to.equal(11);
 
-        value.update((val) => val + 100);
+        expect(value.update((val) => val + 100)).to.equal(111);
         expect(value.get()).to.equal(111);
     });
 
@@ -41,14 +41,17 @@ describe('store', () => {
 
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal(10);
+        expect(spy.args[0][1]).to.equal(undefined);
 
         value.set(20);
         expect(spy.callCount).to.equal(2);
         expect(spy.args[1][0]).to.equal(20);
+        expect(spy.args[1][1]).to.equal(10);
 
         value.update((val) => val + 100);
         expect(spy.callCount).to.equal(3);
         expect(spy.args[2][0]).to.equal(120);
+        expect(spy.args[2][1]).to.equal(20);
     });
 
     it('should update a text node', (done) => {
