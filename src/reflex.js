@@ -19,6 +19,21 @@ function arrayToFrag(nodes) {
     }, document.createDocumentFragment());
 }
 
+function getNodes(node) {
+    if (node.nodeType === 11) {
+        return Array.from(node.childNodes);
+    }
+    return node;
+}
+
+function clearNodes(parent, element) {
+    if (Array.isArray(element)) {
+        element.forEach((node) => parent.removeChild(node));
+    } else {
+        parent.removeChild(element);
+    }
+}
+
 function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
     const isSvg = SVG_TAGS.includes(nodeName);
@@ -60,7 +75,7 @@ function getNode(node) {
 function observeAttribute(element, store, name, prevVal, isSvg) {
     const attrNode = element.getAttributeNode(name);
     store.subscribe((nextVal) => {
-        if (nextVal !== prevVal) {           
+        if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {           
             if (!renderQueue.has(attrNode)) {
                 scheduleRender(() => {
                     const value = renderQueue.get(attrNode);
@@ -76,21 +91,26 @@ function observeAttribute(element, store, name, prevVal, isSvg) {
 
 function observeNode(store) {
     let prevVal = store.get();
-    let prevNode = createNode(prevVal);
+    const node = createNode(prevVal);
+    const marker = document.createTextNode('');
+    let prevNode = getNodes(node);
     store.subscribe((nextVal) => {
         if (nextVal !== prevVal) { 
             if (!renderQueue.has(prevNode)) {
                 scheduleRender(() => {
                     const value = renderQueue.get(prevNode);
                     renderQueue.delete(prevNode);
-                    prevNode = patchNode(prevNode, value);
+                    prevNode = patchNode(prevNode, value, marker);
                     prevVal = value;
                 });
             }
             renderQueue.set(prevNode, nextVal);
         }
     });
-    return prevNode;
+    const frag = document.createDocumentFragment();
+    frag.appendChild(node);
+    frag.appendChild(marker);
+    return frag;
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
@@ -132,17 +152,30 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     }
 }
 
-function patchNode(prevNode, nextValue) {
-    if (typeof nextValue === 'number') {
-        nextValue = String(nextValue);
+function patchNode(prevNode, nextVal, marker) {
+    if (typeof nextVal === 'number') {
+        nextVal = String(nextVal);
     }
-    if (prevNode.nodeType === 3 && typeof nextValue === 'string') {
-        prevNode.data = nextValue;
+    if (prevNode.nodeType === 3 && typeof nextVal === 'string') {
+        prevNode.data = nextVal;
         return prevNode;
     }
-    const nextNode = createNode(nextValue);
-    prevNode.replaceWith(nextNode);
-    return nextNode;
+    const parent = marker.parentNode;
+    const nextNode = createNode(nextVal);
+    const nodes = getNodes(nextNode);
+    if (Array.isArray(prevNode)) {
+        if (prevNode.length === 0) {
+            parent.insertBefore(nextNode, marker);
+        } else if (prevNode.length === 1) {
+            parent.replaceChild(nextNode, prevNode[0]);
+        } else {
+            clearNodes(parent, prevNode);
+            parent.insertBefore(nextNode, marker);
+        }
+    } else {
+        prevNode.replaceWith(nextNode);
+    }
+    return nodes;
 }
 
 export function html(...args) {

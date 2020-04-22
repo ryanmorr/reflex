@@ -80,6 +80,19 @@ describe('store', () => {
         });
     });
 
+    it('should update multiple nodes', (done) => {
+        const nodes = store();
+        const el = html`<div>${nodes}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        nodes.set(html`foo<span />bar<em />`);
+        requestAnimationFrame(() => {
+            expect(el.outerHTML).to.equal('<div>foo<span></span>bar<em></em></div>');
+            done();
+        });
+    });
+
     it('should update an attribute', (done) => {
         const attr = store();
         const el = html`<div foo=${attr}></div>`;
