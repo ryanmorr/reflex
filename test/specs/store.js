@@ -232,9 +232,9 @@ describe('store', () => {
 
         expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 5px;"></div>');
 
-        style.set({paddingTop: '7px', width: '100px'});
+        style.set({paddingTop: '7px', 'padding-left': '12px'});
         requestAnimationFrame(() => {
-            expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 7px; width: 100px;"></div>');
+            expect(el.outerHTML).to.equal('<div style="padding-top: 7px; padding-left: 12px;"></div>');
             done();
         });
     });
@@ -262,7 +262,7 @@ describe('store', () => {
             expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(255, 0, 0)');
             expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('red');
             
-            style.set({'--color': 'blue'});
+            style.set({color: 'var(--color)', '--color': 'blue'});
             requestAnimationFrame(() => {
                 expect(el.style.color).to.equal('var(--color)');
                 expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(0, 0, 255)');
@@ -345,7 +345,7 @@ describe('store', () => {
             done();
         });
     });
-    
+
     it('should update event listeners', (done) => {
         const clickHandler = store();
         const el = html`<div onclick=${clickHandler} />`;

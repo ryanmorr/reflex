@@ -150,7 +150,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
         if (typeof nextVal === 'string') {
             element.style.cssText = nextVal;
         } else {
-            for (const key in nextVal) {
+            for (const key in Object.assign({}, nextVal, prevVal)) {
                 const style = nextVal == null || nextVal[key] == null ? '' : nextVal[key];
                 if (key.includes('-')) {
                     element.style.setProperty(key, style);
