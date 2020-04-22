@@ -3,9 +3,19 @@ import createStore from '@ryanmorr/create-store';
 import { scheduleRender } from '@ryanmorr/schedule-render';
 
 const renderQueue = new Map();
+const build = htm.bind(createElement);
 
 function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
+}
+
+function arrayToFrag(nodes) {
+    return nodes.reduce((frag, node) => {
+        if (node != null) {
+            frag.appendChild(getNode(node));
+        }
+        return frag;
+    }, document.createDocumentFragment());
 }
 
 function createElement(nodeName, attributes, ...children) {
@@ -17,7 +27,7 @@ function createElement(nodeName, attributes, ...children) {
         }
     }
     if (children) {
-        children.forEach((child) => element.appendChild(getNode(child)));
+        element.appendChild(arrayToFrag(children));
     }
     return element;
 }
@@ -31,6 +41,9 @@ function createNode(value) {
     }
     if (typeof value === 'string') {
         return document.createTextNode(value);
+    }
+    if (Array.isArray(value)) {
+        return arrayToFrag(value);
     }
     return value;
 }
@@ -117,7 +130,10 @@ function patchNode(prevNode, nextValue) {
     return nextNode;
 }
 
-export const html = htm.bind(createElement);
+export function html(...args) {
+    const result = build(...args);
+    return Array.isArray(result) ? arrayToFrag(result) : getNode(result);
+}
 
 export const store = createStore((get, set) => (value) => {
     set(value);
