@@ -1,6 +1,7 @@
 import htm from 'htm';
 import createStore from '@ryanmorr/create-store';
 import { scheduleRender } from '@ryanmorr/schedule-render';
+import SVG_TAGS from './svg-tags';
 
 const renderQueue = new Map();
 const build = htm.bind(createElement);
@@ -20,10 +21,11 @@ function arrayToFrag(nodes) {
 
 function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
-    const element = document.createElement(nodeName);
+    const isSvg = SVG_TAGS.includes(nodeName);
+    const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
     if (attributes) {
         for (const name in attributes) {
-            patchAttribute(element, name, null, attributes[name]);
+            patchAttribute(element, name, null, attributes[name], isSvg);
         }
     }
     if (children) {
@@ -55,14 +57,14 @@ function getNode(node) {
     return createNode(node);
 }
 
-function observeAttribute(element, store, name, prevVal) {
+function observeAttribute(element, store, name, prevVal, isSvg) {
     const attrNode = element.getAttributeNode(name);
     store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {           
             if (!renderQueue.has(attrNode)) {
                 scheduleRender(() => {
                     const value = renderQueue.get(attrNode);
-                    patchAttribute(element, name, prevVal, value);
+                    patchAttribute(element, name, prevVal, value, isSvg);
                     renderQueue.delete(attrNode);
                     prevVal = value;
                 });
@@ -91,11 +93,11 @@ function observeNode(store) {
     return prevNode;
 }
 
-function patchAttribute(element, name, prevVal, nextVal) {
+function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     if (isStore(nextVal)) {
         const store = nextVal;
         nextVal = store.get();
-        observeAttribute(element, store, name, nextVal);
+        observeAttribute(element, store, name, nextVal, isSvg);
     }
     if (name === 'class') {
 		name = 'className';
@@ -121,7 +123,7 @@ function patchAttribute(element, name, prevVal, nextVal) {
         if (prevVal) {
             element.removeEventListener(name, prevVal);
         }
-    } else if (name !== 'list' && name !== 'form' && name in element) {
+    } else if (!isSvg && name !== 'list' && name !== 'form' && name in element) {
         element[name] = nextVal == null ? '' : nextVal;
     } else if (nextVal == null || nextVal === false) {
         element.removeAttribute(name);
