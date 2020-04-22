@@ -66,9 +66,21 @@ describe('html', () => {
     });
 
     it('should support DOM properties', () => {
-        let el = html`<input type="text" value="foo" />`;
+        const el = html`<input type="text" value="foo" />`;
 
         expect(el.value).to.equal('foo');
+    });
+
+    it('should support the input list attribute', () => {
+        const el = html`<input list="foo" />`;
+
+        expect(el.outerHTML).to.equal('<input list="foo">');
+    });
+
+    it('should support the input form attribute', () => {
+        const el = html`<input form="foo" />`;
+
+        expect(el.outerHTML).to.equal('<input form="foo">');
     });
 
     it('should support event listeners', (done) => {
