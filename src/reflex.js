@@ -155,5 +155,8 @@ export const store = createStore((get, set) => (value) => {
     return {
         get,
         set,
+        update(callback) {
+            set(callback(get()));
+        }
     };
 });
