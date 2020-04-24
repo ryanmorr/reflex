@@ -3,7 +3,7 @@ import { html, store, derived } from '../../src/reflex';
 describe('derived', () => {
     it('should get the internal value derived from a store dependency', () => {
         const foo = store('foo');
-        const computed = derived([foo], ([val]) => val + 'bar');
+        const computed = derived(foo, (val) => val + 'bar');
 
         expect(computed.get()).to.equal('foobar');
     });
@@ -12,7 +12,7 @@ describe('derived', () => {
         const foo = store('foo');
         const bar = store('bar');
         const baz = store('baz');
-        const computed = derived([foo, bar, baz], ([foo, bar, baz]) => foo + bar + baz);
+        const computed = derived(foo, bar, baz, (foo, bar, baz) => foo + bar + baz);
 
         expect(computed.get()).to.equal('foobarbaz');
     });
@@ -20,7 +20,7 @@ describe('derived', () => {
     it('should not be able to explicitly set the internal value', () => {
         const foo = store('foo');
         const bar = store('bar');
-        const computed = derived([foo, bar], ([foo, bar]) => foo + bar);
+        const computed = derived(foo, bar, (foo, bar) => foo + bar);
 
         expect(computed.set).to.equal(undefined);
         expect(computed.update).to.equal(undefined);
@@ -29,7 +29,7 @@ describe('derived', () => {
     it('should automatically update the internal value if a dependency changes', () => {
         const firstName = store('John');
         const lastName = store('Doe');
-        const fullName = derived([firstName, lastName], ([firstName, lastName]) => `${firstName} ${lastName}`);
+        const fullName = derived(firstName, lastName, (firstName, lastName) => `${firstName} ${lastName}`);
 
         expect(fullName.get()).to.equal('John Doe');
 
@@ -43,7 +43,7 @@ describe('derived', () => {
     it('should call subscribers immediately and when the internal value changes', () => {
         const foo = store(10);
         const bar = store(20);
-        const computed = derived([foo, bar], ([foo, bar]) => foo + bar);
+        const computed = derived(foo, bar, (foo, bar) => foo + bar);
         
         const spy = sinon.spy();
         computed.subscribe(spy);
@@ -68,8 +68,8 @@ describe('derived', () => {
         const bar = store('b');
         const baz = store('c');
 
-        const fooBar = derived([foo, bar], ([a, b]) => a + b);
-        const value = derived([fooBar, baz], ([a, b]) => a + b);
+        const fooBar = derived(foo, bar, (a, b) => a + b);
+        const value = derived(fooBar, baz, (a, b) => a + b);
 
         const fooBarSpy = sinon.spy();
         const valueSpy = sinon.spy();
@@ -99,8 +99,8 @@ describe('derived', () => {
 
     it('should update elements', (done) => {
         const title = store('foo');
-        const h1 = derived([title], ([title]) => html`<h1>${title}</h1>`);
-        const section = derived([h1], ([h1]) => html`<section>${h1}</section>`);
+        const h1 = derived(title, (title) => html`<h1>${title}</h1>`);
+        const section = derived(h1, (h1) => html`<section>${h1}</section>`);
         const el = html`<div>${section}</div>`;
 
         expect(el.outerHTML).to.equal('<div><section><h1>foo</h1></section></div>');
@@ -119,7 +119,7 @@ describe('derived', () => {
 
     it('should update element attributes', (done) => {
         const className = store('bar');
-        const el = html`<div class=${derived([className], (cls) => `foo ${cls}`)}></div>`;
+        const el = html`<div class=${derived(className, (cls) => `foo ${cls}`)}></div>`;
     
         expect(el.outerHTML).to.equal('<div class="foo bar"></div>');
     
