@@ -219,24 +219,19 @@ export const store = createStore((get, set) => (value) => {
     };
 });
 
-/* export const derived = createStore((get, set) => (deps, callback) => {
-    deps.forEach((dep) => dep.subscribe(() => {
-        const prevValue = get();
-        const args = deps.map((dep) => dep.get());
-        set(callback(args), prevValue);
-    }));
-    return {
-        get
-    };
-}); */
-
 export const derived = createStore((get, set) => (...deps) => {
+    let initialized = false;
     const callback = deps.pop();
-    deps.forEach((dep) => dep.subscribe(() => {
-        const prevValue = get();
-        const args = deps.map((dep) => dep.get());
-        set(callback(...args), prevValue);
+    const values = [];
+    const sync = () => set(callback(...values), get());
+    deps.forEach((dep, i) => dep.subscribe((value) => {
+        values[i] = value;
+        if (initialized) {
+            sync();
+        }
     }));
+    initialized = true;
+    sync();
     return {
         get
     };
