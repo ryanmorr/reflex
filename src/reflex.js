@@ -229,6 +229,13 @@ export function bind(store) {
                         store.set(el.checked);
                     });
                 }
+            } else if (el.nodeName === 'TEXTAREA') {
+                store.subscribe((val) => {
+                    el.value = val;
+                });
+                el.addEventListener('input', () => {
+                    store.set(el.value);
+                });
             }
         }
     };
