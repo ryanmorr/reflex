@@ -11,7 +11,7 @@ function isStore(obj) {
 }
 
 function isBinding(obj) {
-    return obj && typeof obj.bind === 'function';
+    return obj && typeof obj.bindElement === 'function';
 }
 
 function createClass(obj) {
@@ -140,7 +140,7 @@ function observeNode(store) {
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     if (isBinding(nextVal)) {
-        nextVal.bind(element, name);
+        nextVal.bindElement(element, name);
         return;
     }
     if (isStore(nextVal)) {
@@ -212,14 +212,23 @@ function patchNode(prevNode, nextVal, marker) {
 
 export function bind(store) {
     return {
-        bind(el, name) {
-            if (el.nodeName === 'INPUT' && name === 'value') {
-                store.subscribe((val) => {
-                    el.value = val;
-                });
-                el.addEventListener('input', () => {
-                    store.set(el.value);
-                });
+        bindElement(el, name) {
+            if (el.nodeName === 'INPUT') {
+                if (el.type === 'text' && name === 'value') {
+                    store.subscribe((val) => {
+                        el.value = val;
+                    });
+                    el.addEventListener('input', () => {
+                        store.set(el.value);
+                    });
+                } else if (el.type === 'checkbox' && name === 'checked') {
+                    store.subscribe((val) => {
+                        el.checked = val;
+                    });
+                    el.addEventListener('change', () => {
+                        store.set(el.checked);
+                    });
+                }
             }
         }
     };
