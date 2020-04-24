@@ -10,6 +10,10 @@ function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
 }
 
+function isBinding(obj) {
+    return obj && typeof obj.bind === 'function';
+}
+
 function createClass(obj) {
     let output = '';
     if (typeof obj === 'string') {
@@ -135,6 +139,10 @@ function observeNode(store) {
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
+    if (isBinding(nextVal)) {
+        nextVal.bind(element, name);
+        return;
+    }
     if (isStore(nextVal)) {
         const store = nextVal;
         nextVal = store.get();
@@ -200,6 +208,21 @@ function patchNode(prevNode, nextVal, marker) {
         prevNode.replaceWith(nextNode);
     }
     return nodes;
+}
+
+export function bind(store) {
+    return {
+        bind(el, name) {
+            if (el.nodeName === 'INPUT' && name === 'value') {
+                store.subscribe((val) => {
+                    el.value = val;
+                });
+                el.addEventListener('input', () => {
+                    store.set(el.value);
+                });
+            }
+        }
+    };
 }
 
 export function html(...args) {
