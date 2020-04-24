@@ -221,7 +221,7 @@ export function bind(store) {
                     el.addEventListener('input', () => {
                         store.set(el.value);
                     });
-                } else if (el.type === 'checkbox' && name === 'checked') {
+                } else if ((el.type === 'checkbox' || el.type === 'radio') && name === 'checked') {
                     store.subscribe((val) => {
                         el.checked = val;
                     });
