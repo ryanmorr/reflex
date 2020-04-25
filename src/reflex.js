@@ -63,14 +63,21 @@ function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
     const isSvg = SVG_TAGS.includes(nodeName);
     const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
+
+    if (children) {
+        element.appendChild(arrayToFrag(children));
+    }
+
     if (attributes) {
         for (const name in attributes) {
             patchAttribute(element, name, null, attributes[name], isSvg);
         }
     }
-    if (children) {
+
+    /* if (children) {
         element.appendChild(arrayToFrag(children));
-    }
+    } */
+    
     return element;
 }
 
@@ -243,6 +250,35 @@ export function bind(store) {
                 el.addEventListener('input', () => {
                     store.set(el.value);
                 });
+            } else if (el.nodeName === 'SELECT') {
+                if (el.type === 'select-multiple') {
+                    store.subscribe((val) => {
+                        Array.from(el.options).forEach((option) => {
+                            if (val.includes(option.value)) {
+                                option.selected = true;
+                            }
+                        });
+                    });
+                    el.addEventListener('input', () => {
+                        const options = el.selectedOptions;
+                        if (options) {
+                            store.set(Array.from(options).map((option) => option.value));
+                        }
+                    });
+                } else {
+                    store.subscribe((val) => {
+                        const option = el.querySelector(`option[value="${val}"]`);
+                        if (option) {
+                            option.selected = true;
+                        }
+                    });
+                    el.addEventListener('input', () => {
+                        const option = el.options[el.selectedIndex];
+                        if (option) {
+                            store.set(option.value);
+                        }
+                    });
+                }
             }
         }
     };
