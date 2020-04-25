@@ -221,6 +221,13 @@ export function bind(store) {
                     el.addEventListener('input', () => {
                         store.set(el.value);
                     });
+                } else if (el.type === 'number' || el.type === 'range') {
+                    store.subscribe((val) => {
+                        el.value = val;
+                    });
+                    el.addEventListener('input', () => {
+                        store.set(Number(el.value));
+                    });
                 } else if ((el.type === 'checkbox' || el.type === 'radio') && name === 'checked') {
                     store.subscribe((val) => {
                         el.checked = val;
