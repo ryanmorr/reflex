@@ -3,6 +3,7 @@ import createStore from '@ryanmorr/create-store';
 import { scheduleRender } from '@ryanmorr/schedule-render';
 import SVG_TAGS from './svg-tags';
 
+const BINDING = Symbol('binding');
 const renderQueue = new Map();
 const build = htm.bind(createElement);
 
@@ -11,7 +12,7 @@ function isStore(obj) {
 }
 
 function isBinding(obj) {
-    return obj && typeof obj.bindElement === 'function';
+    return obj && obj[BINDING] === true;
 }
 
 function createClass(obj) {
@@ -63,21 +64,14 @@ function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
     const isSvg = SVG_TAGS.includes(nodeName);
     const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
-
     if (children) {
         element.appendChild(arrayToFrag(children));
     }
-
     if (attributes) {
         for (const name in attributes) {
             patchAttribute(element, name, null, attributes[name], isSvg);
         }
     }
-
-    /* if (children) {
-        element.appendChild(arrayToFrag(children));
-    } */
-    
     return element;
 }
 
@@ -147,8 +141,7 @@ function observeNode(store) {
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     if (isBinding(nextVal)) {
-        nextVal.bindElement(element, name);
-        return;
+        return nextVal(element, name);
     }
     if (isStore(nextVal)) {
         const store = nextVal;
@@ -217,71 +210,72 @@ function patchNode(prevNode, nextVal, marker) {
     return nodes;
 }
 
+function bindInput(el, store) {
+    store.subscribe((value) => (el.value = value));
+    el.addEventListener('input', () => store.set(el.value));
+}
+
+function bindNumericInput(el, store) {
+    store.subscribe((value) => (el.value = value));
+    el.addEventListener('input', () => store.set(Number(el.value)));
+}
+
+function bindSelect(el, store) {
+    store.subscribe((value) => {
+        for (let i = 0; i < el.options.length; i++) {
+            const option = el.options[i];
+            if (option.value === value) {
+                option.selected = true;
+                return;
+            }
+        }
+    });
+    el.addEventListener('input', () => {
+        const option = el.options[el.selectedIndex];
+        if (option) {
+            store.set(option.value);
+        }
+    });
+}
+
+function bindSelectMultiple(el, store) {
+    store.subscribe((value) => {
+        for (let i = 0; i < el.options.length; i++) {
+            const option = el.options[i];
+            option.selected = ~value.indexOf(option.value);
+        }
+    });
+    el.addEventListener('input', () => store.set(Array.from(el.selectedOptions).map((option) => option.value)));
+}
+
+function bindCheckboxAndRadio(el, store) {
+    store.subscribe((value) => (el.checked = value));
+    el.addEventListener('change', () => store.set(el.checked));
+}
+
 export function bind(store) {
-    return {
-        bindElement(el, name) {
-            if (el.nodeName === 'INPUT') {
-                if (el.type === 'text' && name === 'value') {
-                    store.subscribe((val) => {
-                        el.value = val;
-                    });
-                    el.addEventListener('input', () => {
-                        store.set(el.value);
-                    });
-                } else if (el.type === 'number' || el.type === 'range') {
-                    store.subscribe((val) => {
-                        el.value = val;
-                    });
-                    el.addEventListener('input', () => {
-                        store.set(Number(el.value));
-                    });
-                } else if ((el.type === 'checkbox' || el.type === 'radio') && name === 'checked') {
-                    store.subscribe((val) => {
-                        el.checked = val;
-                    });
-                    el.addEventListener('change', () => {
-                        store.set(el.checked);
-                    });
+    const binding = (el, name) => {
+        const nodeName = el.nodeName.toLowerCase();
+        if (nodeName === 'textarea' && name === 'value') {
+            return bindInput(el, store);
+        } else if (nodeName === 'select' && name === 'value') {
+            if (el.type === 'select-multiple') {
+                return bindSelectMultiple(el, store);
+            }
+            return bindSelect(el, store);
+        } else if (nodeName === 'input') {
+            if ((el.type === 'checkbox' || el.type === 'radio') && name === 'checked') {
+                return bindCheckboxAndRadio(el, store);
+            } else if (name === 'value') {
+                if (el.type === 'number' || el.type === 'range') {
+                    return bindNumericInput(el, store);
                 }
-            } else if (el.nodeName === 'TEXTAREA') {
-                store.subscribe((val) => {
-                    el.value = val;
-                });
-                el.addEventListener('input', () => {
-                    store.set(el.value);
-                });
-            } else if (el.nodeName === 'SELECT') {
-                if (el.type === 'select-multiple') {
-                    store.subscribe((val) => {
-                        Array.from(el.options).forEach((option) => {
-                            if (val.includes(option.value)) {
-                                option.selected = true;
-                            }
-                        });
-                    });
-                    el.addEventListener('input', () => {
-                        const options = el.selectedOptions;
-                        if (options) {
-                            store.set(Array.from(options).map((option) => option.value));
-                        }
-                    });
-                } else {
-                    store.subscribe((val) => {
-                        const option = el.querySelector(`option[value="${val}"]`);
-                        if (option) {
-                            option.selected = true;
-                        }
-                    });
-                    el.addEventListener('input', () => {
-                        const option = el.options[el.selectedIndex];
-                        if (option) {
-                            store.set(option.value);
-                        }
-                    });
-                }
+                return bindInput(el, store);
             }
         }
     };
+    binding[BINDING] = true;
+    return binding;
 }
 
 export function html(...args) {

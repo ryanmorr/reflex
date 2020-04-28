@@ -172,4 +172,108 @@ describe('bind', () => {
         el.options[3].selected = true;
         el.dispatchEvent(new Event('input'));
     });
+
+    it('should support two-way binding for checkbox groups', (done) => {
+        const foo = store(true);
+        const bar = store(false);
+        const baz = store(false);
+        const qux = store(false);
+    
+        const el = html`
+            <input type="checkbox" name="example" value="foo" checked=${bind(foo)} />
+            <input type="checkbox" name="example" value="bar" checked=${bind(bar)} />
+            <input type="checkbox" name="example" value="baz" checked=${bind(baz)} />
+            <input type="checkbox" name="example" value="qux" checked=${bind(qux)} />
+        `;
+
+        const fooInput = el.children[0];
+        const barInput = el.children[1];
+        const bazInput = el.children[2];
+        const quxInput = el.children[3];
+
+        document.body.appendChild(el);
+    
+        expect(fooInput.checked).to.equal(true);
+        expect(barInput.checked).to.equal(false);
+        expect(bazInput.checked).to.equal(false);
+        expect(quxInput.checked).to.equal(false);
+    
+        baz.set(true);
+        expect(fooInput.checked).to.equal(true);
+        expect(barInput.checked).to.equal(false);
+        expect(bazInput.checked).to.equal(true);
+        expect(quxInput.checked).to.equal(false);
+    
+        quxInput.addEventListener('change', () => {
+            expect(foo.get()).to.deep.equal(false);
+            expect(bar.get()).to.deep.equal(true);
+            expect(baz.get()).to.deep.equal(false);
+            expect(qux.get()).to.deep.equal(true);
+            expect(fooInput.checked).to.equal(false);
+            expect(barInput.checked).to.equal(true);
+            expect(bazInput.checked).to.equal(false);
+            expect(quxInput.checked).to.equal(true);
+
+            fooInput.remove();
+            barInput.remove();
+            bazInput.remove();
+            quxInput.remove();
+            done();
+        });
+        
+        fooInput.checked = false;
+        barInput.checked = true;
+        bazInput.checked = false;
+        quxInput.checked = true;
+        fooInput.dispatchEvent(new Event('change'));
+        barInput.dispatchEvent(new Event('change'));
+        bazInput.dispatchEvent(new Event('change'));
+        quxInput.dispatchEvent(new Event('change'));
+    });
+
+    it('should support two-way binding for radio button groups', (done) => {
+        const foo = store(false);
+        const bar = store(true);
+        const baz = store(false);
+    
+        const el = html`
+            <input type="radio" name="example" value="foo" checked=${bind(foo)} />
+            <input type="radio" name="example" value="bar" checked=${bind(bar)} />
+            <input type="radio" name="example" value="baz" checked=${bind(baz)} />
+        `;
+
+        const fooInput = el.children[0];
+        const barInput = el.children[1];
+        const bazInput = el.children[2];
+
+        document.body.appendChild(el);
+    
+        expect(fooInput.checked).to.equal(false);
+        expect(barInput.checked).to.equal(true);
+        expect(bazInput.checked).to.equal(false);
+    
+        foo.set(true);
+        expect(fooInput.checked).to.equal(true);
+        expect(barInput.checked).to.equal(false);
+        expect(bazInput.checked).to.equal(false);
+    
+        bazInput.addEventListener('change', () => {
+            expect(foo.get()).to.equal(false);
+            expect(bar.get()).to.equal(false);
+            expect(baz.get()).to.equal(true);
+            expect(fooInput.checked).to.equal(false);
+            expect(barInput.checked).to.equal(false);
+            expect(bazInput.checked).to.equal(true);
+
+            fooInput.remove();
+            barInput.remove();
+            bazInput.remove();
+            done();
+        });
+        
+        bazInput.checked = true;
+        fooInput.dispatchEvent(new Event('change'));
+        barInput.dispatchEvent(new Event('change'));
+        bazInput.dispatchEvent(new Event('change'));
+    });
 });
