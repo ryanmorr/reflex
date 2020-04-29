@@ -1,3 +1,4 @@
+import { waitForRender } from '../setup';
 import { html, store } from '../../src/reflex';
 
 describe('store', () => {
@@ -61,11 +62,11 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div></div>');
 
         text.set('foo');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
             
             text.set('bar');
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div>bar</div>');
                 done();
             });
@@ -79,11 +80,11 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div></div>');
 
         child.set(html`<span />`);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div><span></span></div>');
             
             child.set(html`<em />`);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div><em></em></div>');
                 done();
             });
@@ -97,11 +98,11 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div></div>');
 
         nodes.set(html`foo<span />bar<em />`);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div>foo<span></span>bar<em></em></div>');
             
             nodes.set(html`<i />foo`);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div><i></i>foo</div>');
                 done();
             });
@@ -115,23 +116,23 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
         node.set(null);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div></div>');
 
             node.set(html`<span />`);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div><span></span></div>');
                 
                 node.set(undefined);
-                requestAnimationFrame(() => {
+                waitForRender(() => {
                     expect(el.outerHTML).to.equal('<div></div>');
                     
                     node.set(html`<em />foo<i />`);
-                    requestAnimationFrame(() => {
+                    waitForRender(() => {
                         expect(el.outerHTML).to.equal('<div><em></em>foo<i></i></div>');
                         
                         node.set(null);
-                        requestAnimationFrame(() => {
+                        waitForRender(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
                             done();
                         });
@@ -148,7 +149,7 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div></div>');
 
         attr.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div foo="bar"></div>');
             done();
         });
@@ -161,23 +162,23 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
 
         attr.set(null);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div></div>');
             
             attr.set('baz');
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div foo="baz"></div>');
                 
                 attr.set(undefined);
-                requestAnimationFrame(() => {
+                waitForRender(() => {
                     expect(el.outerHTML).to.equal('<div></div>');
                     
                     attr.set('qux');
-                    requestAnimationFrame(() => {
+                    waitForRender(() => {
                         expect(el.outerHTML).to.equal('<div foo="qux"></div>');
                         
                         attr.set(false);
-                        requestAnimationFrame(() => {
+                        waitForRender(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
                             done();
                         });
@@ -194,7 +195,7 @@ describe('store', () => {
         expect(el.className).to.equal('foo bar');
 
         className.set(['foo', 'baz', 'qux']);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.className).to.equal('foo baz qux');
             done();
         });
@@ -207,7 +208,7 @@ describe('store', () => {
         expect(el.className).to.equal('foo bar baz');
 
         className.set({foo: false, bar: true, baz: false, qux: true});
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.className).to.equal('bar qux');
             done();
         });
@@ -220,7 +221,7 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div style="width: 100px; height: 200px;"></div>');
 
         style.set('width: 150px; background-color: rgb(20, 20, 20);');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div style="width: 150px; background-color: rgb(20, 20, 20);"></div>');
             done();
         });
@@ -233,7 +234,7 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 5px;"></div>');
 
         style.set({paddingTop: '7px', 'padding-left': '12px'});
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div style="padding-top: 7px; padding-left: 12px;"></div>');
             done();
         });
@@ -246,7 +247,7 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div style="width: 100px;"></div>');
 
         style.set({width: null});
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div style=""></div>');
             done();
         });
@@ -257,13 +258,13 @@ describe('store', () => {
         const el = html`<div style=${style}></div>`;
 
         document.body.appendChild(el);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.style.color).to.equal('var(--color)');
             expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(255, 0, 0)');
             expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('red');
             
             style.set({color: 'var(--color)', '--color': 'blue'});
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.style.color).to.equal('var(--color)');
                 expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(0, 0, 255)');
                 expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('blue');
@@ -282,11 +283,11 @@ describe('store', () => {
         expect(el.checked).to.equal(true);
 
         checked.set(false);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.checked).to.equal(false);
 
             checked.set(true);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.checked).to.equal(true);
                 done();
             });
@@ -301,11 +302,11 @@ describe('store', () => {
         expect(el.value).to.equal('foo');
 
         value.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('bar');
 
             value.set('baz');
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.value).to.equal('baz');
                 done();
             });
@@ -321,7 +322,7 @@ describe('store', () => {
         const callback = sinon.spy();
         clickHandler.set(callback);
 
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(addEventSpy.callCount).to.equal(1);
             expect(addEventSpy.args[0][0]).to.equal('click');
             expect(addEventSpy.args[0][1]).to.equal(callback);
@@ -338,7 +339,7 @@ describe('store', () => {
 
         clickHandler.set(null);
 
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(removeEventSpy.callCount).to.equal(1);
             expect(removeEventSpy.args[0][0]).to.equal('click');
             expect(removeEventSpy.args[0][1]).to.equal(callback);
@@ -356,7 +357,7 @@ describe('store', () => {
         const removeEventSpy = sinon.spy(el, 'removeEventListener');
 
         clickHandler.set(onClick1);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             el.dispatchEvent(event1);
             expect(onClick1.callCount).to.equal(1);
             const call1 = onClick1.getCall(0);
@@ -372,7 +373,7 @@ describe('store', () => {
             const onClick2 = sinon.spy();
 
             clickHandler.set(onClick2);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 el.dispatchEvent(event2);
                 expect(onClick1.callCount).to.equal(1);
                 expect(onClick2.callCount).to.equal(1);
@@ -409,7 +410,7 @@ describe('store', () => {
         expect(el.childNodes[5]).to.equal(p);
 
         child.set(html`<section />`);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div>foo<span></span><section></section>baz<em></em><p></p></div>');
             expect(el.childNodes[0]).to.equal(foo);
             expect(el.childNodes[1]).to.equal(span);
@@ -418,7 +419,7 @@ describe('store', () => {
             expect(el.childNodes[5]).to.equal(p);
 
             child.set(html`<h1 /><h2 /><h3 />`);
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(el.outerHTML).to.equal('<div>foo<span></span><h1></h1><h2></h2><h3></h3>baz<em></em><p></p></div>');
                 expect(el.childNodes[0]).to.equal(foo);
                 expect(el.childNodes[1]).to.equal(span);
@@ -439,7 +440,7 @@ describe('store', () => {
         expect(el.outerHTML).to.equal('<div>fooabcbar</div>');
 
         text.set(123);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.outerHTML).to.equal('<div>foo123bar</div>');
             expect(el.childNodes[0]).to.equal(foo);
             expect(el.childNodes[2]).to.equal(baz);
@@ -456,12 +457,12 @@ describe('store', () => {
         expect(span.outerHTML).to.equal('<span>foo</span>');
 
         text.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(div.outerHTML).to.equal('<div>bar</div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
 
             text.set('baz');
-            requestAnimationFrame(() => {
+            waitForRender(() => {
                 expect(div.outerHTML).to.equal('<div>baz</div>');
                 expect(span.outerHTML).to.equal('<span>baz</span>');
                 done();

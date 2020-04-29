@@ -1,3 +1,4 @@
+import { waitForRender } from '../setup';
 import { html, store, bind } from '../../src/reflex';
 
 describe('bind', () => {
@@ -8,7 +9,7 @@ describe('bind', () => {
         expect(el.value).to.equal('foo');
 
         value.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
@@ -28,7 +29,7 @@ describe('bind', () => {
         expect(el.value).to.equal('2');
 
         value.set(8);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
@@ -48,7 +49,7 @@ describe('bind', () => {
         expect(el.value).to.equal('2');
 
         value.set(8);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
@@ -68,7 +69,7 @@ describe('bind', () => {
         expect(el.checked).to.equal(true);
 
         checked.set(false);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
@@ -88,7 +89,7 @@ describe('bind', () => {
         expect(el.checked).to.equal(true);
 
         checked.set(false);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
@@ -108,7 +109,7 @@ describe('bind', () => {
         expect(el.value).to.equal('foo');
 
         value.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
@@ -137,7 +138,7 @@ describe('bind', () => {
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
         value.set('bar');
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(el.value).to.equal('bar');
             expect(el.selectedIndex).to.equal(1);
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1]]);
@@ -172,7 +173,7 @@ describe('bind', () => {
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
         value.set(['foo', 'baz']);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0], el.options[2]]);
         
             el.addEventListener('input', () => {
@@ -215,7 +216,7 @@ describe('bind', () => {
         expect(quxInput.checked).to.equal(false);
     
         baz.set(true);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(fooInput.checked).to.equal(true);
             expect(barInput.checked).to.equal(false);
             expect(bazInput.checked).to.equal(true);
@@ -271,7 +272,7 @@ describe('bind', () => {
         expect(bazInput.checked).to.equal(false);
     
         foo.set(true);
-        requestAnimationFrame(() => {
+        waitForRender(() => {
             expect(fooInput.checked).to.equal(true);
             expect(barInput.checked).to.equal(false);
             expect(bazInput.checked).to.equal(false);
