@@ -133,6 +133,10 @@ function clearNodes(parent, element) {
 
 function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
+    if (typeof nodeName === 'function') {
+        attributes.children = children;
+        return nodeName(attributes);
+    }
     const isSvg = SVG_TAGS.includes(nodeName);
     const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
     if (children) {

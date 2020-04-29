@@ -250,4 +250,23 @@ describe('html', () => {
         expect(circle.getAttribute('textContent')).to.equal('foo');
         expect(circle.textContent).to.equal('');
     });
+
+    it('should support stateless functional components', () => {
+        const Component = sinon.spy(({foo, bar, children}) => html`<div foo=${foo} bar=${bar}>${children}</div>`);
+
+        const el = html`
+            <${Component} foo="abc" bar=${123}>
+                <span>baz</span>
+            <//>
+        `;
+
+        expect(Component.callCount).to.equal(1);
+        expect(Component.args[0][0]).to.be.a('object');
+        expect(Component.args[0][0].foo).to.equal('abc');
+        expect(Component.args[0][0].bar).to.equal(123);
+        expect(Component.args[0][0].children).to.be.an('array');
+        expect(Component.args[0][0].children).to.have.length(1);
+        expect(Component.args[0][0].children[0].outerHTML).to.equal('<span>baz</span>');
+        expect(el.outerHTML).to.equal('<div foo="abc" bar="123"><span>baz</span></div>');
+    });
 });
