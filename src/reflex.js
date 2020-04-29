@@ -7,6 +7,10 @@ const BINDING = Symbol('binding');
 const renderQueue = new Map();
 const build = htm.bind(createElement);
 
+function uuid() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
 function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
 }
@@ -98,39 +102,41 @@ function getNode(node) {
     return createNode(node);
 }
 
+function queue(key, value, callback) {
+    if (!renderQueue.has(key)) {
+        scheduleRender(() => {
+            const val = renderQueue.get(key);
+            renderQueue.delete(key);
+            callback(val);
+        });
+    }
+    renderQueue.set(key, value);
+}
+
 function observeAttribute(element, store, name, prevVal, isSvg) {
-    const attrNode = element.getAttributeNode(name);
+    const key = uuid();
     store.subscribe((nextVal) => {
         if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {           
-            if (!renderQueue.has(attrNode)) {
-                scheduleRender(() => {
-                    const value = renderQueue.get(attrNode);
-                    patchAttribute(element, name, prevVal, value, isSvg);
-                    renderQueue.delete(attrNode);
-                    prevVal = value;
-                });
-            }
-            renderQueue.set(attrNode, nextVal);
+            queue(key, nextVal, (value) => {
+                patchAttribute(element, name, prevVal, value, isSvg);
+                prevVal = value;
+            });
         }
     });
 }
 
 function observeNode(store) {
     let prevVal = store.get();
+    const key = uuid();
     const node = createNode(prevVal);
     const marker = document.createTextNode('');
     let prevNode = getNodes(node);
     store.subscribe((nextVal) => {
         if (nextVal !== prevVal) { 
-            if (!renderQueue.has(prevNode)) {
-                scheduleRender(() => {
-                    const value = renderQueue.get(prevNode);
-                    renderQueue.delete(prevNode);
-                    prevNode = patchNode(prevNode, value, marker);
-                    prevVal = value;
-                });
-            }
-            renderQueue.set(prevNode, nextVal);
+            queue(key, nextVal, (value) => {
+                prevNode = patchNode(prevNode, value, marker);
+                prevVal = value;
+            });
         }
     });
     const frag = document.createDocumentFragment();
@@ -211,62 +217,132 @@ function patchNode(prevNode, nextVal, marker) {
 }
 
 function bindInput(el, store) {
-    store.subscribe((value) => (el.value = value));
-    el.addEventListener('input', () => store.set(el.value));
+    let prevVal = store.get();
+    if (prevVal == null) {
+        prevVal = '';
+    }
+    const key = uuid();
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) {
+            queue(key, nextVal, (value) => {
+                el.value = prevVal = value;
+            });
+        }
+    });
+    el.addEventListener('input', () => {
+        prevVal = el.value;
+        store.set(prevVal);
+    });
+    el.value = prevVal;
 }
 
 function bindNumericInput(el, store) {
-    store.subscribe((value) => (el.value = value));
-    el.addEventListener('input', () => store.set(Number(el.value)));
+    let prevVal = store.get();
+    if (prevVal == null) {
+        prevVal = 0;
+    }
+    const key = uuid();
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) {
+            queue(key, nextVal, (value) => {
+                el.value = prevVal = value;
+            });
+        }
+    });
+    el.addEventListener('input', () => {
+        prevVal = Number(el.value);
+        store.set(prevVal);
+    });
+    el.value = prevVal;
+}
+
+function bindCheckboxAndRadio(el, store) {
+    let prevVal = store.get();
+    if (prevVal == null) {
+        prevVal = false;
+    }
+    const key = uuid();
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) {
+            queue(key, nextVal, (value) => {
+                el.checked = prevVal = value;
+            });
+        }
+    });
+    el.addEventListener('change', () => {
+        prevVal = el.checked;
+        store.set(prevVal);
+    });
+    el.checked = prevVal;
 }
 
 function bindSelect(el, store) {
-    store.subscribe((value) => {
+    let prevVal = store.get();
+    if (prevVal == null) {
+        prevVal = '';
+    }
+    const key = uuid();
+    const setValue = (value) => {
         for (let i = 0; i < el.options.length; i++) {
             const option = el.options[i];
             if (option.value === value) {
                 option.selected = true;
+                prevVal = value;
                 return;
             }
+        }
+    };
+    store.subscribe((nextVal) => {
+        if (nextVal !== prevVal) {
+            queue(key, nextVal, setValue);
         }
     });
     el.addEventListener('input', () => {
         const option = el.options[el.selectedIndex];
         if (option) {
-            store.set(option.value);
+            prevVal = option.value;
+            store.set(prevVal);
         }
     });
+    setValue(prevVal);
 }
 
 function bindSelectMultiple(el, store) {
-    store.subscribe((value) => {
+    let initialized = false;
+    const key = uuid();
+    const setValue = (value) => {
+        if (value == null) {
+            value = [];
+        }
         for (let i = 0; i < el.options.length; i++) {
             const option = el.options[i];
             option.selected = ~value.indexOf(option.value);
         }
+    };
+    store.subscribe((nextVal) => {
+        if (initialized) {
+            queue(key, nextVal, setValue);
+        }
     });
     el.addEventListener('input', () => store.set(Array.from(el.selectedOptions).map((option) => option.value)));
-}
-
-function bindCheckboxAndRadio(el, store) {
-    store.subscribe((value) => (el.checked = value));
-    el.addEventListener('change', () => store.set(el.checked));
+    initialized = true;
+    setValue(store.get());
 }
 
 export function bind(store) {
-    const binding = (el, name) => {
+    const binding = (el, attr) => {
         const nodeName = el.nodeName.toLowerCase();
-        if (nodeName === 'textarea' && name === 'value') {
+        if (nodeName === 'textarea' && attr === 'value') {
             return bindInput(el, store);
-        } else if (nodeName === 'select' && name === 'value') {
+        } else if (nodeName === 'select' && attr === 'value') {
             if (el.type === 'select-multiple') {
                 return bindSelectMultiple(el, store);
             }
             return bindSelect(el, store);
         } else if (nodeName === 'input') {
-            if ((el.type === 'checkbox' || el.type === 'radio') && name === 'checked') {
+            if ((el.type === 'checkbox' || el.type === 'radio') && attr === 'checked') {
                 return bindCheckboxAndRadio(el, store);
-            } else if (name === 'value') {
+            } else if (attr === 'value') {
                 if (el.type === 'number' || el.type === 'range') {
                     return bindNumericInput(el, store);
                 }

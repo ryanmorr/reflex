@@ -8,15 +8,17 @@ describe('bind', () => {
         expect(el.value).to.equal('foo');
 
         value.set('bar');
-        expect(el.value).to.equal('bar');
+        requestAnimationFrame(() => {
+            expect(el.value).to.equal('bar');
 
-        el.addEventListener('input', () => {
-            expect(value.get()).to.equal('baz');
-            done();
+            el.addEventListener('input', () => {
+                expect(value.get()).to.equal('baz');
+                done();
+            });
+            
+            el.value = 'baz';
+            el.dispatchEvent(new Event('input'));
         });
-        
-        el.value = 'baz';
-        el.dispatchEvent(new Event('input'));
     });
 
     it('should support two-way binding for a number input', (done) => {
@@ -26,15 +28,17 @@ describe('bind', () => {
         expect(el.value).to.equal('2');
 
         value.set(8);
-        expect(el.value).to.equal('8');
+        requestAnimationFrame(() => {
+            expect(el.value).to.equal('8');
 
-        el.addEventListener('input', () => {
-            expect(value.get()).to.equal(5);
-            done();
+            el.addEventListener('input', () => {
+                expect(value.get()).to.equal(5);
+                done();
+            });
+            
+            el.value = 5;
+            el.dispatchEvent(new Event('input'));
         });
-        
-        el.value = 5;
-        el.dispatchEvent(new Event('input'));
     });
 
     it('should support two-way binding for a range input', (done) => {
@@ -44,15 +48,17 @@ describe('bind', () => {
         expect(el.value).to.equal('2');
 
         value.set(8);
-        expect(el.value).to.equal('8');
+        requestAnimationFrame(() => {
+            expect(el.value).to.equal('8');
 
-        el.addEventListener('input', () => {
-            expect(value.get()).to.equal(5);
-            done();
+            el.addEventListener('input', () => {
+                expect(value.get()).to.equal(5);
+                done();
+            });
+            
+            el.value = 5;
+            el.dispatchEvent(new Event('input'));
         });
-        
-        el.value = 5;
-        el.dispatchEvent(new Event('input'));
     });
 
     it('should support two-way binding for a single checkbox', (done) => {
@@ -62,16 +68,25 @@ describe('bind', () => {
         expect(el.checked).to.equal(true);
 
         checked.set(false);
-        expect(el.checked).to.equal(false);
+        requestAnimationFrame(() => {
+            expect(el.checked).to.equal(false);
 
-        el.addEventListener('change', () => {
-            expect(checked.get()).to.equal(true);
-            done();
+            el.addEventListener('change', () => {
+                expect(checked.get()).to.equal(true);
+                done();
+            });
+            
+            el.checked = true;
+            el.dispatchEvent(new Event('change'));
         });
-        
-        el.checked = true;
-        el.dispatchEvent(new Event('change'));
     });
+
+
+
+
+
+
+
 
     it('should support two-way binding for a single radio button', (done) => {
         const checked = store(true);
@@ -80,15 +95,17 @@ describe('bind', () => {
         expect(el.checked).to.equal(true);
 
         checked.set(false);
-        expect(el.checked).to.equal(false);
+        requestAnimationFrame(() => {
+            expect(el.checked).to.equal(false);
 
-        el.addEventListener('change', () => {
-            expect(checked.get()).to.equal(true);
-            done();
+            el.addEventListener('change', () => {
+                expect(checked.get()).to.equal(true);
+                done();
+            });
+            
+            el.checked = true;
+            el.dispatchEvent(new Event('change'));
         });
-        
-        el.checked = true;
-        el.dispatchEvent(new Event('change'));
     });
 
     it('should support two-way binding for a textarea', (done) => {
@@ -98,15 +115,17 @@ describe('bind', () => {
         expect(el.value).to.equal('foo');
 
         value.set('bar');
-        expect(el.value).to.equal('bar');
+        requestAnimationFrame(() => {
+            expect(el.value).to.equal('bar');
 
-        el.addEventListener('input', () => {
-            expect(value.get()).to.equal('baz');
-            done();
+            el.addEventListener('input', () => {
+                expect(value.get()).to.equal('baz');
+                done();
+            });
+            
+            el.value = 'baz';
+            el.dispatchEvent(new Event('input'));
         });
-        
-        el.value = 'baz';
-        el.dispatchEvent(new Event('input'));
     });
 
     it('should support two-way binding for a select', (done) => {
@@ -125,20 +144,22 @@ describe('bind', () => {
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
         value.set('bar');
-        expect(el.value).to.equal('bar');
-        expect(el.selectedIndex).to.equal(1);
-        expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1]]);
-    
-        el.addEventListener('input', () => {
-            expect(value.get()).to.equal('baz');
-            expect(el.value).to.equal('baz');
-            expect(el.selectedIndex).to.equal(2);
-            expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[2]]);
-            done();
-        });
+        requestAnimationFrame(() => {
+            expect(el.value).to.equal('bar');
+            expect(el.selectedIndex).to.equal(1);
+            expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1]]);
         
-        el.selectedIndex = 2;
-        el.dispatchEvent(new Event('input'));
+            el.addEventListener('input', () => {
+                expect(value.get()).to.equal('baz');
+                expect(el.value).to.equal('baz');
+                expect(el.selectedIndex).to.equal(2);
+                expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[2]]);
+                done();
+            });
+            
+            el.selectedIndex = 2;
+            el.dispatchEvent(new Event('input'));
+        });
     });
 
     it('should support two-way binding for a select multiple', (done) => {
@@ -158,20 +179,42 @@ describe('bind', () => {
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
         value.set(['foo', 'baz']);
-        expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0], el.options[2]]);
-    
-        el.addEventListener('input', () => {
-            expect(value.get()).to.deep.equal(['bar', 'qux']);
-            expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1], el.options[3]]);
-            done();
-        });
+        requestAnimationFrame(() => {
+            expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0], el.options[2]]);
         
-        el.options[0].selected = false;
-        el.options[1].selected = true;
-        el.options[2].selected = false;
-        el.options[3].selected = true;
-        el.dispatchEvent(new Event('input'));
+            el.addEventListener('input', () => {
+                expect(value.get()).to.deep.equal(['bar', 'qux']);
+                expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1], el.options[3]]);
+                done();
+            });
+            
+            el.options[0].selected = false;
+            el.options[1].selected = true;
+            el.options[2].selected = false;
+            el.options[3].selected = true;
+            el.dispatchEvent(new Event('input'));
+        });
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     it('should support two-way binding for checkbox groups', (done) => {
         const foo = store(true);
@@ -199,36 +242,38 @@ describe('bind', () => {
         expect(quxInput.checked).to.equal(false);
     
         baz.set(true);
-        expect(fooInput.checked).to.equal(true);
-        expect(barInput.checked).to.equal(false);
-        expect(bazInput.checked).to.equal(true);
-        expect(quxInput.checked).to.equal(false);
-    
-        quxInput.addEventListener('change', () => {
-            expect(foo.get()).to.deep.equal(false);
-            expect(bar.get()).to.deep.equal(true);
-            expect(baz.get()).to.deep.equal(false);
-            expect(qux.get()).to.deep.equal(true);
-            expect(fooInput.checked).to.equal(false);
-            expect(barInput.checked).to.equal(true);
-            expect(bazInput.checked).to.equal(false);
-            expect(quxInput.checked).to.equal(true);
-
-            fooInput.remove();
-            barInput.remove();
-            bazInput.remove();
-            quxInput.remove();
-            done();
-        });
+        requestAnimationFrame(() => {
+            expect(fooInput.checked).to.equal(true);
+            expect(barInput.checked).to.equal(false);
+            expect(bazInput.checked).to.equal(true);
+            expect(quxInput.checked).to.equal(false);
         
-        fooInput.checked = false;
-        barInput.checked = true;
-        bazInput.checked = false;
-        quxInput.checked = true;
-        fooInput.dispatchEvent(new Event('change'));
-        barInput.dispatchEvent(new Event('change'));
-        bazInput.dispatchEvent(new Event('change'));
-        quxInput.dispatchEvent(new Event('change'));
+            quxInput.addEventListener('change', () => {
+                expect(foo.get()).to.deep.equal(false);
+                expect(bar.get()).to.deep.equal(true);
+                expect(baz.get()).to.deep.equal(false);
+                expect(qux.get()).to.deep.equal(true);
+                expect(fooInput.checked).to.equal(false);
+                expect(barInput.checked).to.equal(true);
+                expect(bazInput.checked).to.equal(false);
+                expect(quxInput.checked).to.equal(true);
+
+                fooInput.remove();
+                barInput.remove();
+                bazInput.remove();
+                quxInput.remove();
+                done();
+            });
+            
+            fooInput.checked = false;
+            barInput.checked = true;
+            bazInput.checked = false;
+            quxInput.checked = true;
+            fooInput.dispatchEvent(new Event('change'));
+            barInput.dispatchEvent(new Event('change'));
+            bazInput.dispatchEvent(new Event('change'));
+            quxInput.dispatchEvent(new Event('change'));
+        });
     });
 
     it('should support two-way binding for radio button groups', (done) => {
@@ -253,27 +298,29 @@ describe('bind', () => {
         expect(bazInput.checked).to.equal(false);
     
         foo.set(true);
-        expect(fooInput.checked).to.equal(true);
-        expect(barInput.checked).to.equal(false);
-        expect(bazInput.checked).to.equal(false);
-    
-        bazInput.addEventListener('change', () => {
-            expect(foo.get()).to.equal(false);
-            expect(bar.get()).to.equal(false);
-            expect(baz.get()).to.equal(true);
-            expect(fooInput.checked).to.equal(false);
+        requestAnimationFrame(() => {
+            expect(fooInput.checked).to.equal(true);
             expect(barInput.checked).to.equal(false);
-            expect(bazInput.checked).to.equal(true);
-
-            fooInput.remove();
-            barInput.remove();
-            bazInput.remove();
-            done();
-        });
+            expect(bazInput.checked).to.equal(false);
         
-        bazInput.checked = true;
-        fooInput.dispatchEvent(new Event('change'));
-        barInput.dispatchEvent(new Event('change'));
-        bazInput.dispatchEvent(new Event('change'));
+            bazInput.addEventListener('change', () => {
+                expect(foo.get()).to.equal(false);
+                expect(bar.get()).to.equal(false);
+                expect(baz.get()).to.equal(true);
+                expect(fooInput.checked).to.equal(false);
+                expect(barInput.checked).to.equal(false);
+                expect(bazInput.checked).to.equal(true);
+
+                fooInput.remove();
+                barInput.remove();
+                bazInput.remove();
+                done();
+            });
+            
+            bazInput.checked = true;
+            fooInput.dispatchEvent(new Event('change'));
+            barInput.dispatchEvent(new Event('change'));
+            bazInput.dispatchEvent(new Event('change'));
+        });
     });
 });
