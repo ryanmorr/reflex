@@ -21,7 +21,7 @@ describe('bind', () => {
         });
     });
 
-    it('should support two-way binding for a number input', (done) => {
+    it('should support two-way binding for a numeric input', (done) => {
         const value = store(2);
         const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
 
@@ -61,7 +61,7 @@ describe('bind', () => {
         });
     });
 
-    it('should support two-way binding for a single checkbox', (done) => {
+    it('should support two-way binding for a checkbox', (done) => {
         const checked = store(true);
         const el = html`<input type="checkbox" checked=${bind(checked)} />`;
 
@@ -81,14 +81,7 @@ describe('bind', () => {
         });
     });
 
-
-
-
-
-
-
-
-    it('should support two-way binding for a single radio button', (done) => {
+    it('should support two-way binding for a radio button', (done) => {
         const checked = store(true);
         const el = html`<input type="radio" checked=${bind(checked)} />`;
 
@@ -196,26 +189,6 @@ describe('bind', () => {
         });
     });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     it('should support two-way binding for checkbox groups', (done) => {
         const foo = store(true);
         const bar = store(false);
@@ -322,5 +295,88 @@ describe('bind', () => {
             barInput.dispatchEvent(new Event('change'));
             bazInput.dispatchEvent(new Event('change'));
         });
+    });
+
+    it('should handle an initial value of undefined for text inputs', () => {
+        const value = store();
+        const el = html`<input type="text" value=${bind(value)} />`;
+
+        expect(value.get()).to.equal('');
+        expect(el.value).to.equal('');
+    });
+
+    it('should handle an initial value of undefined for a numeric input', () => {
+        const value = store();
+        const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
+
+        expect(value.get()).to.equal(0);
+        expect(el.value).to.equal('0');
+    });
+
+    it('should handle an initial value of undefined for a range input', () => {
+        const value = store();
+        const el = html`<input type="range" min="0" max="10" value=${bind(value)} />`;
+
+        expect(value.get()).to.equal(0);
+        expect(el.value).to.equal('0');
+    });
+
+    it('should handle an initial value of undefined for a checkbox', () => {
+        const checked = store();
+        const el = html`<input type="checkbox" checked=${bind(checked)} />`;
+
+        expect(checked.get()).to.equal(false);
+        expect(el.checked).to.equal(false);
+    });
+
+    it('should handle an initial value of undefined for a radio button', () => {
+        const checked = store();
+        const el = html`<input type="radio" checked=${bind(checked)} />`;
+
+        expect(checked.get()).to.equal(false);
+        expect(el.checked).to.equal(false);
+    });
+
+    it('should handle an initial value of undefined for a textarea', () => {
+        const value = store();
+        const el = html`<textarea value=${bind(value)}></textarea>`;
+
+        expect(value.get()).to.equal('');
+        expect(el.value).to.equal('');
+    });
+
+    it('should handle an initial value of undefined for a select', () => {
+        const value = store();
+    
+        const el = html`
+            <select value=${bind(value)}>
+                <option value="foo">foo</option>
+                <option value="bar">bar</option>
+                <option value="baz">baz</option>
+            </select>
+        `;
+        
+        expect(value.get()).to.equal('foo');
+        expect(el.value).to.equal('foo');
+        expect(el.selectedIndex).to.equal(0);
+        expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
+    });
+
+    it('should handle an initial value of undefined for a select multiple', () => {
+        const value = store();
+    
+        const el = html`
+            <select multiple value=${bind(value)}>
+                <option value="foo">foo</option>
+                <option value="bar">bar</option>
+                <option value="baz">baz</option>
+                <option value="qux">qux</option>
+            </select>
+        `;
+        
+        expect(value.get()).to.deep.equal([]);
+        expect(el.value).to.deep.equal('');
+        expect(el.selectedIndex).to.equal(-1);
+        expect(Array.from(el.selectedOptions)).to.deep.equal([]);
     });
 });

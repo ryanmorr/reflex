@@ -220,6 +220,7 @@ function bindInput(el, store) {
     let prevVal = store.get();
     if (prevVal == null) {
         prevVal = '';
+        store.set(prevVal);
     }
     const key = uuid();
     store.subscribe((nextVal) => {
@@ -240,6 +241,7 @@ function bindNumericInput(el, store) {
     let prevVal = store.get();
     if (prevVal == null) {
         prevVal = 0;
+        store.set(prevVal);
     }
     const key = uuid();
     store.subscribe((nextVal) => {
@@ -260,6 +262,7 @@ function bindCheckboxAndRadio(el, store) {
     let prevVal = store.get();
     if (prevVal == null) {
         prevVal = false;
+        store.set(prevVal);
     }
     const key = uuid();
     store.subscribe((nextVal) => {
@@ -279,10 +282,12 @@ function bindCheckboxAndRadio(el, store) {
 function bindSelect(el, store) {
     let prevVal = store.get();
     if (prevVal == null) {
-        prevVal = '';
+        const option = el.options[el.selectedIndex];
+        prevVal = option ? option.value : '';
+        store.set(prevVal);
     }
     const key = uuid();
-    const setValue = (value) => {
+    const setOption = (value) => {
         for (let i = 0; i < el.options.length; i++) {
             const option = el.options[i];
             if (option.value === value) {
@@ -294,7 +299,7 @@ function bindSelect(el, store) {
     };
     store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            queue(key, nextVal, setValue);
+            queue(key, nextVal, setOption);
         }
     });
     el.addEventListener('input', () => {
@@ -304,16 +309,18 @@ function bindSelect(el, store) {
             store.set(prevVal);
         }
     });
-    setValue(prevVal);
+    setOption(prevVal);
 }
 
 function bindSelectMultiple(el, store) {
     let initialized = false;
+    let prevVal = store.get();
+    if (prevVal == null) {
+        prevVal = [];
+        store.set(prevVal);
+    }
     const key = uuid();
-    const setValue = (value) => {
-        if (value == null) {
-            value = [];
-        }
+    const setOptions = (value) => {
         for (let i = 0; i < el.options.length; i++) {
             const option = el.options[i];
             option.selected = ~value.indexOf(option.value);
@@ -321,12 +328,12 @@ function bindSelectMultiple(el, store) {
     };
     store.subscribe((nextVal) => {
         if (initialized) {
-            queue(key, nextVal, setValue);
+            queue(key, nextVal, setOptions);
         }
     });
     el.addEventListener('input', () => store.set(Array.from(el.selectedOptions).map((option) => option.value)));
     initialized = true;
-    setValue(store.get());
+    setOptions(prevVal);
 }
 
 export function bind(store) {
