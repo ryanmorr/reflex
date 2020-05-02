@@ -4,15 +4,32 @@ import { html, each } from '../../src/reflex';
 
 describe('each', () => {
     it('should render a list', () => {
-        const list = store([1, 2, 3, 4, 5]);
+        const array = [1, 2, 3];
+        const list = store(array);
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
 
         const el = html`
             <ul>
-                ${each(list, (item) => html`<li>${item}</li>`)}
+                ${each(list, callback)}
             </ul>
         `;
 
-        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+        
+        expect(callback.callCount).to.equal(3);
+
+        expect(callback.args[0][0]).to.equal(1);
+        expect(callback.args[0][1]).to.equal(0);
+        expect(callback.args[0][2]).to.equal(array);
+
+        expect(callback.args[1][0]).to.equal(2);
+        expect(callback.args[1][1]).to.equal(1);
+        expect(callback.args[1][2]).to.equal(array);
+
+        expect(callback.args[2][0]).to.equal(3);
+        expect(callback.args[2][1]).to.equal(2);
+        expect(callback.args[2][2]).to.equal(array);
     });
 
     it('should append nodes', (done) => {
