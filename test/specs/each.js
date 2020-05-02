@@ -438,4 +438,30 @@ describe('each', () => {
             done();
         });
     });
+
+    it('should render a list between sibling nodes', (done) => {
+        const list = store([1, 2, 3]);
+
+        const el = html`
+            <section>
+                <span></span>
+                ${each(list, (item) => html`<div>${item}</div>`)}
+                foo
+            </section>
+        `;
+
+        expect(el.innerHTML).to.equal('<span></span><div>1</div><div>2</div><div>3</div>foo');
+
+        const li1 = el.children[1];
+        const li3 = el.children[3];
+
+        list.set([1, 4, 3, 5]);
+
+        waitForRender(() => {
+            expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
+            expect(el.children[1]).to.equal(li1);
+            expect(el.children[3]).to.equal(li3);
+            done();
+        });
+    });
 });
