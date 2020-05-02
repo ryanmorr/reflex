@@ -227,10 +227,10 @@ export function each(store, callback) {
     let initialized = false;
     const key = uuid();
     const frag = document.createDocumentFragment();
-    const before = document.createTextNode('');
-    const after = document.createTextNode('');
-    frag.appendChild(before);
-    frag.appendChild(after);
+    const beforeNode = document.createTextNode('');
+    const afterNode = document.createTextNode('');
+    frag.appendChild(beforeNode);
+    frag.appendChild(afterNode);
     store.subscribe((nextItems, prevItems) => {
         if (nextItems == null) {
             nextItems = [];
@@ -238,10 +238,11 @@ export function each(store, callback) {
         if (prevItems == null) {
             prevItems = [];
         }
+        const parent = beforeNode.parentNode;
         if (initialized) {
-            queueRender(key, nextItems, (value) => reconcile(before.parentNode, prevItems, value, callback, before, after));
+            queueRender(key, nextItems, (value) => reconcile(parent, prevItems, value, callback, beforeNode, afterNode));
         } else {
-            reconcile(before.parentNode, prevItems, nextItems, callback, before, after);
+            reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode);
         }
     });
     initialized = true;
