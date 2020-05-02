@@ -452,15 +452,67 @@ describe('each', () => {
 
         expect(el.innerHTML).to.equal('<span></span><div>1</div><div>2</div><div>3</div>foo');
 
-        const li1 = el.children[1];
-        const li3 = el.children[3];
+        const div1 = el.children[1];
+        const div3 = el.children[3];
 
         list.set([1, 4, 3, 5]);
 
         waitForRender(() => {
             expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
-            expect(el.children[1]).to.equal(li1);
-            expect(el.children[3]).to.equal(li3);
+            expect(el.children[1]).to.equal(div1);
+            expect(el.children[3]).to.equal(div3);
+            done();
+        });
+    });
+
+    it('should render a list of text nodes', (done) => {
+        const list = store([1, 2, 3]);
+
+        const el = html`<div>${each(list, (item) => html`${item}`)}</div>`;
+
+        expect(el.innerHTML).to.equal('123');
+
+        const text1 = el.childNodes[1];
+        const text2 = el.childNodes[2];
+        const text3 = el.childNodes[3];
+
+        expect(text1.nodeValue).to.equal('1');
+        expect(text2.nodeValue).to.equal('2');
+        expect(text3.nodeValue).to.equal('3');
+
+        list.set([3, 1, 5, 2, 4]);
+
+        waitForRender(() => {
+            expect(el.innerHTML).to.equal('31524');
+            expect(el.childNodes[1]).to.equal(text3);
+            expect(el.childNodes[2]).to.equal(text1);
+            expect(el.childNodes[4]).to.equal(text2);
+            done();
+        });
+    });
+
+    it('should render a list of mixed text and element nodes', (done) => {
+        const list = store([1, 2, 3, 4, 5]);
+
+        const el = html`<div>${each(list, (n) => n % 2 === 0 ? html`<span>${n}</span>` : html`${n}`)}</div>`;
+
+        expect(el.innerHTML).to.equal('1<span>2</span>3<span>4</span>5');
+
+        const text1 = el.childNodes[1];
+        const span1 = el.childNodes[2];
+        const text2 = el.childNodes[3];
+        const span2 = el.childNodes[4];
+        const text3 = el.childNodes[5];
+
+        list.set([1, 5, 2, 6, 3, 7, 4]);
+
+        waitForRender(() => {
+            expect(el.innerHTML).to.equal('15<span>2</span><span>6</span>37<span>4</span>');
+            expect(el.childNodes[1]).to.equal(text1);
+            expect(el.childNodes[2]).to.equal(text3);
+            expect(el.childNodes[3]).to.equal(span1);
+            expect(el.childNodes[5]).to.equal(text2);
+            expect(el.childNodes[7]).to.equal(span2);
             done();
         });
     });
