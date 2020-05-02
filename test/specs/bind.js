@@ -380,4 +380,36 @@ describe('bind', () => {
         expect(el.selectedIndex).to.equal(-1);
         expect(Array.from(el.selectedOptions)).to.deep.equal([]);
     });
+
+    it('should support binding a store multiple times', (done) => {
+        const value = store('foo');
+        const el = html`
+            <input type="text" value=${bind(value)} />
+            <input type="text" value=${bind(value)} />
+        `;
+
+        const input1 = el.children[0];
+        const input2 = el.children[1];
+
+        expect(input1.value).to.equal('foo');
+        expect(input2.value).to.equal('foo');
+
+        value.set('bar');
+        waitForRender(() => {
+            expect(input1.value).to.equal('bar');
+            expect(input2.value).to.equal('bar');
+
+            input1.addEventListener('input', () => {
+                waitForRender(() => {
+                    expect(value.get()).to.equal('baz');
+                    expect(input1.value).to.equal('baz');
+                    expect(input2.value).to.equal('baz');
+                    done();
+                });
+            });
+            
+            input1.value = 'baz';
+            input1.dispatchEvent(new Event('input'));
+        });
+    });
 });
