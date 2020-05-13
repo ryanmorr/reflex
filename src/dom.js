@@ -2,6 +2,7 @@ import htm from 'htm';
 import { isStore } from './store';
 import { isBinding } from './bind';
 import { queueRender } from './queue';
+import { attach } from './bindings';
 import { uuid } from './util';
 
 const build = htm.bind(createElement);
@@ -175,7 +176,7 @@ function getNode(node) {
 
 function observeAttribute(element, store, name, prevVal, isSvg) {
     const key = uuid();
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {           
             queueRender(key, nextVal, (value) => {
                 patchAttribute(element, name, prevVal, value, isSvg);
@@ -183,6 +184,7 @@ function observeAttribute(element, store, name, prevVal, isSvg) {
             });
         }
     });
+    attach(element, unsubscribe);
 }
 
 function observeNode(store) {
@@ -191,17 +193,21 @@ function observeNode(store) {
     const node = createNode(prevVal);
     const marker = document.createTextNode('');
     let prevNode = getNodes(node);
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) { 
             queueRender(key, nextVal, (value) => {
                 prevNode = patchNode(prevNode, value, marker);
                 prevVal = value;
+
+                attach(prevNode, unsubscribe);
             });
         }
     });
+    attach(prevNode, unsubscribe);
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);
+    attach(frag, unsubscribe);
     return frag;
 }
 
