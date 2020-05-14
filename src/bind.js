@@ -1,3 +1,4 @@
+import { attach } from './bindings';
 import { queueRender } from './queue';
 import { uuid } from './util';
 
@@ -10,18 +11,23 @@ function bindInput(element, store) {
         store.set(prevVal);
     }
     const key = uuid();
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
             queueRender(key, nextVal, (value) => {
                 element.value = prevVal = value;
             });
         }
     });
-    element.addEventListener('input', () => {
+    const onInput = () => {
         prevVal = element.value;
         store.set(prevVal);
-    });
+    };
+    element.addEventListener('input', onInput);
     element.value = prevVal;
+    attach(element, () => {
+        unsubscribe();
+        element.removeEventListener('input', onInput);
+    });
 }
 
 function bindNumericInput(element, store) {
@@ -31,18 +37,23 @@ function bindNumericInput(element, store) {
         store.set(prevVal);
     }
     const key = uuid();
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
             queueRender(key, nextVal, (value) => {
                 element.value = prevVal = value;
             });
         }
     });
-    element.addEventListener('input', () => {
+    const onInput = () => {
         prevVal = Number(element.value);
         store.set(prevVal);
-    });
+    };
+    element.addEventListener('input', onInput);
     element.value = prevVal;
+    attach(element, () => {
+        unsubscribe();
+        element.removeEventListener('input', onInput);
+    });
 }
 
 function bindCheckboxAndRadio(element, store) {
@@ -52,18 +63,23 @@ function bindCheckboxAndRadio(element, store) {
         store.set(prevVal);
     }
     const key = uuid();
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
             queueRender(key, nextVal, (value) => {
                 element.checked = prevVal = value;
             });
         }
     });
-    element.addEventListener('change', () => {
+    const onChange = () => {
         prevVal = element.checked;
         store.set(prevVal);
-    });
+    };
+    element.addEventListener('change', onChange);
     element.checked = prevVal;
+    attach(element, () => {
+        unsubscribe();
+        element.removeEventListener('change', onChange);
+    });
 }
 
 function bindSelect(element, store) {
@@ -84,19 +100,24 @@ function bindSelect(element, store) {
             }
         }
     };
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
             queueRender(key, nextVal, setOption);
         }
     });
-    element.addEventListener('input', () => {
+    const onInput = () => {
         const option = element.options[element.selectedIndex];
         if (option) {
             prevVal = option.value;
             store.set(prevVal);
         }
-    });
+    };
+    element.addEventListener('input', onInput);
     setOption(prevVal);
+    attach(element, () => {
+        unsubscribe();
+        element.removeEventListener('input', onInput);
+    });
 }
 
 function bindSelectMultiple(element, store) {
@@ -113,14 +134,19 @@ function bindSelectMultiple(element, store) {
             option.selected = ~value.indexOf(option.value);
         }
     };
-    store.subscribe((nextVal) => {
+    const unsubscribe = store.subscribe((nextVal) => {
         if (initialized) {
             queueRender(key, nextVal, setOptions);
         }
     });
-    element.addEventListener('input', () => store.set(Array.from(element.selectedOptions).map((option) => option.value)));
+    const onInput = () => store.set(Array.from(element.selectedOptions).map((option) => option.value));
+    element.addEventListener('input', onInput);
     initialized = true;
     setOptions(prevVal);
+    attach(element, () => {
+        unsubscribe();
+        element.removeEventListener('input', onInput);
+    });
 }
 
 export function bind(store) {

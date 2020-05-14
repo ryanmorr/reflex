@@ -195,4 +195,233 @@ describe('dispose', () => {
             });
         });
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    it('should dispose a two-way input binding when removed', (done) => {
+        const value = store('foo');
+        const input = html`<input type="text" value=${bind(value)} />`;
+
+        expect(input.value).to.equal('foo');
+
+        value.set('bar');
+        waitForRender(() => {
+            expect(input.value).to.equal('bar');
+            
+            dispose(input);
+
+            value.set('baz');
+            waitForRender(() => {
+                expect(input.value).to.equal('bar');
+                
+                input.addEventListener('input', () => {
+                    expect(value.get()).to.equal('baz');
+                    done();
+                });
+                
+                input.value = 'qux';
+                input.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way numeric input binding when removed', (done) => {
+        const value = store();
+        const input = html`<input type="number" value=${bind(value)} />`;
+
+        expect(input.value).to.equal('0');
+
+        value.set(3);
+        waitForRender(() => {
+            expect(input.value).to.equal('3');
+            
+            dispose(input);
+                
+            value.set(5);
+            waitForRender(() => {
+                expect(input.value).to.equal('3');
+                
+                input.addEventListener('input', () => {
+                    expect(value.get()).to.equal(5);
+                    done();
+                });
+                
+                input.value = '6';
+                input.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way checkbox binding when removed', (done) => {
+        const checked = store(true);
+        const input = html`<input type="checkbox" checked=${bind(checked)} />`;
+
+        expect(input.checked).to.equal(true);
+
+        checked.set(false);
+        waitForRender(() => {
+            expect(input.checked).to.equal(false);
+            
+            dispose(input);
+
+            checked.set(true);
+            waitForRender(() => {
+                expect(input.checked).to.equal(false);
+                
+                input.addEventListener('change', () => {
+                    expect(checked.get()).to.equal(true);
+                    done();
+                });
+                
+                input.checked = false;
+                input.dispatchEvent(new Event('change'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way radio button binding when removed', (done) => {
+        const checked = store(true);
+        const input = html`<input type="radio" checked=${bind(checked)} />`;
+
+        expect(input.checked).to.equal(true);
+
+        checked.set(false);
+        waitForRender(() => {
+            expect(input.checked).to.equal(false);
+            
+            dispose(input);
+                
+            checked.set(true);
+            waitForRender(() => {
+                expect(input.checked).to.equal(false);
+                
+                input.addEventListener('change', () => {
+                    expect(checked.get()).to.equal(true);
+                    done();
+                });
+                
+                input.checked = false;
+                input.dispatchEvent(new Event('change'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way textarea binding when removed', (done) => {
+        const value = store('foo');
+        const textarea = html`<textarea value=${bind(value)}></textarea>`;
+
+        expect(textarea.value).to.equal('foo');
+
+        value.set('bar');
+        waitForRender(() => {
+            expect(textarea.value).to.equal('bar');
+            
+            dispose(textarea);
+                
+            value.set('baz');
+            waitForRender(() => {
+                expect(textarea.value).to.equal('bar');
+                
+                textarea.addEventListener('input', () => {
+                    expect(value.get()).to.equal('baz');
+                    done();
+                });
+                
+                textarea.value = 'qux';
+                textarea.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way select binding when removed', (done) => {
+        const value = store('foo');
+        const select = html`
+            <select value=${bind(value)}>
+                <option value="foo">foo</option>
+                <option value="bar">bar</option>
+                <option value="baz">baz</option>
+            </select>
+        `;
+
+        expect(select.value).to.equal('foo');
+        expect(select.selectedIndex).to.equal(0);
+
+        value.set('bar');
+        waitForRender(() => {
+            expect(select.value).to.equal('bar');
+            expect(select.selectedIndex).to.equal(1);
+            
+            dispose(select);
+                
+            value.set('baz');
+            waitForRender(() => {
+                expect(select.value).to.equal('bar');
+                expect(select.selectedIndex).to.equal(1);
+                
+                select.addEventListener('input', () => {
+                    expect(value.get()).to.equal('baz');
+                    done();
+                });
+                
+                select.value = 'foo';
+                select.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+
+    it('should automatically dispose a two-way select multiple binding when removed', (done) => {
+        const value = store(['foo']);
+        const select = html`
+            <select multiple value=${bind(value)}>
+                <option value="foo">foo</option>
+                <option value="bar">bar</option>
+                <option value="baz">baz</option>
+            </select>
+        `;
+
+        expect(select.value).to.equal('foo');
+        expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0]]);
+
+        value.set(['foo', 'baz']);
+        waitForRender(() => {
+            expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
+            
+            dispose(select);
+
+            value.set(['bar']);
+            waitForRender(() => {
+                expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
+                
+                select.addEventListener('input', () => {
+                    expect(value.get()).to.deep.equal(['bar']);
+                    done();
+                });
+                
+                select.options[0].selected = true;
+                select.options[1].selected = false;
+                select.options[2].selected = false;
+                select.dispatchEvent(new Event('input'));
+            });
+        });
+    });
 });
