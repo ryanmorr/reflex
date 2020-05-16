@@ -196,28 +196,6 @@ describe('dispose', () => {
         });
     });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     it('should dispose a two-way input binding when removed', (done) => {
         const value = store('foo');
         const input = html`<input type="text" value=${bind(value)} />`;
@@ -245,7 +223,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way numeric input binding when removed', (done) => {
+    it('should dispose a two-way numeric input binding when removed', (done) => {
         const value = store();
         const input = html`<input type="number" value=${bind(value)} />`;
 
@@ -272,7 +250,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way checkbox binding when removed', (done) => {
+    it('should dispose a two-way checkbox binding when removed', (done) => {
         const checked = store(true);
         const input = html`<input type="checkbox" checked=${bind(checked)} />`;
 
@@ -299,7 +277,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way radio button binding when removed', (done) => {
+    it('should dispose a two-way radio button binding when removed', (done) => {
         const checked = store(true);
         const input = html`<input type="radio" checked=${bind(checked)} />`;
 
@@ -326,7 +304,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way textarea binding when removed', (done) => {
+    it('should dispose a two-way textarea binding when removed', (done) => {
         const value = store('foo');
         const textarea = html`<textarea value=${bind(value)}></textarea>`;
 
@@ -353,7 +331,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way select binding when removed', (done) => {
+    it('should dispose a two-way select binding when removed', (done) => {
         const value = store('foo');
         const select = html`
             <select value=${bind(value)}>
@@ -389,7 +367,7 @@ describe('dispose', () => {
         });
     });
 
-    it('should automatically dispose a two-way select multiple binding when removed', (done) => {
+    it('should dispose a two-way select multiple binding when removed', (done) => {
         const value = store(['foo']);
         const select = html`
             <select multiple value=${bind(value)}>

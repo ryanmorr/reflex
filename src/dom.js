@@ -145,7 +145,16 @@ function createElement(nodeName, attributes, ...children) {
     }
     if (attributes) {
         for (const name in attributes) {
-            patchAttribute(element, name, null, attributes[name], isSvg);
+            let value = attributes[name];
+            if (isBinding(value)) {
+                value(element, name);
+            } else if (isStore(value)) {
+                const store = value;
+                value = store.get();
+                observeAttribute(element, store, name, value, isSvg);
+            } else {
+                patchAttribute(element, name, null, value, isSvg);
+            }
         }
     }
     return element;
@@ -185,6 +194,7 @@ function observeAttribute(element, store, name, prevVal, isSvg) {
         }
     });
     attach(element, unsubscribe);
+    patchAttribute(element, name, null, prevVal, isSvg);
 }
 
 function observeNode(store) {
@@ -212,14 +222,6 @@ function observeNode(store) {
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
-    if (isBinding(nextVal)) {
-        return nextVal(element, name);
-    }
-    if (isStore(nextVal)) {
-        const store = nextVal;
-        nextVal = store.get();
-        observeAttribute(element, store, name, nextVal, isSvg);
-    }
     if (name === 'class') {
 		name = 'className';
     }
