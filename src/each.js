@@ -1,4 +1,5 @@
 import { queueRender } from './queue';
+import { dispose } from './bindings';
 import { uuid } from './util';
 
 // Adapted from https://github.com/Freak613/stage0/blob/master/reconcile.js
@@ -51,6 +52,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             while(node !== afterNode) {
                 tmp = node.nextSibling;
                 parent.removeChild(node);
+                dispose(node);
                 node = tmp;
             }
         } else {
@@ -136,9 +138,11 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             while (prevStart <= prevEnd) {
                 if (prevEnd === 0) {
                     parent.removeChild(prevEndNode);
+                    dispose(prevEndNode);
                 } else {
                     next = prevEndNode.previousSibling;
                     parent.removeChild(prevEndNode);
+                    dispose(prevEndNode);
                     prevEndNode = next;
                 }
                 prevEnd--;
@@ -183,6 +187,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             while (node !== afterNode) {
                 tmp = node.nextSibling;
                 parent.removeChild(node);
+                dispose(node);
                 node = tmp;
                 prevStart++;
             }
@@ -204,7 +209,9 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
         tmpC = tmpC.nextSibling;
     }
     for (let i = 0; i < toRemove.length; i++) {
-        parent.removeChild(nodes[toRemove[i]]);
+        const node = nodes[toRemove[i]];
+        parent.removeChild(node);
+        dispose(node);
     }
     let lisIdx = longestSeq.length - 1, tmpD;
     for (let i = newEnd; i >= newStart; i--) {
