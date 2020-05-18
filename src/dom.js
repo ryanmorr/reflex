@@ -1,5 +1,6 @@
 import htm from 'htm';
 import { isStore } from './store';
+import { isRef } from './ref';
 import { isBinding } from './bind';
 import { queueRender } from './queue';
 import { attach } from './bindings';
@@ -148,6 +149,8 @@ function createElement(nodeName, attributes, ...children) {
             let value = attributes[name];
             if (isBinding(value)) {
                 value(element, name);
+            } else if (name === 'ref' && isRef(value)) {
+                value.add(element);
             } else if (isStore(value)) {
                 const store = value;
                 value = store.get();
