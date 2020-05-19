@@ -18,23 +18,27 @@ export const ref = createStore((get, set) => () => {
             }
             return elements;
         },
-        add(element) {
-            const prevElements = get();
-            if (element.nodeName && prevElements.indexOf(element) === -1) {
-                const nextElements = prevElements.slice();
-                nextElements.push(element);
-                set(nextElements, prevElements, element, 1);
-                attach(element, () => this.remove(element));
-            }
+        add(...elements) {
+            elements.forEach((element) => {
+                const prevElements = get();
+                if (element.nodeName && prevElements.indexOf(element) === -1) {
+                    const nextElements = prevElements.slice();
+                    nextElements.push(element);
+                    set(nextElements, prevElements, element, 1);
+                    attach(element, () => this.remove(element));
+                }
+            });
         },
-        remove(element) {
-            const prevElements = get();
-            const index = prevElements.indexOf(element);
-            if (index !== -1) {
-                const nextElements = prevElements.slice();
-                nextElements.splice(index, 1);
-                set(nextElements, prevElements, element, -1);
-            }
+        remove(...elements) {
+            elements.forEach((element) => {
+                const prevElements = get();
+                const index = prevElements.indexOf(element);
+                if (index !== -1) {
+                    const nextElements = prevElements.slice();
+                    nextElements.splice(index, 1);
+                    set(nextElements, prevElements, element, -1);
+                }
+            });
         }
     };
 });

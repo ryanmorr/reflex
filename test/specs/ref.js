@@ -33,6 +33,29 @@ describe('ref', () => {
         expect(foo.get(2)).to.equal(em);
     });
 
+    it('should allow explicitly adding elements to a ref store', () => {
+        const foo = ref();
+
+        expect(foo.get()).to.have.lengthOf(0);
+        expect(foo.get()).to.deep.equal([]);
+
+        const div = html`<div></div>`;
+
+        foo.add(div);
+
+        expect(foo.get()).to.have.lengthOf(1);
+        expect(foo.get()).to.deep.equal([div]);
+
+        const span = html`<span></span>`;
+        const em = html`<em></em>`;
+        const p = html`<p></p>`;
+
+        foo.add(span, em, p);
+
+        expect(foo.get()).to.have.lengthOf(4);
+        expect(foo.get()).to.deep.equal([div, span, em, p]);
+    });
+
     it('should remove an element from a ref store', () => {
         const foo = ref();
         const frag = html`<div ref=${foo}></div><span ref=${foo}></span>`;
@@ -59,6 +82,7 @@ describe('ref', () => {
         foo.subscribe(spy);
 
         expect(spy.callCount).to.equal(1);
+
         expect(spy.args[0][0]).to.deep.equal([]);
         expect(spy.args[0][1]).to.equal(undefined);
         expect(spy.args[0][2]).to.equal(undefined);
@@ -67,33 +91,37 @@ describe('ref', () => {
         const div = html`<div ref=${foo}></div>`;
 
         expect(spy.callCount).to.equal(2);
+
         expect(spy.args[1][0]).to.deep.equal([div]);
         expect(spy.args[1][1]).to.deep.equal([]);
         expect(spy.args[1][0]).to.not.equal(spy.args[1][1]);
         expect(spy.args[1][2]).to.equal(div);
         expect(spy.args[1][3]).to.equal(1);
 
-        const span = html`<span ref=${foo}></span>`;
+        const frag = html`<span ref=${foo}></span><em ref=${foo}></em>`;
+        const span = frag.children[0];
+        const em = frag.children[1];
 
-        expect(spy.callCount).to.equal(3);
+        expect(spy.callCount).to.equal(4);
+
         expect(spy.args[2][0]).to.deep.equal([div, span]);
         expect(spy.args[2][1]).to.deep.equal([div]);
         expect(spy.args[2][0]).to.not.equal(spy.args[2][1]);
         expect(spy.args[2][2]).to.equal(span);
         expect(spy.args[2][3]).to.equal(1);
 
-        const frag = html`<em ref=${foo}></em><p ref=${foo}></p><i ref=${foo}></i>`;
-        const em = frag.children[0];
-        const p = frag.children[1];
-        const i = frag.children[2];
-
-        expect(spy.callCount).to.equal(6);
-
         expect(spy.args[3][0]).to.deep.equal([div, span, em]);
         expect(spy.args[3][1]).to.deep.equal([div, span]);
         expect(spy.args[3][0]).to.not.equal(spy.args[3][1]);
         expect(spy.args[3][2]).to.equal(em);
         expect(spy.args[3][3]).to.equal(1);
+
+        const p = html`<p></p>`;
+        const i = html`<i></i>`;
+
+        foo.add(p, i);
+
+        expect(spy.callCount).to.equal(6);
 
         expect(spy.args[4][0]).to.deep.equal([div, span, em, p]);
         expect(spy.args[4][1]).to.deep.equal([div, span, em]);
@@ -123,26 +151,35 @@ describe('ref', () => {
         foo.subscribe(spy);
 
         expect(spy.callCount).to.equal(1);
+
         expect(spy.args[0][0]).to.deep.equal([div, span, em]);
         expect(spy.args[0][1]).to.equal(undefined);
 
         foo.remove(span);
 
         expect(spy.callCount).to.equal(2);
+
         expect(spy.args[1][0]).to.deep.equal([div, em]);
         expect(spy.args[1][1]).to.deep.equal([div, span, em]);
         expect(spy.args[1][0]).to.not.equal(spy.args[1][1]);
         expect(spy.args[1][2]).to.equal(span);
         expect(spy.args[1][3]).to.equal(-1);
 
-        foo.remove(div);
+        foo.remove(div, em);
 
-        expect(spy.callCount).to.equal(3);
+        expect(spy.callCount).to.equal(4);
+
         expect(spy.args[2][0]).to.deep.equal([em]);
         expect(spy.args[2][1]).to.deep.equal([div, em]);
         expect(spy.args[2][0]).to.not.equal(spy.args[2][1]);
         expect(spy.args[2][2]).to.equal(div);
         expect(spy.args[2][3]).to.equal(-1);
+
+        expect(spy.args[3][0]).to.deep.equal([]);
+        expect(spy.args[3][1]).to.deep.equal([em]);
+        expect(spy.args[3][0]).to.not.equal(spy.args[3][1]);
+        expect(spy.args[3][2]).to.equal(em);
+        expect(spy.args[3][3]).to.equal(-1);
     });
 
     it('should not allow an element to be added to the same ref store multiple times', () => {
@@ -175,6 +212,7 @@ describe('ref', () => {
         foo.subscribe(spy);
 
         expect(spy.callCount).to.equal(1);
+
         expect(spy.args[0][0]).to.deep.equal([]);
         expect(spy.args[0][1]).to.equal(undefined);
         expect(spy.args[0][2]).to.equal(undefined);
@@ -192,6 +230,7 @@ describe('ref', () => {
         const li3 = el.children[2];
 
         expect(spy.callCount).to.equal(4);
+        
         expect(spy.args[1][0]).to.deep.equal([li1]);
         expect(spy.args[1][1]).to.deep.equal([]);
         expect(spy.args[1][2]).to.equal(li1);
