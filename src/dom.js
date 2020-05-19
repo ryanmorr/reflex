@@ -2,6 +2,7 @@ import htm from 'htm';
 import { isStore } from './store';
 import { isRef } from './ref';
 import { isBinding } from './bind';
+import { isHook } from './hook';
 import { queueRender } from './queue';
 import { attach } from './bindings';
 import { uuid } from './util';
@@ -147,16 +148,24 @@ function createElement(nodeName, attributes, ...children) {
     if (attributes) {
         for (const name in attributes) {
             let value = attributes[name];
-            if (isBinding(value)) {
-                value(element, name);
-            } else if (name === 'ref' && isRef(value)) {
-                value.add(element);
-            } else if (isStore(value)) {
-                const store = value;
-                value = store.get();
-                observeAttribute(element, store, name, value, isSvg);
-            } else {
-                patchAttribute(element, name, null, value, isSvg);
+            if (isHook(value)) {
+                value(element, name, attributes);
+            }
+        }
+        for (const name in attributes) {
+            let value = attributes[name];
+            if (!isHook(value)) {
+                if (isBinding(value)) {
+                    value(element, name);
+                } else if (name === 'ref' && isRef(value)) {
+                    value.add(element);
+                } else if (isStore(value)) {
+                    const store = value;
+                    value = store.get();
+                    observeAttribute(element, store, name, value, isSvg);
+                } else {
+                    patchAttribute(element, name, null, value, isSvg);
+                }
             }
         }
     }

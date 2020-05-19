@@ -7,3 +7,4 @@ import './component';
 import './ref';
 import './dispose';
 import './tick';
+import './hook';
