@@ -13,6 +13,10 @@ export function queueRender(key, value, callback) {
     queue.set(key, value);
 }
 
-export function tick() {
-    return new Promise((resolve) => scheduleRender(resolve));
+export function tick(...callbacks) {
+    const promise = new Promise((resolve) => scheduleRender(resolve));
+    if (callbacks.length > 0) {
+        callbacks.forEach((callback) => promise.then(callback));
+    }
+    return promise;
 }
