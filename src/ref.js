@@ -1,4 +1,5 @@
 import createStore from '@ryanmorr/create-store';
+import { attach } from './bindings';
 
 const REF = Symbol('ref');
 
@@ -19,9 +20,12 @@ export const ref = createStore((get, set) => () => {
         },
         add(element) {
             const prevElements = get();
-            const nextElements = prevElements.slice();
-            nextElements.push(element);
-            set(nextElements, prevElements);
+            if (element.nodeName && prevElements.indexOf(element) === -1) {
+                const nextElements = prevElements.slice();
+                nextElements.push(element);
+                set(nextElements, prevElements, element, 1);
+                attach(element, () => this.remove(element));
+            }
         },
         remove(element) {
             const prevElements = get();
@@ -29,7 +33,7 @@ export const ref = createStore((get, set) => () => {
             if (index !== -1) {
                 const nextElements = prevElements.slice();
                 nextElements.splice(index, 1);
-                set(nextElements, prevElements);
+                set(nextElements, prevElements, element, -1);
             }
         }
     };

@@ -211,7 +211,6 @@ function observeNode(store) {
             queueRender(key, nextVal, (value) => {
                 prevNode = patchNode(prevNode, value, marker);
                 prevVal = value;
-
                 attach(prevNode, unsubscribe);
             });
         }
