@@ -12,3 +12,7 @@ export function queueRender(key, value, callback) {
     }
     queue.set(key, value);
 }
+
+export function tick() {
+    return new Promise((resolve) => scheduleRender(resolve));
+}

@@ -4,5 +4,6 @@ import './derived';
 import './bind';
 import './each';
 import './component';
-import './dispose';
 import './ref';
+import './dispose';
+import './tick';
