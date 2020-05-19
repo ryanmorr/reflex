@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { html, tick, store, each } from '../../src/reflex';
 
 describe('tick', () => {
