@@ -32,6 +32,18 @@ describe('each', () => {
         expect(callback.args[2][2]).to.equal(array);
     });
 
+    it('should not render an undefined list', () => {
+        const list = store();
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => html`<li>${item}</li>`)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('');
+    });
+
     it('should append nodes', (done) => {
         const list = store([1, 2]);
 
