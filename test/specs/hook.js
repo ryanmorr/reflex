@@ -1,5 +1,4 @@
-import { waitForRender } from '../setup';
-import { html, store, hook } from '../../src/reflex';
+import { html, hook } from '../../src/reflex';
 
 describe('hook', () => {
     it('should call a hook when creating an element', () => {
