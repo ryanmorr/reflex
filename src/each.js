@@ -42,6 +42,11 @@ function findGreatestIndexLEQ(seq, n) {
     return lo;
 }
 
+function removeNode(parent, node) {
+    parent.removeChild(node);
+    dispose(node);
+}
+
 function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode) {
     if (data.length === 0) {
         if (beforeNode !== undefined || afterNode !== undefined) {
@@ -51,8 +56,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             }
             while(node !== afterNode) {
                 tmp = node.nextSibling;
-                parent.removeChild(node);
-                dispose(node);
+                removeNode(parent, node);
                 node = tmp;
             }
         } else {
@@ -137,12 +141,10 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             let next;
             while (prevStart <= prevEnd) {
                 if (prevEnd === 0) {
-                    parent.removeChild(prevEndNode);
-                    dispose(prevEndNode);
+                    removeNode(parent, prevEndNode);
                 } else {
                     next = prevEndNode.previousSibling;
-                    parent.removeChild(prevEndNode);
-                    dispose(prevEndNode);
+                    removeNode(parent, prevEndNode);
                     prevEndNode = next;
                 }
                 prevEnd--;
@@ -186,8 +188,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             }
             while (node !== afterNode) {
                 tmp = node.nextSibling;
-                parent.removeChild(node);
-                dispose(node);
+                removeNode(parent, node);
                 node = tmp;
                 prevStart++;
             }
@@ -210,8 +211,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
     }
     for (let i = 0; i < toRemove.length; i++) {
         const node = nodes[toRemove[i]];
-        parent.removeChild(node);
-        dispose(node);
+        removeNode(parent, node);
     }
     let lisIdx = longestSeq.length - 1, tmpD;
     for (let i = newEnd; i >= newStart; i--) {
