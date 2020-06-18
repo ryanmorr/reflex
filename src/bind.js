@@ -1,5 +1,5 @@
 import { attach } from './bindings';
-import { queueRender } from './queue';
+import { queueRender } from './render';
 import { uuid } from './util';
 
 const BINDING = Symbol('binding');

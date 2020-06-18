@@ -3,7 +3,7 @@ import { isStore } from './store';
 import { isRef } from './ref';
 import { isBinding } from './bind';
 import { isHook } from './hook';
-import { queueRender } from './queue';
+import { queueRender } from './render';
 import { attach } from './bindings';
 import { uuid } from './util';
 

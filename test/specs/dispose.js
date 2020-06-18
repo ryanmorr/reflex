@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { html, store, bind, each, dispose } from '../../src/reflex';
 
 describe('dispose', () => {
@@ -8,14 +7,12 @@ describe('dispose', () => {
         
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        text.set('bar');
-        waitForRender(() => {
+        text.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div>bar</div>');
             
             dispose(el);
 
-            text.set('baz');
-            waitForRender(() => {
+            text.set('baz').then(() => {
                 expect(el.outerHTML).to.equal('<div>bar</div>');
                 done();
             });
@@ -28,14 +25,12 @@ describe('dispose', () => {
         
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
 
-        attr.set('bar');
-        waitForRender(() => {
+        attr.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div id="bar"></div>');
             
             dispose(el);
 
-            attr.set('baz');
-            waitForRender(() => {
+            attr.set('baz').then(() => {
                 expect(el.outerHTML).to.equal('<div id="bar"></div>');
                 done();
             });
@@ -50,15 +45,13 @@ describe('dispose', () => {
         expect(el.outerHTML).to.equal('<div id="foo">bar</div>');
 
         attr.set('baz');
-        text.set('qux');
-        waitForRender(() => {
+        text.set('qux').then(() => {
             expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
             
             dispose(el);
             
             attr.set('abc');
-            text.set('xyz');
-            waitForRender(() => {
+            text.set('xyz').then(() => {
                 expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
                 done();
             });
@@ -71,14 +64,12 @@ describe('dispose', () => {
         
         expect(el.outerHTML).to.equal('<div><section><span>foo</span><em>foo</em></section></div>');
 
-        text.set('bar');
-        waitForRender(() => {
+        text.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
             
             dispose(el);
 
-            text.set('baz');
-            waitForRender(() => {
+            text.set('baz').then(() => {
                 expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
                 done();
             });
@@ -96,16 +87,14 @@ describe('dispose', () => {
         expect(el2.outerHTML).to.equal('<div>bar</div>');
 
         attr.set('baz');
-        text.set('qux');
-        waitForRender(() => {
+        text.set('qux').then(() => {
             expect(el1.outerHTML).to.equal('<div id="baz"></div>');
             expect(el2.outerHTML).to.equal('<div>qux</div>');
             
             dispose(el1, el2);
             
             attr.set('abc');
-            text.set('xyz');
-            waitForRender(() => {
+            text.set('xyz').then(() => {
                 expect(el1.outerHTML).to.equal('<div id="baz"></div>');
                 expect(el2.outerHTML).to.equal('<div>qux</div>');
                 done();
@@ -121,14 +110,12 @@ describe('dispose', () => {
 
         expect(el.outerHTML).to.equal('<div><span>foo</span></div>');
 
-        text.set('bar');
-        waitForRender(() => {
+        text.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
             
             dispose(el);
                 
-            text.set('baz');
-            waitForRender(() => {
+            text.set('baz').then(() => {
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
                 done();
@@ -146,19 +133,16 @@ describe('dispose', () => {
 
         expect(el.outerHTML).to.equal('<div id="bar"><span>foo</span></div>');
 
-        text.set('baz');
-        waitForRender(() => {
+        text.set('baz').then(() => {
             expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
             
             dispose(span);
                 
-            text.set('qux');
-            waitForRender(() => {
+            text.set('qux').then(() => {
                 expect(span.outerHTML).to.equal('<span>baz</span>');
                 expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
                 
-                attr.set('qux');
-                waitForRender(() => {
+                attr.set('qux').then(() => {
                     expect(el.outerHTML).to.equal('<div id="qux"><span>baz</span></div>');
                     done();
                 });
@@ -178,16 +162,14 @@ describe('dispose', () => {
         expect(span.outerHTML).to.equal('<span>foo</span>');
         expect(em.outerHTML).to.equal('<em>foo</em>');
 
-        text.set('bar');
-        waitForRender(() => {
+        text.set('bar').then(() => {
             expect(div.outerHTML).to.equal('<div>bar</div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
             expect(em.outerHTML).to.equal('<em>bar</em>');
             
             dispose(span);
                 
-            text.set('baz');
-            waitForRender(() => {
+            text.set('baz').then(() => {
                 expect(div.outerHTML).to.equal('<div>baz</div>');
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(em.outerHTML).to.equal('<em>baz</em>');
@@ -202,14 +184,12 @@ describe('dispose', () => {
 
         expect(input.value).to.equal('foo');
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(input.value).to.equal('bar');
             
             dispose(input);
 
-            value.set('baz');
-            waitForRender(() => {
+            value.set('baz').then(() => {
                 expect(input.value).to.equal('bar');
                 
                 input.addEventListener('input', () => {
@@ -229,14 +209,12 @@ describe('dispose', () => {
 
         expect(input.value).to.equal('0');
 
-        value.set(3);
-        waitForRender(() => {
+        value.set(3).then(() => {
             expect(input.value).to.equal('3');
             
             dispose(input);
                 
-            value.set(5);
-            waitForRender(() => {
+            value.set(5).then(() => {
                 expect(input.value).to.equal('3');
                 
                 input.addEventListener('input', () => {
@@ -256,14 +234,12 @@ describe('dispose', () => {
 
         expect(input.checked).to.equal(true);
 
-        checked.set(false);
-        waitForRender(() => {
+        checked.set(false).then(() => {
             expect(input.checked).to.equal(false);
             
             dispose(input);
 
-            checked.set(true);
-            waitForRender(() => {
+            checked.set(true).then(() => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
@@ -283,14 +259,12 @@ describe('dispose', () => {
 
         expect(input.checked).to.equal(true);
 
-        checked.set(false);
-        waitForRender(() => {
+        checked.set(false).then(() => {
             expect(input.checked).to.equal(false);
             
             dispose(input);
                 
-            checked.set(true);
-            waitForRender(() => {
+            checked.set(true).then(() => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
@@ -310,14 +284,12 @@ describe('dispose', () => {
 
         expect(textarea.value).to.equal('foo');
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(textarea.value).to.equal('bar');
             
             dispose(textarea);
                 
-            value.set('baz');
-            waitForRender(() => {
+            value.set('baz').then(() => {
                 expect(textarea.value).to.equal('bar');
                 
                 textarea.addEventListener('input', () => {
@@ -344,15 +316,13 @@ describe('dispose', () => {
         expect(select.value).to.equal('foo');
         expect(select.selectedIndex).to.equal(0);
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(select.value).to.equal('bar');
             expect(select.selectedIndex).to.equal(1);
             
             dispose(select);
                 
-            value.set('baz');
-            waitForRender(() => {
+            value.set('baz').then(() => {
                 expect(select.value).to.equal('bar');
                 expect(select.selectedIndex).to.equal(1);
                 
@@ -380,14 +350,12 @@ describe('dispose', () => {
         expect(select.value).to.equal('foo');
         expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0]]);
 
-        value.set(['foo', 'baz']);
-        waitForRender(() => {
+        value.set(['foo', 'baz']).then(() => {
             expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
             
             dispose(select);
 
-            value.set(['bar']);
-            waitForRender(() => {
+            value.set(['bar']).then(() => {
                 expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
                 
                 select.addEventListener('input', () => {
@@ -419,18 +387,15 @@ describe('dispose', () => {
         const li2 = el.children[1];
         const li3 = el.children[2];
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(li1.textContent).to.equal('1 bar');
             expect(li2.textContent).to.equal('2 bar');
             expect(li3.textContent).to.equal('3 bar');
             
-            list.set([4, 5, 6]);
-            waitForRender(() => {
+            list.set([4, 5, 6]).then(() => {
                 expect(el.innerHTML).to.equal('<li>4 bar</li><li>5 bar</li><li>6 bar</li>');
 
-                value.set('baz');
-                waitForRender(() => {
+                value.set('baz').then(() => {
                     expect(el.innerHTML).to.equal('<li>4 baz</li><li>5 baz</li><li>6 baz</li>');
                     expect(li1.textContent).to.equal('1 bar');
                     expect(li2.textContent).to.equal('2 bar');
@@ -458,19 +423,16 @@ describe('dispose', () => {
         const li3 = el.children[2];
         const li4 = el.children[3];
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(li1.textContent).to.equal('1 bar');
             expect(li2.textContent).to.equal('2 bar');
             expect(li3.textContent).to.equal('3 bar');
             expect(li4.textContent).to.equal('4 bar');
             
-            list.set([3, 4]);
-            waitForRender(() => {
+            list.set([3, 4]).then(() => {
                 expect(el.innerHTML).to.equal('<li>3 bar</li><li>4 bar</li>');
 
-                value.set('baz');
-                waitForRender(() => {
+                value.set('baz').then(() => {
                     expect(el.innerHTML).to.equal('<li>3 baz</li><li>4 baz</li>');
                     expect(li1.textContent).to.equal('1 bar');
                     expect(li2.textContent).to.equal('2 bar');
@@ -499,19 +461,16 @@ describe('dispose', () => {
         const li3 = el.children[2];
         const li4 = el.children[3];
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(li1.textContent).to.equal('1 bar');
             expect(li2.textContent).to.equal('2 bar');
             expect(li3.textContent).to.equal('3 bar');
             expect(li4.textContent).to.equal('4 bar');
             
-            list.set([2, 3]);
-            waitForRender(() => {
+            list.set([2, 3]).then(() => {
                 expect(el.innerHTML).to.equal('<li>2 bar</li><li>3 bar</li>');
 
-                value.set('baz');
-                waitForRender(() => {
+                value.set('baz').then(() => {
                     expect(el.innerHTML).to.equal('<li>2 baz</li><li>3 baz</li>');
                     expect(li1.textContent).to.equal('1 bar');
                     expect(li2.textContent).to.equal('2 baz');
@@ -540,19 +499,16 @@ describe('dispose', () => {
         const li3 = el.children[2];
         const li4 = el.children[3];
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(li1.textContent).to.equal('1 bar');
             expect(li2.textContent).to.equal('2 bar');
             expect(li3.textContent).to.equal('3 bar');
             expect(li4.textContent).to.equal('4 bar');
             
-            list.set([1, 2]);
-            waitForRender(() => {
+            list.set([1, 2]).then(() => {
                 expect(el.innerHTML).to.equal('<li>1 bar</li><li>2 bar</li>');
 
-                value.set('baz');
-                waitForRender(() => {
+                value.set('baz').then(() => {
                     expect(el.innerHTML).to.equal('<li>1 baz</li><li>2 baz</li>');
                     expect(li1.textContent).to.equal('1 baz');
                     expect(li2.textContent).to.equal('2 baz');

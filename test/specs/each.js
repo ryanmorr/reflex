@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { store } from '../../src/store';
 import { html, each } from '../../src/reflex';
 
@@ -58,9 +57,7 @@ describe('each', () => {
         const li1 = el.children[0];
         const li2 = el.children[1];
 
-        list.set([1, 2, 3, 4, 5]);
-
-        waitForRender(() => {
+        list.set([1, 2, 3, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
@@ -83,9 +80,7 @@ describe('each', () => {
         const li2 = el.children[1];
         const li3 = el.children[2];
 
-        list.set([1, 2, 3, 4, 5]);
-
-        waitForRender(() => {
+        list.set([1, 2, 3, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
             expect(el.children[2]).to.equal(li1);
             expect(el.children[3]).to.equal(li2);
@@ -109,9 +104,7 @@ describe('each', () => {
         const li2 = el.children[1];
         const li3 = el.children[2];
 
-        list.set([1, 2, 3, 4, 5]);
-
-        waitForRender(() => {
+        list.set([1, 2, 3, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
@@ -135,9 +128,7 @@ describe('each', () => {
         const li2 = el.children[1];
         const li3 = el.children[2];
 
-        list.set([1, 2, 3, 4, 5]);
-
-        waitForRender(() => {
+        list.set([1, 2, 3, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
             expect(el.children[1]).to.equal(li1);
             expect(el.children[2]).to.equal(li2);
@@ -157,9 +148,7 @@ describe('each', () => {
 
         expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
 
-        list.set([]);
-
-        waitForRender(() => {
+        list.set([]).then(() => {
             expect(el.innerHTML).to.equal('');
             done();
         });
@@ -180,9 +169,7 @@ describe('each', () => {
         const li2 = el.children[3];
         const li3 = el.children[4];
 
-        list.set([3, 4, 5]);
-
-        waitForRender(() => {
+        list.set([3, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>3</li><li>4</li><li>5</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
@@ -206,9 +193,7 @@ describe('each', () => {
         const li2 = el.children[3];
         const li3 = el.children[4];
 
-        list.set([1, 4, 5]);
-
-        waitForRender(() => {
+        list.set([1, 4, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>4</li><li>5</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
@@ -231,9 +216,7 @@ describe('each', () => {
         const li1 = el.children[2];
         const li2 = el.children[3];
 
-        list.set([3, 4]);
-
-        waitForRender(() => {
+        list.set([3, 4]).then(() => {
             expect(el.innerHTML).to.equal('<li>3</li><li>4</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
@@ -258,9 +241,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([2, 3, 4, 1, 5]);
-
-        waitForRender(() => {
+        list.set([2, 3, 4, 1, 5]).then(() => {
             expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>1</li><li>5</li>');
             expect(el.children[0]).to.equal(li2);
             expect(el.children[1]).to.equal(li3);
@@ -288,9 +269,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([2, 3, 4, 5, 1]);
-
-        waitForRender(() => {
+        list.set([2, 3, 4, 5, 1]).then(() => {
             expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>5</li><li>1</li>');
             expect(el.children[0]).to.equal(li2);
             expect(el.children[1]).to.equal(li3);
@@ -318,9 +297,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([1, 5, 4, 2, 3]);
-
-        waitForRender(() => {
+        list.set([1, 5, 4, 2, 3]).then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>5</li><li>4</li><li>2</li><li>3</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li5);
@@ -348,9 +325,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([5, 1, 2, 3, 4]);
-
-        waitForRender(() => {
+        list.set([5, 1, 2, 3, 4]).then(() => {
             expect(el.innerHTML).to.equal('<li>5</li><li>1</li><li>2</li><li>3</li><li>4</li>');
             expect(el.children[0]).to.equal(li5);
             expect(el.children[1]).to.equal(li1);
@@ -378,9 +353,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([5, 2, 3, 4, 1]);
-
-        waitForRender(() => {
+        list.set([5, 2, 3, 4, 1]).then(() => {
             expect(el.innerHTML).to.equal('<li>5</li><li>2</li><li>3</li><li>4</li><li>1</li>');
             expect(el.children[0]).to.equal(li5);
             expect(el.children[1]).to.equal(li2);
@@ -408,9 +381,7 @@ describe('each', () => {
         const li4 = el.children[3];
         const li5 = el.children[4];
 
-        list.set([5, 4, 3, 2, 1]);
-
-        waitForRender(() => {
+        list.set([5, 4, 3, 2, 1]).then(() => {
             expect(el.innerHTML).to.equal('<li>5</li><li>4</li><li>3</li><li>2</li><li>1</li>');
             expect(el.children[0]).to.equal(li5);
             expect(el.children[1]).to.equal(li4);
@@ -438,9 +409,7 @@ describe('each', () => {
         const li4 = el.children[4];
         const li5 = el.children[6];
 
-        list.set([3, 5, 1, 7, 2, 9, 8]);
-
-        waitForRender(() => {
+        list.set([3, 5, 1, 7, 2, 9, 8]).then(() => {
             expect(el.innerHTML).to.equal('<li>3</li><li>5</li><li>1</li><li>7</li><li>2</li><li>9</li><li>8</li>');
             expect(el.children[0]).to.equal(li3);
             expect(el.children[1]).to.equal(li4);
@@ -467,9 +436,7 @@ describe('each', () => {
         const div1 = el.children[1];
         const div3 = el.children[3];
 
-        list.set([1, 4, 3, 5]);
-
-        waitForRender(() => {
+        list.set([1, 4, 3, 5]).then(() => {
             expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
             expect(el.children[1]).to.equal(div1);
             expect(el.children[3]).to.equal(div3);
@@ -492,9 +459,7 @@ describe('each', () => {
         expect(text2.nodeValue).to.equal('2');
         expect(text3.nodeValue).to.equal('3');
 
-        list.set([3, 1, 5, 2, 4]);
-
-        waitForRender(() => {
+        list.set([3, 1, 5, 2, 4]).then(() => {
             expect(el.innerHTML).to.equal('31524');
             expect(el.childNodes[1]).to.equal(text3);
             expect(el.childNodes[2]).to.equal(text1);
@@ -516,9 +481,7 @@ describe('each', () => {
         const span2 = el.childNodes[4];
         const text3 = el.childNodes[5];
 
-        list.set([1, 5, 2, 6, 3, 7, 4]);
-
-        waitForRender(() => {
+        list.set([1, 5, 2, 6, 3, 7, 4]).then(() => {
             expect(el.innerHTML).to.equal('15<span>2</span><span>6</span>37<span>4</span>');
             expect(el.childNodes[1]).to.equal(text1);
             expect(el.childNodes[2]).to.equal(text3);

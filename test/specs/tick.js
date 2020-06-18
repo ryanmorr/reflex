@@ -7,8 +7,9 @@ describe('tick', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        text.set('foo');
-        const promise = tick();
+        const promise = text.set('foo');
+        
+        expect(promise).to.equal(tick());
 
         expect(promise).to.be.a('promise');
         

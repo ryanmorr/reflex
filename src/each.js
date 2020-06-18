@@ -1,4 +1,4 @@
-import { queueRender } from './queue';
+import { queueRender } from './render';
 import { dispose } from './bindings';
 import { uuid } from './util';
 

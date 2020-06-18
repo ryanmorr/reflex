@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { store, isStore } from '../../src/store';
 import { html, component } from '../../src/reflex';
 
@@ -66,8 +65,7 @@ describe('component', () => {
 
         foo.set('xyz');
         bar.set(789);
-        children.set(html`<em>qux</em>`);
-        waitForRender(() => {
+        children.set(html`<em>qux</em>`).then(() => {
             expect(el.outerHTML).to.equal('<div foo="xyz" bar="789"><em>qux</em></div>');
             done();
         });
@@ -84,8 +82,7 @@ describe('component', () => {
         expect(componentSpy.args[0][0].foo).to.equal(foo);
         expect(el.outerHTML).to.equal('<div foo="foo">abc</div>');
 
-        foo.set('bar');
-        waitForRender(() => {
+        foo.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div foo="bar">abc</div>');
             done();
         });

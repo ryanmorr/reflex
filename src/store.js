@@ -1,4 +1,5 @@
 import createStore from '@ryanmorr/create-store';
+import { tick } from './render';
 
 export function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
@@ -6,7 +7,10 @@ export function isStore(obj) {
 
 export const store = createStore((get, set) => (value) => {
     set(value);
-    const setValue = (val) => set(val, get());
+    const setValue = (val) => {
+        set(val, get());
+        return tick();
+    };
     return {
         get,
         set: setValue,

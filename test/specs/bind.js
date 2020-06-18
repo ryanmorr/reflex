@@ -1,5 +1,4 @@
-import { waitForRender } from '../setup';
-import { html, store, bind } from '../../src/reflex';
+import { html, store, bind, tick } from '../../src/reflex';
 
 describe('bind', () => {
     it('should support two-way binding for a text input', (done) => {
@@ -8,8 +7,7 @@ describe('bind', () => {
 
         expect(el.value).to.equal('foo');
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
@@ -28,8 +26,7 @@ describe('bind', () => {
 
         expect(el.value).to.equal('2');
 
-        value.set(8);
-        waitForRender(() => {
+        value.set(8).then(() => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
@@ -48,8 +45,7 @@ describe('bind', () => {
 
         expect(el.value).to.equal('2');
 
-        value.set(8);
-        waitForRender(() => {
+        value.set(8).then(() => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
@@ -68,8 +64,7 @@ describe('bind', () => {
 
         expect(el.checked).to.equal(true);
 
-        checked.set(false);
-        waitForRender(() => {
+        checked.set(false).then(() => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
@@ -88,8 +83,7 @@ describe('bind', () => {
 
         expect(el.checked).to.equal(true);
 
-        checked.set(false);
-        waitForRender(() => {
+        checked.set(false).then(() => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
@@ -108,8 +102,7 @@ describe('bind', () => {
 
         expect(el.value).to.equal('foo');
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
@@ -137,8 +130,7 @@ describe('bind', () => {
         expect(el.selectedIndex).to.equal(0);
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(el.value).to.equal('bar');
             expect(el.selectedIndex).to.equal(1);
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1]]);
@@ -172,8 +164,7 @@ describe('bind', () => {
         expect(el.selectedIndex).to.equal(0);
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     
-        value.set(['foo', 'baz']);
-        waitForRender(() => {
+        value.set(['foo', 'baz']).then(() => {
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0], el.options[2]]);
         
             el.addEventListener('input', () => {
@@ -215,8 +206,7 @@ describe('bind', () => {
         expect(bazInput.checked).to.equal(false);
         expect(quxInput.checked).to.equal(false);
     
-        baz.set(true);
-        waitForRender(() => {
+        baz.set(true).then(() => {
             expect(fooInput.checked).to.equal(true);
             expect(barInput.checked).to.equal(false);
             expect(bazInput.checked).to.equal(true);
@@ -271,8 +261,7 @@ describe('bind', () => {
         expect(barInput.checked).to.equal(true);
         expect(bazInput.checked).to.equal(false);
     
-        foo.set(true);
-        waitForRender(() => {
+        foo.set(true).then(() => {
             expect(fooInput.checked).to.equal(true);
             expect(barInput.checked).to.equal(false);
             expect(bazInput.checked).to.equal(false);
@@ -394,13 +383,12 @@ describe('bind', () => {
         expect(input1.value).to.equal('foo');
         expect(input2.value).to.equal('foo');
 
-        value.set('bar');
-        waitForRender(() => {
+        value.set('bar').then(() => {
             expect(input1.value).to.equal('bar');
             expect(input2.value).to.equal('bar');
 
             input1.addEventListener('input', () => {
-                waitForRender(() => {
+                tick().then(() => {
                     expect(value.get()).to.equal('baz');
                     expect(input1.value).to.equal('baz');
                     expect(input2.value).to.equal('baz');

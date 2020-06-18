@@ -5,5 +5,5 @@ export { bind } from './bind';
 export { each } from './each';
 export { component } from './component';
 export { dispose } from './bindings';
-export { tick } from './queue';
+export { tick } from './render';
 export { hook } from './hook';

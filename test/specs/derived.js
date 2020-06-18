@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { html, store, derived } from '../../src/reflex';
 
 describe('derived', () => {
@@ -106,12 +105,10 @@ describe('derived', () => {
 
         expect(el.outerHTML).to.equal('<div><section><h1>foo</h1></section></div>');
 
-        title.set('bar');
-        waitForRender(() => {
+        title.set('bar').then(() => {
             expect(el.outerHTML).to.equal('<div><section><h1>bar</h1></section></div>');
 
-            title.set('baz');
-            waitForRender(() => {
+            title.set('baz').then(() => {
                 expect(el.outerHTML).to.equal('<div><section><h1>baz</h1></section></div>');
                 done();
             });
@@ -124,12 +121,10 @@ describe('derived', () => {
     
         expect(el.outerHTML).to.equal('<div class="foo bar"></div>');
     
-        className.set('baz');
-        waitForRender(() => {
+        className.set('baz').then(() => {
             expect(el.outerHTML).to.equal('<div class="foo baz"></div>');
 
-            className.set('qux');
-            waitForRender(() => {
+            className.set('qux').then(() => {
                 expect(el.outerHTML).to.equal('<div class="foo qux"></div>');
                 done();
             });

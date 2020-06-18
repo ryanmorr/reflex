@@ -1,4 +1,3 @@
-import { waitForRender } from '../setup';
 import { html, ref, store, each, dispose } from '../../src/reflex';
 
 describe('ref', () => {
@@ -246,8 +245,7 @@ describe('ref', () => {
         expect(spy.args[3][2]).to.equal(li3);
         expect(spy.args[3][3]).to.equal(1);  
             
-        list.set([3, 4, 5]);
-        waitForRender(() => {
+        list.set([3, 4, 5]).then(() => {
             const li4 = el.children[1];
             const li5 = el.children[2];
 
