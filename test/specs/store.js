@@ -455,4 +455,18 @@ describe('store', () => {
         expect(spy.args[2][0]).to.equal(120);
         expect(spy.args[2][1]).to.equal(20);
     });
+
+    it('should defer updates to use latest value', (done) => {
+        const text = store('foo');
+        const el = html`<div>${text}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>foo</div>');
+
+        text.set('bar');
+        text.set('baz');
+        text.set('qux').then(() => {
+            expect(el.outerHTML).to.equal('<div>qux</div>');
+            done();
+        });
+    });
 });
