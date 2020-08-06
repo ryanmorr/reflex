@@ -371,6 +371,67 @@ describe('bindings', () => {
         });
     });
 
+    it('should update a text node of an SVG element', (done) => {
+        const text = store();
+        const el = html`<svg><circle cx="50" cy="50" r="40">${text}</circle></svg>`;
+    
+        expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
+    
+        text.set('foo').then(() => {
+            expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40">foo</circle></svg>');
+            
+            text.set('bar').then(() => {
+                expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40">bar</circle></svg>');
+                done();
+            });
+        });
+    });
+    
+    it('should update an SVG element', (done) => {
+        const child = store();
+        const el = html`<svg>${child}</svg>`;
+    
+        expect(el.outerHTML).to.equal('<svg></svg>');
+    
+        child.set(html`<circle cx="50" cy="50" r="40" />`).then(() => {
+            expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
+            
+            child.set(html`<rect width="100" height="100" />`).then(() => {
+                expect(el.outerHTML).to.equal('<svg><rect width="100" height="100"></rect></svg>');
+                done();
+            });
+        });
+    });
+    
+    it('should update an attribute of an SVG element', (done) => {
+        const radius = store(50);
+        const el = html`<svg><circle cx="50" cy="50" r=${radius}></circle></svg>`;
+    
+        expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="50"></circle></svg>');
+    
+        radius.set(70).then(() => {
+            expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="70"></circle></svg>');
+            done();
+        });
+    });
+    
+    it('should not update a property of an SVG element', (done) => {
+        const textContent = store('foo');
+        const el = html`<svg><circle cx="50" cy="50" r="40" fill="red" textContent=${textContent}></circle></svg>`;
+        const circle = el.querySelector('circle');
+    
+        expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40" fill="red" textContent="foo"></circle></svg>');
+        expect(circle.getAttribute('textContent')).to.equal('foo');
+        expect(circle.textContent).to.equal('');
+    
+        textContent.set('bar').then(() => {
+            expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40" fill="red" textContent="bar"></circle></svg>');
+            expect(circle.getAttribute('textContent')).to.equal('bar');
+            expect(circle.textContent).to.equal('');
+            done();
+        });
+    });
+
     it('should support stores in multiple nodes', (done) => {
         const text = store('foo');
         const div = html`<div>${text}</div>`;
