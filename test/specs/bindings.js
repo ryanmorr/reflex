@@ -1,4 +1,4 @@
-import { html, store, derived } from '../../src/reflex';
+import { html, store, derived, tick } from '../../src/reflex';
 
 describe('bindings', () => {
     it('should render a store as a text node', () => {
@@ -490,6 +490,54 @@ describe('bindings', () => {
                     });
                 });
             });
+        });
+    });
+
+    it('should support custom stores with a subscribe and get method', (done) => {
+        const customStore = (value) => {
+            const subscribers = [];
+            const get = () => value;
+            const next = (v) => {
+                value = v;
+                subscribers.slice().forEach((subscriber) => subscriber(value));
+            };
+            const subscribe = (callback) => {
+                if (!subscribers.includes(callback)) {
+                    subscribers.push(callback);
+                    callback(value);
+                    return () => {
+                        const index = subscribers.indexOf(callback);
+                        if (index !== -1) {
+                            subscribers.splice(index, 1);
+                        }
+                    };
+                }
+            };
+            return {
+                get,
+                next,
+                subscribe
+            };
+        };
+
+        const value = customStore('foo');
+        const div = html`<div id=${value}></div>`;
+        const span = html`<span>${value}</span>`;
+
+        expect(div.outerHTML).to.equal('<div id="foo"></div>');
+        expect(span.outerHTML).to.equal('<span>foo</span>');
+
+        value.next('bar');
+        tick().then(() => {
+            expect(div.outerHTML).to.equal('<div id="bar"></div>');
+            expect(span.outerHTML).to.equal('<span>bar</span>');
+
+            value.next('baz');
+            tick().then(() => {
+                expect(div.outerHTML).to.equal('<div id="baz"></div>');
+                expect(span.outerHTML).to.equal('<span>baz</span>');
+                done();
+            }); 
         });
     });
 });
