@@ -1,4 +1,4 @@
-import { html, store, derived } from '../../src/reflex';
+import { store, derived } from '../../src/reflex';
 
 describe('derived', () => {
     it('should get the internal value derived from a store dependency', () => {
@@ -95,39 +95,5 @@ describe('derived', () => {
         expect(value.get()).to.equal('xyz');
         expect(fooBarSpy.callCount).to.equal(3);
         expect(valueSpy.callCount).to.equal(4);
-    });
-
-    it('should update elements', (done) => {
-        const title = store('foo');
-        const h1 = derived(title, (title) => html`<h1>${title}</h1>`);
-        const section = derived(h1, (h1) => html`<section>${h1}</section>`);
-        const el = html`<div>${section}</div>`;
-
-        expect(el.outerHTML).to.equal('<div><section><h1>foo</h1></section></div>');
-
-        title.set('bar').then(() => {
-            expect(el.outerHTML).to.equal('<div><section><h1>bar</h1></section></div>');
-
-            title.set('baz').then(() => {
-                expect(el.outerHTML).to.equal('<div><section><h1>baz</h1></section></div>');
-                done();
-            });
-        });
-    });
-
-    it('should update element attributes', (done) => {
-        const className = store('bar');
-        const el = html`<div class=${derived(className, (cls) => `foo ${cls}`)}></div>`;
-    
-        expect(el.outerHTML).to.equal('<div class="foo bar"></div>');
-    
-        className.set('baz').then(() => {
-            expect(el.outerHTML).to.equal('<div class="foo baz"></div>');
-
-            className.set('qux').then(() => {
-                expect(el.outerHTML).to.equal('<div class="foo qux"></div>');
-                done();
-            });
-        });
     });
 });

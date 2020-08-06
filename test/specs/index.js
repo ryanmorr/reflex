@@ -1,6 +1,7 @@
 import './html';
 import './store';
 import './derived';
+import './bindings';
 import './bind';
 import './each';
 import './component';
