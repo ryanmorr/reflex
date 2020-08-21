@@ -493,15 +493,17 @@ describe('bindings', () => {
         });
     });
 
-    it('should support custom stores with a subscribe and get method', (done) => {
+    it('should support custom stores that have a subscribe method', (done) => {
         const customStore = (value) => {
             const subscribers = [];
-            const get = () => value;
-            const next = (v) => {
-                value = v;
+            const callback = (val) => {
+                if (val === undefined) {
+                    return value;
+                }
+                value = val;
                 subscribers.slice().forEach((subscriber) => subscriber(value));
             };
-            const subscribe = (callback) => {
+            callback.subscribe = (callback) => {
                 if (!subscribers.includes(callback)) {
                     subscribers.push(callback);
                     callback(value);
@@ -513,11 +515,7 @@ describe('bindings', () => {
                     };
                 }
             };
-            return {
-                get,
-                next,
-                subscribe
-            };
+            return callback;
         };
 
         const value = customStore('foo');
@@ -527,12 +525,12 @@ describe('bindings', () => {
         expect(div.outerHTML).to.equal('<div id="foo"></div>');
         expect(span.outerHTML).to.equal('<span>foo</span>');
 
-        value.next('bar');
+        value('bar');
         tick().then(() => {
             expect(div.outerHTML).to.equal('<div id="bar"></div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
 
-            value.next('baz');
+            value('baz');
             tick().then(() => {
                 expect(div.outerHTML).to.equal('<div id="baz"></div>');
                 expect(span.outerHTML).to.equal('<span>baz</span>');

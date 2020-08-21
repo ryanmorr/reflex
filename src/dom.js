@@ -160,9 +160,7 @@ function createElement(nodeName, attributes, ...children) {
                 } else if (name === 'ref' && isRef(value)) {
                     value.add(element);
                 } else if (isStore(value)) {
-                    const store = value;
-                    value = store.get();
-                    observeAttribute(element, store, name, value, isSvg);
+                    observeAttribute(element, value, name, isSvg);
                 } else {
                     patchAttribute(element, name, null, value, isSvg);
                 }
@@ -195,14 +193,19 @@ function getNode(node) {
     return createNode(node);
 }
 
-function observeAttribute(element, store, name, prevVal, isSvg) {
+function observeAttribute(element, store, name, isSvg) {
     const key = uuid();
+    let initialRender = true;
+    let prevVal; 
     const unsubscribe = store.subscribe((nextVal) => {
-        if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {           
+        if (!initialRender && (nextVal !== prevVal && !(prevVal == null && nextVal == null))) {           
             queueRender(key, nextVal, (value) => {
                 patchAttribute(element, name, prevVal, value, isSvg);
                 prevVal = value;
             });
+        } else {
+            prevVal = nextVal;
+            initialRender = false;
         }
     });
     attach(element, unsubscribe);
@@ -210,20 +213,25 @@ function observeAttribute(element, store, name, prevVal, isSvg) {
 }
 
 function observeNode(store) {
-    let prevVal = store.get();
     const key = uuid();
-    const node = createNode(prevVal);
     const marker = document.createTextNode('');
-    let prevNode = getNodes(node);
+    let initialRender = true;
+    let prevVal;
+    let prevNode; 
     const unsubscribe = store.subscribe((nextVal) => {
-        if (nextVal !== prevVal) { 
+        if (!initialRender && nextVal !== prevVal) { 
             queueRender(key, nextVal, (value) => {
                 prevNode = patchNode(prevNode, value, marker);
                 prevVal = value;
                 attach(prevNode, unsubscribe);
             });
+        } else {
+            prevVal = nextVal;
+            initialRender = false;
         }
     });
+    const node = createNode(prevVal);
+    prevNode = getNodes(node); 
     attach(prevNode, unsubscribe);
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
