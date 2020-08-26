@@ -76,32 +76,6 @@ describe('dispose', () => {
         });
     });
 
-    it('should dispose multiple bindings', (done) => {
-        const attr = store('foo');
-        const el1 = html`<div id=${attr}></div>`;
-
-        const text = store('bar');
-        const el2 = html`<div>${text}</div>`;
-        
-        expect(el1.outerHTML).to.equal('<div id="foo"></div>');
-        expect(el2.outerHTML).to.equal('<div>bar</div>');
-
-        attr.set('baz');
-        text.set('qux').then(() => {
-            expect(el1.outerHTML).to.equal('<div id="baz"></div>');
-            expect(el2.outerHTML).to.equal('<div>qux</div>');
-            
-            dispose(el1, el2);
-            
-            attr.set('abc');
-            text.set('xyz').then(() => {
-                expect(el1.outerHTML).to.equal('<div id="baz"></div>');
-                expect(el2.outerHTML).to.equal('<div>qux</div>');
-                done();
-            });
-        });
-    });
-
     it('should dispose nested store bindings', (done) => {
         const text = store('foo');
         const span = html`<span>${text}</span>`;

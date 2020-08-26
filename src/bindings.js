@@ -13,15 +13,13 @@ export function attach(node, callback) {
     bindings.set(node, callbacks);
 }
 
-export function dispose(...nodes) {
-    nodes.forEach((node) => {
-        const callbacks = bindings.get(node);
-        if (callbacks) {
-            callbacks.forEach((callback) => callback());
-            bindings.delete(node);
-        }
-        if (node.hasChildNodes()) {
-            dispose(...node.childNodes);
-        }
-    });
+export function dispose(node) {
+    const callbacks = bindings.get(node);
+    if (callbacks) {
+        callbacks.forEach((callback) => callback());
+        bindings.delete(node);
+    }
+    if (node.hasChildNodes()) {
+        Array.from(node.childNodes).forEach(dispose);
+    }
 }
