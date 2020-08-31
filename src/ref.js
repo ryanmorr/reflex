@@ -7,8 +7,8 @@ export function isRef(obj) {
     return obj && obj[REF] === true;
 }
 
-export const ref = createStore((get, set) => () => {
-    set([]);
+export const ref = createStore((get, set) => (...initialElements) => {
+    set(initialElements);
     return {
         [REF]: true,
         get(index) {

@@ -1,6 +1,20 @@
 import { html, ref, store, each, dispose } from '../../src/reflex';
 
 describe('ref', () => {
+    it('should initial ref store with elements', () => {
+        const div = html`<div></div>`;
+        const span = html`<span></span>`;
+        const em = html`<em></em>`;
+
+        const foo = ref(div, span, em);
+
+        expect(foo.get()).to.have.lengthOf(3);
+        expect(foo.get()).to.deep.equal([div, span, em]);
+        expect(foo.get(0)).to.equal(div);
+        expect(foo.get(1)).to.equal(span);
+        expect(foo.get(2)).to.equal(em);
+    });
+
     it('should add an element to a ref store', () => {
         const foo = ref();
 
