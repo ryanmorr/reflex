@@ -1,7 +1,10 @@
-import { store, isStore } from '../../src/store';
-import { html, component } from '../../src/reflex';
+import { html, val, component } from '../../src/reflex';
 
 describe('component', () => {
+    function isStore(obj) {
+        return obj && typeof obj.subscribe === 'function';
+    }
+    
     it('should support stateless functional components', () => {
         const Component = sinon.spy(({foo, bar, children}) => html`<div foo=${foo} bar=${bar}>${children}</div>`);
 
@@ -72,7 +75,7 @@ describe('component', () => {
     });
 
     it('should not convert a store into a store', (done) => {
-        const foo = store('foo');
+        const foo = val('foo');
         const componentSpy = sinon.spy(({foo, bar}) => html`<div foo=${foo}>${bar}</div>`);
         const Component = sinon.spy(component(componentSpy));
 

@@ -1,8 +1,8 @@
-import { html, tick, store, each } from '../../src/reflex';
+import { html, tick, val, each } from '../../src/reflex';
 
 describe('tick', () => {
     it('should resolve after a previously queued update has been rendered', (done) => {
-        const text = store();
+        const text = val();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -20,9 +20,9 @@ describe('tick', () => {
     });
 
     it('should resolve after multiple previously queued updates have been rendered', (done) => {
-        const text = store();
-        const attr = store();
-        const list = store();
+        const text = val();
+        const attr = val();
+        const list = val();
 
         const div = html`<div>${text}</div>`;
         const span = html`<span class=${attr}></span>`;
@@ -45,7 +45,7 @@ describe('tick', () => {
     });
 
     it('should support adding multiple thenables via spread arguments', (done) => {
-        const text = store();
+        const text = val();
         const el = html`<div>${text}</div>`;
 
         const spy1 = sinon.spy();

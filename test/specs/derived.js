@@ -1,25 +1,25 @@
-import { store, derived } from '../../src/reflex';
+import { val, derived } from '../../src/reflex';
 
 describe('derived', () => {
     it('should get the internal value derived from a store dependency', () => {
-        const foo = store('foo');
+        const foo = val('foo');
         const computed = derived(foo, (val) => val + 'bar');
 
         expect(computed.get()).to.equal('foobar');
     });
 
     it('should get the internal value derived from multiple store dependencies', () => {
-        const foo = store('foo');
-        const bar = store('bar');
-        const baz = store('baz');
+        const foo = val('foo');
+        const bar = val('bar');
+        const baz = val('baz');
         const computed = derived(foo, bar, baz, (foo, bar, baz) => foo + bar + baz);
 
         expect(computed.get()).to.equal('foobarbaz');
     });
 
     it('should not be able to explicitly set the internal value', () => {
-        const foo = store('foo');
-        const bar = store('bar');
+        const foo = val('foo');
+        const bar = val('bar');
         const computed = derived(foo, bar, (foo, bar) => foo + bar);
 
         expect(computed.set).to.equal(undefined);
@@ -27,8 +27,8 @@ describe('derived', () => {
     });
 
     it('should automatically update the internal value if a dependency changes', () => {
-        const firstName = store('John');
-        const lastName = store('Doe');
+        const firstName = val('John');
+        const lastName = val('Doe');
         const fullName = derived(firstName, lastName, (firstName, lastName) => `${firstName} ${lastName}`);
 
         expect(fullName.get()).to.equal('John Doe');
@@ -41,8 +41,8 @@ describe('derived', () => {
     });
 
     it('should call subscribers immediately and when the internal value changes', () => {
-        const foo = store(10);
-        const bar = store(20);
+        const foo = val(10);
+        const bar = val(20);
         const computed = derived(foo, bar, (foo, bar) => foo + bar);
         
         const spy = sinon.spy();
@@ -64,9 +64,9 @@ describe('derived', () => {
     });
 
     it('should support derived dependencies', () => {
-        const foo = store('a');
-        const bar = store('b');
-        const baz = store('c');
+        const foo = val('a');
+        const bar = val('b');
+        const baz = val('c');
 
         const fooBar = derived(foo, bar, (a, b) => a + b);
         const value = derived(fooBar, baz, (a, b) => a + b);

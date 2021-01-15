@@ -1,22 +1,22 @@
-import { html, store, derived, tick } from '../../src/reflex';
+import { html, val, derived, tick } from '../../src/reflex';
 
 describe('bindings', () => {
-    it('should render a store as a text node', () => {
-        const text = store('foo');
+    it('should render a val store as a text node', () => {
+        const text = val('foo');
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
-    it('should render a store as an attribute', () => {
-        const attr = store('foo');
+    it('should render a val store as an attribute', () => {
+        const attr = val('foo');
         const el = html`<div id=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
     });
 
     it('should update a text node', (done) => {
-        const text = store();
+        const text = val();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -32,7 +32,7 @@ describe('bindings', () => {
     });
 
     it('should update an element', (done) => {
-        const child = store();
+        const child = val();
         const el = html`<div>${child}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -48,7 +48,7 @@ describe('bindings', () => {
     });
 
     it('should update multiple nodes', (done) => {
-        const nodes = store();
+        const nodes = val();
         const el = html`<div>${nodes}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -64,7 +64,7 @@ describe('bindings', () => {
     });
 
     it('should remove nodes by providing null or undefined', (done) => {
-        const node = store('foo');
+        const node = val('foo');
         const el = html`<div>${node}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -92,7 +92,7 @@ describe('bindings', () => {
     });
 
     it('should update an attribute', (done) => {
-        const attr = store();
+        const attr = val();
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -104,7 +104,7 @@ describe('bindings', () => {
     });
 
     it('should remove attributes by providing null, undefined, or false', (done) => {
-        const attr = store('bar');
+        const attr = val('bar');
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
@@ -132,7 +132,7 @@ describe('bindings', () => {
     });
 
     it('should update the class attribute as an array', (done) => {
-        const className = store(['foo', 'bar']);
+        const className = val(['foo', 'bar']);
         const el = html`<div class=${className}></div>`;
         
         expect(el.className).to.equal('foo bar');
@@ -144,7 +144,7 @@ describe('bindings', () => {
     });
 
     it('should update the class attribute as an object', (done) => {    
-        const className = store({foo: true, bar: true, baz: true});
+        const className = val({foo: true, bar: true, baz: true});
         const el = html`<div class=${className}></div>`;
         
         expect(el.className).to.equal('foo bar baz');
@@ -156,7 +156,7 @@ describe('bindings', () => {
     });
 
     it('should update CSS styles as a string', (done) => {
-        const style = store('width: 100px; height: 200px');
+        const style = val('width: 100px; height: 200px');
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="width: 100px; height: 200px;"></div>');
@@ -168,7 +168,7 @@ describe('bindings', () => {
     });
 
     it('should update CSS styles as a key/value map', (done) => {
-        const style = store({'padding-bottom': '10px', paddingTop: '5px'});
+        const style = val({'padding-bottom': '10px', paddingTop: '5px'});
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 5px;"></div>');
@@ -180,7 +180,7 @@ describe('bindings', () => {
     });
 
     it('should remove a CSS style', (done) => {
-        const style = store({width: '100px'});
+        const style = val({width: '100px'});
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="width: 100px;"></div>');
@@ -192,7 +192,7 @@ describe('bindings', () => {
     });
 
     it('should update CSS variables', (done) => {
-        const style = store({color: 'var(--color)', '--color': 'red'});
+        const style = val({color: 'var(--color)', '--color': 'red'});
         const el = html`<div style=${style}></div>`;
 
         document.body.appendChild(el);
@@ -212,7 +212,7 @@ describe('bindings', () => {
     });
 
     it('should update boolean attributes', (done) => {
-        const checked = store(true);
+        const checked = val(true);
         const el = html`<input type="radio" checked=${checked} />`;
 
         expect(el.outerHTML).to.equal('<input type="radio">');
@@ -229,7 +229,7 @@ describe('bindings', () => {
     });
 
     it('should update dynamic properties', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const el = html`<input type="text" value=${value} />`;
 
         expect(el.outerHTML).to.equal('<input type="text">');
@@ -246,7 +246,7 @@ describe('bindings', () => {
     });
 
     it('should update an event listener', (done) => {
-        const clickHandler = store();
+        const clickHandler = val();
         const el = html`<div onclick=${clickHandler} />`;
 
         const addEventSpy = sinon.spy(el, 'addEventListener');
@@ -262,7 +262,7 @@ describe('bindings', () => {
 
     it('should remove an event listener', (done) => {
         const callback = sinon.spy();
-        const clickHandler = store(callback);
+        const clickHandler = val(callback);
         const el = html`<div onclick=${clickHandler} />`;
 
         const removeEventSpy = sinon.spy(el, 'removeEventListener');
@@ -276,7 +276,7 @@ describe('bindings', () => {
     });
 
     it('should update event listeners', (done) => {
-        const clickHandler = store();
+        const clickHandler = val();
         const el = html`<div onclick=${clickHandler} />`;
 
         const event1 = new CustomEvent('click');
@@ -320,7 +320,7 @@ describe('bindings', () => {
     });
 
     it('should update around sibling nodes without inference', (done) => {
-        const child = store('abc');
+        const child = val('abc');
         const el = html`<div>foo<span />${child}baz<em /><p /></div>`;
         const foo = el.childNodes[0];
         const span = el.childNodes[1];
@@ -356,7 +356,7 @@ describe('bindings', () => {
     });
 
     it('should update a text node around sibling text nodes', (done) => {
-        const text = store('abc');
+        const text = val('abc');
         const el = html`<div>foo${text}bar</div>`;
         const foo = el.childNodes[0];
         const baz = el.childNodes[2];
@@ -372,7 +372,7 @@ describe('bindings', () => {
     });
 
     it('should update a text node of an SVG element', (done) => {
-        const text = store();
+        const text = val();
         const el = html`<svg><circle cx="50" cy="50" r="40">${text}</circle></svg>`;
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
@@ -388,7 +388,7 @@ describe('bindings', () => {
     });
     
     it('should update an SVG element', (done) => {
-        const child = store();
+        const child = val();
         const el = html`<svg>${child}</svg>`;
     
         expect(el.outerHTML).to.equal('<svg></svg>');
@@ -404,7 +404,7 @@ describe('bindings', () => {
     });
     
     it('should update an attribute of an SVG element', (done) => {
-        const radius = store(50);
+        const radius = val(50);
         const el = html`<svg><circle cx="50" cy="50" r=${radius}></circle></svg>`;
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="50"></circle></svg>');
@@ -416,7 +416,7 @@ describe('bindings', () => {
     });
     
     it('should not update a property of an SVG element', (done) => {
-        const textContent = store('foo');
+        const textContent = val('foo');
         const el = html`<svg><circle cx="50" cy="50" r="40" fill="red" textContent=${textContent}></circle></svg>`;
         const circle = el.querySelector('circle');
     
@@ -433,7 +433,7 @@ describe('bindings', () => {
     });
 
     it('should support stores in multiple nodes', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const div = html`<div>${text}</div>`;
         const span = html`<span>${text}</span>`;
 
@@ -453,7 +453,7 @@ describe('bindings', () => {
     });
 
     it('should defer updates to use latest value', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -467,8 +467,8 @@ describe('bindings', () => {
     });
 
     it('should support derived stores', (done) => {
-        const title = store('foo');
-        const className = store('bar');
+        const title = val('foo');
+        const className = val('bar');
         const h1 = derived(title, (title) => html`<h1>${title}</h1>`);
         const section = derived(h1, (h1) => html`<section>${h1}</section>`);
         const el = html`<div class=${derived(className, (cls) => `foo ${cls}`)}>${section}</div>`;

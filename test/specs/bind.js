@@ -1,8 +1,8 @@
-import { html, store, bind, tick } from '../../src/reflex';
+import { html, val, bind, tick } from '../../src/reflex';
 
 describe('bind', () => {
     it('should support two-way binding for a text input', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const el = html`<input type="text" value=${bind(value)} />`;
 
         expect(el.value).to.equal('foo');
@@ -21,7 +21,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a numeric input', (done) => {
-        const value = store(2);
+        const value = val(2);
         const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
 
         expect(el.value).to.equal('2');
@@ -40,7 +40,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a range input', (done) => {
-        const value = store(2);
+        const value = val(2);
         const el = html`<input type="range" min="0" max="10" value=${bind(value)} />`;
 
         expect(el.value).to.equal('2');
@@ -59,7 +59,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a checkbox', (done) => {
-        const checked = store(true);
+        const checked = val(true);
         const el = html`<input type="checkbox" checked=${bind(checked)} />`;
 
         expect(el.checked).to.equal(true);
@@ -78,7 +78,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a radio button', (done) => {
-        const checked = store(true);
+        const checked = val(true);
         const el = html`<input type="radio" checked=${bind(checked)} />`;
 
         expect(el.checked).to.equal(true);
@@ -97,7 +97,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a textarea', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const el = html`<textarea value=${bind(value)}></textarea>`;
 
         expect(el.value).to.equal('foo');
@@ -116,7 +116,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a select', (done) => {
-        const value = store('foo');
+        const value = val('foo');
     
         const el = html`
             <select value=${bind(value)}>
@@ -149,7 +149,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a select multiple', (done) => {
-        const value = store(['foo']);
+        const value = val(['foo']);
     
         const el = html`
             <select multiple value=${bind(value)}>
@@ -182,10 +182,10 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for checkbox groups', (done) => {
-        const foo = store(true);
-        const bar = store(false);
-        const baz = store(false);
-        const qux = store(false);
+        const foo = val(true);
+        const bar = val(false);
+        const baz = val(false);
+        const qux = val(false);
     
         const el = html`
             <input type="checkbox" name="example" value="foo" checked=${bind(foo)} />
@@ -241,9 +241,9 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for radio button groups', (done) => {
-        const foo = store(false);
-        const bar = store(true);
-        const baz = store(false);
+        const foo = val(false);
+        const bar = val(true);
+        const baz = val(false);
     
         const el = html`
             <input type="radio" name="example" value="foo" checked=${bind(foo)} />
@@ -288,7 +288,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for text inputs', () => {
-        const value = store();
+        const value = val();
         const el = html`<input type="text" value=${bind(value)} />`;
 
         expect(value.get()).to.equal('');
@@ -296,7 +296,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a numeric input', () => {
-        const value = store();
+        const value = val();
         const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
 
         expect(value.get()).to.equal(0);
@@ -304,7 +304,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a range input', () => {
-        const value = store();
+        const value = val();
         const el = html`<input type="range" min="0" max="10" value=${bind(value)} />`;
 
         expect(value.get()).to.equal(0);
@@ -312,7 +312,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a checkbox', () => {
-        const checked = store();
+        const checked = val();
         const el = html`<input type="checkbox" checked=${bind(checked)} />`;
 
         expect(checked.get()).to.equal(false);
@@ -320,7 +320,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a radio button', () => {
-        const checked = store();
+        const checked = val();
         const el = html`<input type="radio" checked=${bind(checked)} />`;
 
         expect(checked.get()).to.equal(false);
@@ -328,7 +328,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a textarea', () => {
-        const value = store();
+        const value = val();
         const el = html`<textarea value=${bind(value)}></textarea>`;
 
         expect(value.get()).to.equal('');
@@ -336,7 +336,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a select', () => {
-        const value = store();
+        const value = val();
     
         const el = html`
             <select value=${bind(value)}>
@@ -353,7 +353,7 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for a select multiple', () => {
-        const value = store();
+        const value = val();
     
         const el = html`
             <select multiple value=${bind(value)}>
@@ -371,7 +371,7 @@ describe('bind', () => {
     });
 
     it('should support binding a store multiple times', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const el = html`
             <input type="text" value=${bind(value)} />
             <input type="text" value=${bind(value)} />

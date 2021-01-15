@@ -5,7 +5,7 @@ export function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
 }
 
-export const store = createStore((get, set) => (value) => {
+export const val = createStore((get, set) => (value) => {
     set(value);
     const setValue = (val) => {
         set(val, get());

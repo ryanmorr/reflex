@@ -1,10 +1,9 @@
-import { store } from '../../src/store';
-import { html, each } from '../../src/reflex';
+import { html, val, each } from '../../src/reflex';
 
 describe('each', () => {
     it('should render a list', () => {
         const array = [1, 2, 3];
-        const list = store(array);
+        const list = val(array);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
 
@@ -32,7 +31,7 @@ describe('each', () => {
     });
 
     it('should not render an undefined list', () => {
-        const list = store();
+        const list = val();
 
         const el = html`
             <ul>
@@ -44,7 +43,7 @@ describe('each', () => {
     });
 
     it('should append nodes', (done) => {
-        const list = store([1, 2]);
+        const list = val([1, 2]);
 
         const el = html`
             <ul>
@@ -66,7 +65,7 @@ describe('each', () => {
     });
 
     it('should prepend nodes', (done) => {
-        const list = store([3, 4, 5]);
+        const list = val([3, 4, 5]);
 
         const el = html`
             <ul>
@@ -90,7 +89,7 @@ describe('each', () => {
     });
 
     it('should add nodes in the middle', (done) => {
-        const list = store([1, 2, 5]);
+        const list = val([1, 2, 5]);
 
         const el = html`
             <ul>
@@ -114,7 +113,7 @@ describe('each', () => {
     });
 
     it('should add nodes at both ends', (done) => {
-        const list = store([2, 3, 4]);
+        const list = val([2, 3, 4]);
 
         const el = html`
             <ul>
@@ -138,7 +137,7 @@ describe('each', () => {
     });
 
     it('should remove nodes', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -155,7 +154,7 @@ describe('each', () => {
     });
 
     it('should remove nodes from the beginning', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -179,7 +178,7 @@ describe('each', () => {
     });
 
     it('should remove nodes from the middle', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -203,7 +202,7 @@ describe('each', () => {
     });
 
     it('should remove nodes at both ends', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -225,7 +224,7 @@ describe('each', () => {
     });
 
     it('should move nodes forward', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -253,7 +252,7 @@ describe('each', () => {
     });
 
     it('should move nodes to the end', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -281,7 +280,7 @@ describe('each', () => {
     });
 
     it('should move nodes backwards', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -309,7 +308,7 @@ describe('each', () => {
     });
 
     it('should move nodes to the beginning', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -337,7 +336,7 @@ describe('each', () => {
     });
 
     it('should swap the first and last nodes', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -365,7 +364,7 @@ describe('each', () => {
     });
 
     it('should reverse the order of nodes', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -393,7 +392,7 @@ describe('each', () => {
     });
 
     it('should reorder, add, and remove nodes', (done) => {
-        const list = store([1, 2, 3, 4, 5, 6, 7]);
+        const list = val([1, 2, 3, 4, 5, 6, 7]);
 
         const el = html`
             <ul>
@@ -421,7 +420,7 @@ describe('each', () => {
     });
 
     it('should render a list between sibling nodes', (done) => {
-        const list = store([1, 2, 3]);
+        const list = val([1, 2, 3]);
 
         const el = html`
             <section>
@@ -445,7 +444,7 @@ describe('each', () => {
     });
 
     it('should render a list of text nodes', (done) => {
-        const list = store([1, 2, 3]);
+        const list = val([1, 2, 3]);
 
         const el = html`<div>${each(list, (item) => html`${item}`)}</div>`;
 
@@ -469,7 +468,7 @@ describe('each', () => {
     });
 
     it('should render a list of mixed text and element nodes', (done) => {
-        const list = store([1, 2, 3, 4, 5]);
+        const list = val([1, 2, 3, 4, 5]);
 
         const el = html`<div>${each(list, (n) => n % 2 === 0 ? html`<span>${n}</span>` : html`${n}`)}</div>`;
 

@@ -1,16 +1,16 @@
-import { store } from '../../src/reflex';
+import { val } from '../../src/reflex';
 
-describe('store', () => {
+describe('val', () => {
     it('should get the internal value', () => {
-        const foo = store();
-        const bar = store(123);
+        const foo = val();
+        const bar = val(123);
         
         expect(foo.get()).to.equal(undefined);
         expect(bar.get()).to.equal(123);
     });
 
     it('should set the internal value and return a promise', () => {
-        const value = store('foo');
+        const value = val('foo');
         
         expect(value.get()).to.equal('foo');
 
@@ -22,7 +22,7 @@ describe('store', () => {
     });
 
     it('should update the internal value with a callback function and return a promise', () => {
-        const value = store(1);
+        const value = val(1);
         
         expect(value.get()).to.equal(1);
 
@@ -34,7 +34,7 @@ describe('store', () => {
     });
 
     it('should call subscribers immediately and when the internal value changes', () => {
-        const value = store(10);
+        const value = val(10);
         
         const spy = sinon.spy();
         value.subscribe(spy);
@@ -55,7 +55,7 @@ describe('store', () => {
     });
 
     it('should support destructuring methods', () => {
-        const value = store(10);
+        const value = val(10);
         const { get, set, update, subscribe } = value;
 
         expect(get()).to.equal(10);

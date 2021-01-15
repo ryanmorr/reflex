@@ -1,7 +1,7 @@
-import { html, ref, store, each, dispose } from '../../src/reflex';
+import { html, ref, val, each, dispose } from '../../src/reflex';
 
 describe('ref', () => {
-    it('should initial ref store with elements', () => {
+    it('should initialize ref store with elements', () => {
         const div = html`<div></div>`;
         const span = html`<span></span>`;
         const em = html`<em></em>`;
@@ -231,7 +231,7 @@ describe('ref', () => {
         expect(spy.args[0][2]).to.equal(undefined);
         expect(spy.args[0][3]).to.equal(undefined);
 
-        const list = store([1, 2, 3]);
+        const list = val([1, 2, 3]);
         const el = html`
             <ul>
                 ${each(list, (item) => html`<li ref="${foo}">${item}</li>`)}

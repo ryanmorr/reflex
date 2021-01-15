@@ -1,5 +1,5 @@
 import './html';
-import './store';
+import './val';
 import './derived';
 import './bindings';
 import './bind';

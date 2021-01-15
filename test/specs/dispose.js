@@ -1,8 +1,8 @@
-import { html, store, bind, each, dispose } from '../../src/reflex';
+import { html, val, bind, each, dispose } from '../../src/reflex';
 
 describe('dispose', () => {
     it('should dispose a node binding', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const el = html`<div>${text}</div>`;
         
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -20,7 +20,7 @@ describe('dispose', () => {
     });
 
     it('should dispose an attribute binding', (done) => {
-        const attr = store('foo');
+        const attr = val('foo');
         const el = html`<div id=${attr}></div>`;
         
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
@@ -38,8 +38,8 @@ describe('dispose', () => {
     });
 
     it('should dispose all node bindings', (done) => {
-        const attr = store('foo');
-        const text = store('bar');
+        const attr = val('foo');
+        const text = val('bar');
         const el = html`<div id=${attr}>${text}</div>`;
         
         expect(el.outerHTML).to.equal('<div id="foo">bar</div>');
@@ -59,7 +59,7 @@ describe('dispose', () => {
     });
 
     it('should dispose child bindings', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const el = html`<div><section><span>${text}</span><em>${text}</em></section></div>`;
         
         expect(el.outerHTML).to.equal('<div><section><span>foo</span><em>foo</em></section></div>');
@@ -77,9 +77,9 @@ describe('dispose', () => {
     });
 
     it('should dispose nested store bindings', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const span = html`<span>${text}</span>`;
-        const content = store(span);
+        const content = val(span);
         const el = html`<div>${content}</div>`;
 
         expect(el.outerHTML).to.equal('<div><span>foo</span></div>');
@@ -98,11 +98,11 @@ describe('dispose', () => {
     });
 
     it('should not dispose parent bindings', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const span = html`<span>${text}</span>`;
-        const content = store(span);
+        const content = val(span);
 
-        const attr = store('bar');
+        const attr = val('bar');
         const el = html`<div id=${attr}>${content}</div>`;
 
         expect(el.outerHTML).to.equal('<div id="bar"><span>foo</span></div>');
@@ -125,7 +125,7 @@ describe('dispose', () => {
     });
 
     it('should not dispose sibling bindings', (done) => {
-        const text = store('foo');
+        const text = val('foo');
         const frag = html`<div>${text}</div><span>${text}</span><em>${text}</em>`;
 
         const div = frag.children[0];
@@ -153,7 +153,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way input binding when removed', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const input = html`<input type="text" value=${bind(value)} />`;
 
         expect(input.value).to.equal('foo');
@@ -178,7 +178,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way numeric input binding when removed', (done) => {
-        const value = store();
+        const value = val();
         const input = html`<input type="number" value=${bind(value)} />`;
 
         expect(input.value).to.equal('0');
@@ -203,7 +203,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way checkbox binding when removed', (done) => {
-        const checked = store(true);
+        const checked = val(true);
         const input = html`<input type="checkbox" checked=${bind(checked)} />`;
 
         expect(input.checked).to.equal(true);
@@ -228,7 +228,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way radio button binding when removed', (done) => {
-        const checked = store(true);
+        const checked = val(true);
         const input = html`<input type="radio" checked=${bind(checked)} />`;
 
         expect(input.checked).to.equal(true);
@@ -253,7 +253,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way textarea binding when removed', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const textarea = html`<textarea value=${bind(value)}></textarea>`;
 
         expect(textarea.value).to.equal('foo');
@@ -278,7 +278,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way select binding when removed', (done) => {
-        const value = store('foo');
+        const value = val('foo');
         const select = html`
             <select value=${bind(value)}>
                 <option value="foo">foo</option>
@@ -312,7 +312,7 @@ describe('dispose', () => {
     });
 
     it('should dispose a two-way select multiple binding when removed', (done) => {
-        const value = store(['foo']);
+        const value = val(['foo']);
         const select = html`
             <select multiple value=${bind(value)}>
                 <option value="foo">foo</option>
@@ -346,8 +346,8 @@ describe('dispose', () => {
     });
 
     it('should dispose bindings from nodes removed after an each reconciliation', (done) => {
-        const value = store('foo');
-        const list = store([1, 2, 3]);
+        const value = val('foo');
+        const list = val([1, 2, 3]);
 
         const el = html`
             <ul>
@@ -381,8 +381,8 @@ describe('dispose', () => {
     });
 
     it('should dispose bindings from nodes removed from the beginning after an each reconciliation', (done) => {
-        const value = store('foo');
-        const list = store([1, 2, 3, 4]);
+        const value = val('foo');
+        const list = val([1, 2, 3, 4]);
 
         const el = html`
             <ul>
@@ -419,8 +419,8 @@ describe('dispose', () => {
     });
 
     it('should dispose bindings from nodes removed from the middle after an each reconciliation', (done) => {
-        const value = store('foo');
-        const list = store([1, 2, 3, 4]);
+        const value = val('foo');
+        const list = val([1, 2, 3, 4]);
 
         const el = html`
             <ul>
@@ -457,8 +457,8 @@ describe('dispose', () => {
     });
 
     it('should dispose bindings from nodes removed from the end after an each reconciliation', (done) => {
-        const value = store('foo');
-        const list = store([1, 2, 3, 4]);
+        const value = val('foo');
+        const list = val([1, 2, 3, 4]);
 
         const el = html`
             <ul>
