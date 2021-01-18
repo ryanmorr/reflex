@@ -547,7 +547,7 @@ describe('bindings', () => {
         });
     });
 
-    it('should support promises for text nodes', (done) => {
+    it('should render promises for text nodes', (done) => {
         const promise = createPromise('foo');
         const el = html`<div>${promise}</div>`;
 
@@ -560,7 +560,7 @@ describe('bindings', () => {
         }));
     });
 
-    it('should support promises for attributes', (done) => {
+    it('should render promises for attributes', (done) => {
         const promise = createPromise('foo');
         const el = html`<div id=${promise}></div>`;
 
@@ -573,7 +573,7 @@ describe('bindings', () => {
         }));
     });
 
-    it('should support multiple interpolations of the same promise', (done) => {
+    it('should render multiple interpolations of the same promise', (done) => {
         const promise = createPromise('foo');
         const el = html`<div id=${promise}>${promise}</div>`;
 
@@ -624,6 +624,198 @@ describe('bindings', () => {
         promise.then(() => tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
 
+            done();
+        }));
+    });
+
+    it('should render stores that return a promise for text nodes', (done) => {
+        const promise = createPromise('foo');
+        const content = val(promise);
+        const el = html`<div>${content}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+    
+            done();
+        }));
+    });
+
+    it('should render stores that return a promise for attributes', (done) => {
+        const promise = createPromise('foo');
+        const attribute = val(promise);
+        const el = html`<div id=${attribute}></div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div id="foo"></div>');
+    
+            done();
+        }));
+    });
+
+    it('should update a text node for a store that returns a promise', (done) => {
+        const content = val(createPromise('foo'));
+        const el = html`<div>${content}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        content.get().then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+
+            content.set(createPromise('bar'));
+
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+    
+            content.get().then(() => tick().then(() => {
+                expect(el.outerHTML).to.equal('<div>bar</div>');
+        
+                done();
+            }));
+        }));
+    });
+
+    it('should update an attribute for a store that returns a promise', (done) => {
+        const className = val(createPromise('foo'));
+        const el = html`<div class=${className}></div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        className.get().then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div class="foo"></div>');
+
+            className.set(createPromise('bar'));
+
+            expect(el.outerHTML).to.equal('<div class="foo"></div>');
+    
+            className.get().then(() => tick().then(() => {
+                expect(el.outerHTML).to.equal('<div class="bar"></div>');
+        
+                done();
+            }));
+        }));
+    });
+
+    it('should render multiple interpolations of the same store that returns a promise', (done) => {
+        const value = val(createPromise('foo'));
+        const el = html`<div id=${value}>${value}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        value.get().then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
+
+            value.set(createPromise('bar'));
+
+            expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
+    
+            value.get().then(() => tick().then(() => {
+                expect(el.outerHTML).to.equal('<div id="bar">bar</div>');
+        
+                done();
+            }));
+        }));
+    });
+
+    it('should not render a store that returns a rejected promise', (done) => {
+        const content = val(createPromise((resolve, reject) => reject('foo')));
+        const el = html`<div>${content}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        content.get().catch(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div></div>');
+    
+            done();
+        }));
+    });
+
+    it('should not render a store that returns a promise that resolves with a value of null or undefined', (done) => {
+        const content = val(createPromise(null));
+        const attribute = val(createPromise(undefined));
+        const el = html`<div id=${attribute}>${content}</div>`;
+        
+        expect(el.id).to.equal('');
+        expect(el.innerHTML).to.equal('');
+    
+        Promise.all([content.get(), attribute.get()]).then(() => tick().then(() => {
+            expect(el.id).to.equal('');
+            expect(el.innerHTML).to.equal('');
+
+            done();
+        }));
+    });
+
+    it('should remove nodes if a store that returns a promise resolves with a value of null or undefined', (done) => {
+        const content = val('foo');
+        const el = html`<div>${content}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div>foo</div>');
+
+        content.set(createPromise(null));
+    
+        content.get().then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div></div>');
+
+            content.set('bar');
+    
+            tick().then(() => {
+                expect(el.outerHTML).to.equal('<div>bar</div>');
+        
+                content.set(createPromise(undefined));
+
+                expect(el.outerHTML).to.equal('<div>bar</div>');
+
+                content.get().then(() => tick().then(() => {
+                    expect(el.outerHTML).to.equal('<div></div>');
+
+                    done();
+                }));
+            });
+        }));
+    });
+
+    it('should remove an attribute if a store that returns a promise resolves with a value of null or undefined', (done) => {
+        const attribute = val('foo');
+        const el = html`<div id=${attribute}></div>`;
+    
+        expect(el.id).to.equal('foo');
+
+        attribute.set(createPromise(null));
+    
+        attribute.get().then(() => tick().then(() => {
+            expect(el.id).to.equal('');
+
+            attribute.set('bar');
+    
+            tick().then(() => {
+                expect(el.id).to.equal('bar');
+        
+                attribute.set(createPromise(undefined));
+
+                expect(el.id).to.equal('bar');
+
+                attribute.get().then(() => tick().then(() => {
+                    expect(el.id).to.equal('');
+
+                    done();
+                }));
+            });
+        }));
+    });
+
+    it('should support stores that return chained promises', (done) => {
+        const promise = createPromise().then(() => createPromise('foo'));
+        const content = val(promise);
+        const el = html`<div>${content}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div></div>');
+    
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+    
             done();
         }));
     });

@@ -173,7 +173,7 @@ function createElement(nodeName, attributes, ...children) {
 }
 
 function createNode(value) {
-    if (value == null) {
+    if (value == null || isPromise(value)) {
         return document.createTextNode('');
     }
     if (typeof value === 'number') {
@@ -201,20 +201,31 @@ function getNode(node) {
 function observeAttribute(element, store, name, isSvg) {
     const key = uuid();
     let initialRender = true;
-    let prevVal; 
-    const unsubscribe = store.subscribe((nextVal) => {
-        if (!initialRender && (nextVal !== prevVal && !(prevVal == null && nextVal == null))) {           
+    let prevVal;
+    const setValue = (nextVal) => {
+        if (isPromise(nextVal)) {
+            nextVal.then(setValue);
+        } else if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {
             queueRender(key, nextVal, (value) => {
                 patchAttribute(element, name, prevVal, value, isSvg);
                 prevVal = value;
             });
+        }
+    };
+    const unsubscribe = store.subscribe((nextVal) => {
+        if (!initialRender) {           
+            setValue(nextVal);
         } else {
             prevVal = nextVal;
             initialRender = false;
+            if (isPromise(nextVal)) {
+                nextVal.then(setValue);
+            } else {
+                patchAttribute(element, name, null, nextVal, isSvg);
+            }
         }
     });
     attach(element, unsubscribe);
-    patchAttribute(element, name, null, prevVal, isSvg);
 }
 
 function observeNode(store) {
@@ -222,17 +233,27 @@ function observeNode(store) {
     const marker = document.createTextNode('');
     let initialRender = true;
     let prevVal;
-    let prevNode; 
-    const unsubscribe = store.subscribe((nextVal) => {
-        if (!initialRender && nextVal !== prevVal) { 
+    let prevNode;
+    const setValue = (nextVal) => {
+        if (isPromise(nextVal)) {
+            nextVal.then(setValue);
+        } else if (nextVal !== prevVal) {
             queueRender(key, nextVal, (value) => {
                 prevNode = patchNode(prevNode, value, marker);
                 prevVal = value;
                 attach(prevNode, unsubscribe);
             });
+        }
+    };
+    const unsubscribe = store.subscribe((nextVal) => {
+        if (!initialRender) { 
+            setValue(nextVal);
         } else {
             prevVal = nextVal;
             initialRender = false;
+            if (isPromise(nextVal)) {
+                nextVal.then(setValue);
+            }
         }
     });
     const node = createNode(prevVal);
