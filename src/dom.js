@@ -5,7 +5,7 @@ import { isBinding } from './bind';
 import { isHook } from './hook';
 import { queueRender } from './render';
 import { attach } from './bindings';
-import { uuid } from './util';
+import { uuid, isPromise } from './util';
 
 const build = htm.bind(createElement);
 
@@ -161,6 +161,8 @@ function createElement(nodeName, attributes, ...children) {
                     value.add(element);
                 } else if (isStore(value)) {
                     observeAttribute(element, value, name, isSvg);
+                } else if (isPromise(value)) {
+                    observeAttributePromise(element, value, name, isSvg);
                 } else {
                     patchAttribute(element, name, null, value, isSvg);
                 }
@@ -189,6 +191,9 @@ function createNode(value) {
 function getNode(node) {
     if (isStore(node)) {
         return observeNode(node);
+    }
+    if (isPromise(node)) {
+        return observeNodePromise(node);
     }
     return createNode(node);
 }
@@ -238,6 +243,20 @@ function observeNode(store) {
     frag.appendChild(marker);
     attach(frag, unsubscribe);
     return frag;
+}
+
+function observeNodePromise(promise) {
+    const node = document.createTextNode('');
+    const marker = document.createTextNode('');
+    promise.then((nextVal) => queueRender(uuid(), nextVal, (value) => patchNode(node, value, marker)));
+    const frag = document.createDocumentFragment();
+    frag.appendChild(node);
+    frag.appendChild(marker);
+    return frag;
+}
+
+function observeAttributePromise(element, promise, name, isSvg) {
+    promise.then((nextVal) => queueRender(uuid(), nextVal, (value) => patchAttribute(element, name, null, value, isSvg)));
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {

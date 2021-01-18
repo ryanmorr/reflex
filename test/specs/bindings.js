@@ -1,6 +1,14 @@
 import { html, val, derived, tick } from '../../src/reflex';
 
 describe('bindings', () => {
+    function createPromise(callback) {
+        if (typeof callback !== 'function') {
+            const value = callback;
+            callback = (resolve) => resolve(value);
+        }
+        return new Promise((resolve, reject) => setTimeout(callback(resolve, reject), 50));
+    }
+
     it('should render a val store as a text node', () => {
         const text = val('foo');
         const el = html`<div>${text}</div>`;
@@ -537,5 +545,86 @@ describe('bindings', () => {
                 done();
             }); 
         });
+    });
+
+    it('should support promises for text nodes', (done) => {
+        const promise = createPromise('foo');
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+
+            done();
+        }));
+    });
+
+    it('should support promises for attributes', (done) => {
+        const promise = createPromise('foo');
+        const el = html`<div id=${promise}></div>`;
+
+        expect(el.id).to.equal('');
+
+        promise.then(() => tick().then(() => {
+            expect(el.id).to.equal('foo');
+
+            done();
+        }));
+    });
+
+    it('should support multiple interpolations of the same promise', (done) => {
+        const promise = createPromise('foo');
+        const el = html`<div id=${promise}>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
+
+            done();
+        }));
+    });
+
+    it('should not render a rejected promise', (done) => {
+        const promise = createPromise((resolve, reject) => reject('foo'));
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.catch(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div></div>');
+
+            done();
+        }));
+    });
+
+    it('should not render if the promise resolves with a value of null or undefined', (done) => {
+        const promise1 = createPromise(null);
+        const promise2 = createPromise(undefined);
+        const el = html`<div id=${promise1}>${promise2}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        Promise.all([promise1, promise2]).then(() => tick().then(() => {
+            expect(el.id).to.equal('');
+            expect(el.innerHTML).to.equal('');
+
+            done();
+        }));
+    });
+
+    it('should support chained promises', (done) => {
+        const promise = createPromise().then(() => createPromise('foo'));
+
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+
+            done();
+        }));
     });
 });
