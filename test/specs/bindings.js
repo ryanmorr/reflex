@@ -6,7 +6,7 @@ describe('bindings', () => {
             const value = callback;
             callback = (resolve) => resolve(value);
         }
-        return new Promise((resolve, reject) => setTimeout(callback(resolve, reject), 50));
+        return new Promise((resolve, reject) => setTimeout(() => callback(resolve, reject), 50));
     }
 
     it('should render a val store as a text node', () => {
