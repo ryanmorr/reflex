@@ -614,20 +614,6 @@ describe('bindings', () => {
         }));
     });
 
-    it('should support chained promises', (done) => {
-        const promise = createPromise().then(() => createPromise('foo'));
-
-        const el = html`<div>${promise}</div>`;
-
-        expect(el.outerHTML).to.equal('<div></div>');
-
-        promise.then(() => tick().then(() => {
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-
-            done();
-        }));
-    });
-
     it('should render stores that return a promise for text nodes', (done) => {
         const promise = createPromise('foo');
         const content = val(promise);
@@ -803,20 +789,6 @@ describe('bindings', () => {
                     done();
                 }));
             });
-        }));
-    });
-
-    it('should support stores that return chained promises', (done) => {
-        const promise = createPromise().then(() => createPromise('foo'));
-        const content = val(promise);
-        const el = html`<div>${content}</div>`;
-    
-        expect(el.outerHTML).to.equal('<div></div>');
-    
-        promise.then(() => tick().then(() => {
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-    
-            done();
         }));
     });
 });
