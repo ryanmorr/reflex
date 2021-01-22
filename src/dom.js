@@ -146,28 +146,29 @@ function createElement(nodeName, attributes, ...children) {
         element.appendChild(arrayToFrag(children));
     }
     if (attributes) {
-        for (const name in attributes) {
-            let value = attributes[name];
+        const props = Object.keys(attributes);
+        props.forEach((name) => {
+            const value = attributes[name];
             if (isHook(value)) {
                 value(element, name, attributes);
             }
-        }
-        for (const name in attributes) {
-            let value = attributes[name];
+        });
+        props.forEach((name) => {
+            const value = attributes[name];
             if (!isHook(value)) {
                 if (isBinding(value)) {
                     value(element, name);
                 } else if (name === 'ref' && isRef(value)) {
                     value.add(element);
                 } else if (isStore(value)) {
-                    observeAttribute(element, value, name, isSvg);
+                    observeAttributeStore(element, value, name, isSvg);
                 } else if (isPromise(value)) {
                     observeAttributePromise(element, value, name, isSvg);
                 } else {
                     patchAttribute(element, name, null, value, isSvg);
                 }
             }
-        }
+        });
     }
     return element;
 }
@@ -190,7 +191,7 @@ function createNode(value) {
 
 function getNode(node) {
     if (isStore(node)) {
-        return observeNode(node);
+        return observeNodeStore(node);
     }
     if (isPromise(node)) {
         return observeNodePromise(node);
@@ -198,7 +199,7 @@ function getNode(node) {
     return createNode(node);
 }
 
-function observeAttribute(element, store, name, isSvg) {
+function observeAttributeStore(element, store, name, isSvg) {
     const key = uuid();
     let initialRender = true;
     let prevVal;
@@ -228,7 +229,7 @@ function observeAttribute(element, store, name, isSvg) {
     attach(element, unsubscribe);
 }
 
-function observeNode(store) {
+function observeNodeStore(store) {
     const key = uuid();
     const marker = document.createTextNode('');
     let initialRender = true;
@@ -257,12 +258,11 @@ function observeNode(store) {
         }
     });
     const node = createNode(prevVal);
-    prevNode = getNodes(node); 
+    prevNode = getNodes(node);
     attach(prevNode, unsubscribe);
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);
-    attach(frag, unsubscribe);
     return frag;
 }
 
