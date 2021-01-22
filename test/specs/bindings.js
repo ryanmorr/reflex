@@ -1,14 +1,6 @@
 import { html, val, derived, tick } from '../../src/reflex';
 
 describe('bindings', () => {
-    function createPromise(callback) {
-        if (typeof callback !== 'function') {
-            const value = callback;
-            callback = (resolve) => resolve(value);
-        }
-        return new Promise((resolve, reject) => setTimeout(() => callback(resolve, reject), 50));
-    }
-
     it('should render a val store as a text node', () => {
         const text = val('foo');
         const el = html`<div>${text}</div>`;
@@ -548,7 +540,7 @@ describe('bindings', () => {
     });
 
     it('should render promises for text nodes', (done) => {
-        const promise = createPromise('foo');
+        const promise = Promise.resolve('foo');
         const el = html`<div>${promise}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -560,8 +552,34 @@ describe('bindings', () => {
         }));
     });
 
+    it('should render promises for elements', (done) => {
+        const promise = Promise.resolve(html`<em />`);
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div><em></em></div>');
+
+            done();
+        }));
+    });
+
+    it('should render promises for multiple nodes', (done) => {
+        const promise = Promise.resolve(html`<p />foo<i />`);
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div><p></p>foo<i></i></div>');
+
+            done();
+        }));
+    });
+
     it('should render promises for attributes', (done) => {
-        const promise = createPromise('foo');
+        const promise = Promise.resolve('foo');
         const el = html`<div id=${promise}></div>`;
 
         expect(el.id).to.equal('');
@@ -574,7 +592,7 @@ describe('bindings', () => {
     });
 
     it('should render multiple interpolations of the same promise', (done) => {
-        const promise = createPromise('foo');
+        const promise = Promise.resolve('foo');
         const el = html`<div id=${promise}>${promise}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -587,7 +605,7 @@ describe('bindings', () => {
     });
 
     it('should not render a rejected promise', (done) => {
-        const promise = createPromise((resolve, reject) => reject('foo'));
+        const promise = Promise.reject();
         const el = html`<div>${promise}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -600,8 +618,8 @@ describe('bindings', () => {
     });
 
     it('should not render if the promise resolves with a value of null or undefined', (done) => {
-        const promise1 = createPromise(null);
-        const promise2 = createPromise(undefined);
+        const promise1 = Promise.resolve(null);
+        const promise2 = Promise.resolve(undefined);
         const el = html`<div id=${promise1}>${promise2}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -615,7 +633,7 @@ describe('bindings', () => {
     });
 
     it('should render stores that return a promise for text nodes', (done) => {
-        const promise = createPromise('foo');
+        const promise = Promise.resolve('foo');
         const content = val(promise);
         const el = html`<div>${content}</div>`;
     
@@ -628,8 +646,36 @@ describe('bindings', () => {
         }));
     });
 
+    it('should render stores that return a promise for elements', (done) => {
+        const promise = Promise.resolve(html`<i />`);
+        const content = val(promise);
+        const el = html`<div>${content}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div><i></i></div>');
+
+            done();
+        }));
+    });
+
+    it('should render stores that return a promise for multiple nodes', (done) => {
+        const promise = Promise.resolve(html`foo<span />bar<em />`);
+        const content = val(promise);
+        const el = html`<div>${content}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>foo<span></span>bar<em></em></div>');
+
+            done();
+        }));
+    });
+
     it('should render stores that return a promise for attributes', (done) => {
-        const promise = createPromise('foo');
+        const promise = Promise.resolve('foo');
         const attribute = val(promise);
         const el = html`<div id=${attribute}></div>`;
     
@@ -642,8 +688,8 @@ describe('bindings', () => {
         }));
     });
 
-    it('should update a text node for a store that returns a promise', (done) => {
-        const content = val(createPromise('foo'));
+    it('should update an element for a store that returns a promise', (done) => {
+        const content = val(Promise.resolve('foo'));
         const el = html`<div>${content}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -651,12 +697,12 @@ describe('bindings', () => {
         content.get().then(() => tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
 
-            content.set(createPromise('bar'));
+            content.set(Promise.resolve(html`<span />bar<em />`));
 
             expect(el.outerHTML).to.equal('<div>foo</div>');
     
             content.get().then(() => tick().then(() => {
-                expect(el.outerHTML).to.equal('<div>bar</div>');
+                expect(el.outerHTML).to.equal('<div><span></span>bar<em></em></div>');
         
                 done();
             }));
@@ -664,7 +710,7 @@ describe('bindings', () => {
     });
 
     it('should update an attribute for a store that returns a promise', (done) => {
-        const className = val(createPromise('foo'));
+        const className = val(Promise.resolve('foo'));
         const el = html`<div class=${className}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -672,7 +718,7 @@ describe('bindings', () => {
         className.get().then(() => tick().then(() => {
             expect(el.outerHTML).to.equal('<div class="foo"></div>');
 
-            className.set(createPromise('bar'));
+            className.set(Promise.resolve('bar'));
 
             expect(el.outerHTML).to.equal('<div class="foo"></div>');
     
@@ -685,7 +731,7 @@ describe('bindings', () => {
     });
 
     it('should render multiple interpolations of the same store that returns a promise', (done) => {
-        const value = val(createPromise('foo'));
+        const value = val(Promise.resolve('foo'));
         const el = html`<div id=${value}>${value}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -693,7 +739,7 @@ describe('bindings', () => {
         value.get().then(() => tick().then(() => {
             expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
 
-            value.set(createPromise('bar'));
+            value.set(Promise.resolve('bar'));
 
             expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
     
@@ -706,7 +752,7 @@ describe('bindings', () => {
     });
 
     it('should not render a store that returns a rejected promise', (done) => {
-        const content = val(createPromise((resolve, reject) => reject('foo')));
+        const content = val(Promise.reject());
         const el = html`<div>${content}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -719,8 +765,8 @@ describe('bindings', () => {
     });
 
     it('should not render a store that returns a promise that resolves with a value of null or undefined', (done) => {
-        const content = val(createPromise(null));
-        const attribute = val(createPromise(undefined));
+        const content = val(Promise.resolve(null));
+        const attribute = val(Promise.resolve(undefined));
         const el = html`<div id=${attribute}>${content}</div>`;
         
         expect(el.id).to.equal('');
@@ -740,7 +786,7 @@ describe('bindings', () => {
     
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        content.set(createPromise(null));
+        content.set(Promise.resolve(null));
     
         content.get().then(() => tick().then(() => {
             expect(el.outerHTML).to.equal('<div></div>');
@@ -750,7 +796,7 @@ describe('bindings', () => {
             tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>bar</div>');
         
-                content.set(createPromise(undefined));
+                content.set(Promise.resolve(undefined));
 
                 expect(el.outerHTML).to.equal('<div>bar</div>');
 
@@ -769,7 +815,7 @@ describe('bindings', () => {
     
         expect(el.id).to.equal('foo');
 
-        attribute.set(createPromise(null));
+        attribute.set(Promise.resolve(null));
     
         attribute.get().then(() => tick().then(() => {
             expect(el.id).to.equal('');
@@ -779,7 +825,7 @@ describe('bindings', () => {
             tick().then(() => {
                 expect(el.id).to.equal('bar');
         
-                attribute.set(createPromise(undefined));
+                attribute.set(Promise.resolve(undefined));
 
                 expect(el.id).to.equal('bar');
 
@@ -789,6 +835,37 @@ describe('bindings', () => {
                     done();
                 }));
             });
+        }));
+    });
+
+    it('should support updates of varying types', (done) => {
+        const content = val('foo');
+        const attribute = val('bar');
+        const el = html`<div class=${attribute}>${content}</div>`;
+        
+        expect(el.outerHTML).to.equal('<div class="bar">foo</div>');
+
+        content.set(Promise.resolve(html`<span />`));
+        attribute.set({baz: true, qux: false});
+    
+        content.get().then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div class="baz"><span></span></div>');
+
+            content.set(250);
+            attribute.set(Promise.resolve('qux'));
+    
+            attribute.get().then(() => tick().then(() => {
+                expect(el.outerHTML).to.equal('<div class="qux">250</div>');
+        
+                content.set(null);
+                attribute.set(['a', 'b']);
+    
+                tick().then(() => {
+                    expect(el.outerHTML).to.equal('<div class="a b"></div>');
+            
+                    done();
+                });
+            }));
         }));
     });
 });
