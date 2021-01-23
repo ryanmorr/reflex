@@ -1,6 +1,21 @@
 import { html, tick, val, each } from '../../src/reflex';
 
 describe('tick', () => {
+    it('should return a promise', (done) => {
+        const promise = tick();
+        expect(promise).to.be.a('promise');
+        
+        promise.then(done);
+    });
+
+    it('should return the same promise instance from multiple calls', (done) => {
+        const promise = tick();
+        expect(promise).to.equal(tick());
+        expect(promise).to.equal(tick());
+        
+        promise.then(done);
+    });
+
     it('should resolve after a previously queued update has been rendered', (done) => {
         const text = val();
         const el = html`<div>${text}</div>`;
