@@ -1,8 +1,8 @@
 # reflex
 
 [![Version Badge][version-image]][project-url]
-[![Build Status][build-image]][build-url]
 [![License][license-image]][license-url]
+[![Build Status][build-image]][build-url]
 
 > Reactive DOM
 
@@ -19,9 +19,9 @@ npm install @ryanmorr/reflex
 Reflex is a small UI library that combines declarative DOM building with reactive stores to create direct data-node bindings for fast DOM updates with no unnecessary overhead:
 
 ```javascript
-import { html, store } from '@ryanmorr/reflex';
+import { html, val } from '@ryanmorr/reflex';
 
-const count = store(0);
+const count = val(0);
 
 const element = html`
     <div>
@@ -34,6 +34,49 @@ document.body.appendChild(element);
 ```
 
 ## API
+
+### val(value?)
+
+Create a reactive store that encapsulates a value and notifies subscribers when the value changes:
+
+```javascript
+import { val } from '@ryanmorr/reflex';
+
+// Create a store with an initial value
+const count = val(0);
+
+// Get the store value
+count.get(); //=> 0
+
+// Set the store value
+count.set(1);
+
+// Set the store value with a callback function
+count.update((val) => val + 1);
+
+// Subscribe a callback function to be invoked when the value changes
+count.subscribe((nextVal, prevVal) => {
+
+});
+```
+
+### derived(...stores, callback)
+
+Create a reactive store that is based on the value of one or more other stores:
+
+```javascript
+import { derived, val } from '@ryanmorr/reflex';
+
+const firstName = val('John');
+const lastName = val('Doe');
+const fullName = derived(firstName, lastName, (first, last) => `${first} ${last}`);
+
+fullName.get(); //=> "John Doe"
+
+firstName.set('Jane');
+
+fullName.get(); //=> "Jane Doe"
+```
 
 ### html(strings, ...values?)
 
@@ -74,35 +117,10 @@ const Component = (props, children) => html`<div ...${props}>${children}</div>`;
 const cmp = html`<${Component} id="foo">bar<//>`;
 ```
 
-### store(value?)
-
-Create a reactive store that encapsulates a value and notifies subscribers when the value changes:
+When a reactive store is interpolated into a DOM element created with `html`, it creates a reactive binding that will automatically update that portion of the DOM, and only that portion, when the internal store value changes. Reflex uses deferred rendering to batch DOM updates together, the `set` and `update` methods of a `val` store return a promise that is resolved when all queued DOM updates have finished rendering:
 
 ```javascript
-import { store } from '@ryanmorr/reflex';
-
-// Create a store with an initial value
-const count = store(0);
-
-// Get the store value
-count.get(); //=> 0
-
-// Set the store value
-count.set(1);
-
-// Set the store value with a callback function
-count.update((val) => val + 1);
-
-// Subscribe a callback function to be invoked when the value changes
-count.subscribe((nextVal, prevVal) => {
-
-});
-```
-
-When interpolated into a DOM element created with `html`, it creates a reactive binding that will automatically update that portion of the DOM, and only that portion, when the internal store value changes. Reflex uses deferred rendering to batch DOM updates together, the `set` and `update` methods of a store return a promise that is resolved when all queued DOM updates have finished rendering:
-
-```javascript
-const name = store('John');
+const name = val('John');
 
 // Interpolate a store into an element
 const element = html`<div>My name is ${name}</div>`;
@@ -112,32 +130,24 @@ element.textContent; //=> "My name is John"
 
 // The store is bound to the text node, changing
 // the store value automatically updates the DOM
-name.set('Jim').then(() => {
-    element.textContent; //=> "My name is Jim"
-});
+await name.set('Jim');
+element.textContent; //=> "My name is Jim"
 ```
 
-### derived(...stores, callback)
-
-Create a reactive store that is based on the value of one or more other stores:
+Similarly to stores, promises can also be interpolated into a DOM element created with `html`, setting the value of the node/attribute when the promise resolves:
 
 ```javascript
-import { derived, store } from '@ryanmorr/reflex';
+const promise = new Promise((resolve) => setTimeout(() => resolve('World'), 1000));
 
-const firstName = store('John');
-const lastName = store('Doe');
-const fullName = derived(firstName, lastName, (first, last) => `${first} ${last}`);
+const element = html`<div>Hello ${promise}</div>`;
 
-fullName.get(); //=> "John Doe"
-
-firstName.set('Jane');
-
-fullName.get(); //=> "Jane Doe"
+await promise;
+element.textContent; //=> "Hello World"
 ```
 
 ### component(callback)
 
-Create a stateful functional component that automatically converts the provided properties into reactive stores unless it already is a store:
+Create a stateful functional component that automatically converts the provided properties into `val` stores unless it already is a store:
 
 ```javascript
 import { component, html } from '@ryanmorr/reflex';
@@ -154,12 +164,12 @@ document.body.appendChild(html`<${Counter} count=${0} />`);
 
 ### bind(store)
 
-Create a two-way binding between a reactive store and a form field (inputs, checkboxes, radio buttons, selects, and textareas), allowing the store to be automatically updated with the current value of the form element when the user changes it, and vice-versa:
+Create a two-way binding between a `val` store and a form field, allowing the store to be automatically updated with the current value of the form element when the user changes it, and vice-versa. It supports inputs, checkboxes, radio buttons, selects, and textareas:
 
 ```javascript
-import { bind, html, store } from '@ryanmorr/reflex';
+import { bind, html, val } from '@ryanmorr/reflex';
 
-const value = store('foo');
+const value = val('foo');
 
 const element = html`<input value=${bind(value)} />`;
 ```
@@ -169,9 +179,9 @@ const element = html`<input value=${bind(value)} />`;
 Efficiently diffs and renders lists when provided a reactive store that encapsulates an array value:
 
 ```javascript
-import { each, html, store } from '@ryanmorr/reflex';
+import { each, html, val } from '@ryanmorr/reflex';
 
-const items = store([1, 2, 3, 4, 5]);
+const items = val([1, 2, 3, 4, 5]);
 
 const element = html`
     <ul>
@@ -223,24 +233,22 @@ foo.subscribe((nextElements, prevElements, element, delta) => {
 Destroy all node-store bindings for an element and its descendants to prevent future DOM updates. It will also remove the element and its descendants from any `ref` store they might happen to belong to:
 
 ```javascript
-import { dispose, store, html } from '@ryanmorr/reflex';
+import { dispose, val, html } from '@ryanmorr/reflex';
 
 // Create an element-store binding
-const foo = store('foo');
+const foo = val('foo');
 const element = html`<div>${foo}</div>`;
 
 // Update element
-foo.set('bar').then(() => {
-    console.log(element.textContent); //=> "bar"
+await foo.set('bar');
+console.log(element.textContent); //=> "bar"
 
-    // Destroy the element-store binding
-    dispose(element);
+// Destroy the element-store binding
+dispose(element);
 
-    // Element is no longer updated
-    foo.set('baz').then(() => {
-        console.log(element.textContent); //=> "bar"
-    });
-});
+// The element is no longer updated
+await foo.set('baz');
+console.log(element.textContent); //=> "bar"
 ```
 
 ### hook(callback, ...args?)
@@ -251,25 +259,25 @@ A basic means for creating custom attributes that initiate specialized behavior 
 import { hook, html } from '@ryanmorr/reflex';
 
 const foo = (element, name, attributes, ...args) => {
-    // Manipulate attributes object directly to add/remove/edit attributes
-    attributes.bar = 'baz';
+    // Add customized behavior for the element
 };
 
+// Define the hook using any attribute name
 const element = html`<div foo=${hook(foo)}></div>`;
-
-element.getAttribute('bar'); //=> "baz"
 ```
 
-### tick()
+### tick(...callbacks?)
 
-Defer execution until after all previously queued DOM updates have been rendered:
+Returns a promise that is resolved when all previously queued DOM updates have been rendered:
 
 ```javascript
 import { tick } from '@ryanmorr/reflex';
 
-tick().then(() => {
-    // DOM is up-to-date
-});
+// DOM is up-to-date when the promise resolves
+await tick();
+
+// Alternatively, provide one or more callbacks to be executed when the DOM is up-to-date
+tick(callback1, callback2);
 ```
 
 ## License
@@ -277,8 +285,8 @@ tick().then(() => {
 This project is dedicated to the public domain as described by the [Unlicense](http://unlicense.org/).
 
 [project-url]: https://github.com/ryanmorr/reflex
-[version-image]: https://badge.fury.io/gh/ryanmorr%2Freflex.svg
-[build-url]: https://travis-ci.org/ryanmorr/reflex
-[build-image]: https://travis-ci.org/ryanmorr/reflex.svg
-[license-image]: https://img.shields.io/badge/license-Unlicense-blue.svg
+[version-image]: https://img.shields.io/github/package-json/v/ryanmorr/reflex?color=blue&style=flat-square
+[build-url]: https://travis-ci.com/github/ryanmorr/reflex
+[build-image]: https://img.shields.io/travis/com/ryanmorr/reflex?style=flat-square
+[license-image]: https://img.shields.io/github/license/ryanmorr/reflex?color=blue&style=flat-square
 [license-url]: UNLICENSE
