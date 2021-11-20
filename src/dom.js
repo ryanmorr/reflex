@@ -1,6 +1,5 @@
 import htm from 'htm';
 import { isStore } from './store';
-import { isRef } from './ref';
 import { isBinding } from './bind';
 import { isHook } from './hook';
 import { queueRender } from './render';
@@ -134,6 +133,24 @@ function clearNodes(parent, element) {
     }
 }
 
+function addRef(store, element) {
+    store.update((prev) => {
+        if (prev) {
+            const next = prev.slice();
+            next.push(element);
+            return next;
+        } else {
+            return [element];
+        }
+    });
+    attach(element, () => store.update((prev) => {
+        const next = prev.slice();
+        const index = prev.indexOf(element);
+        next.splice(index, 1);
+        return next;
+    }));
+}
+
 function createElement(nodeName, attributes, ...children) {
     attributes = attributes || {};
     if (typeof nodeName === 'function') {
@@ -158,8 +175,12 @@ function createElement(nodeName, attributes, ...children) {
             if (!isHook(value)) {
                 if (isBinding(value)) {
                     value(element, name);
-                } else if (name === 'ref' && isRef(value)) {
-                    value.add(element);
+                } else if (name === 'ref') {
+                    if (isStore(value)) {
+                        addRef(value, element);
+                    } else {
+                        value(element);
+                    }                    
                 } else if (isStore(value)) {
                     observeAttributeStore(element, value, name, isSvg);
                 } else if (isPromise(value)) {
