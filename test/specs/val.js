@@ -33,7 +33,18 @@ describe('val', () => {
         expect(value.get()).to.equal(111);
     });
 
-    it('should call subscribers immediately and when the internal value changes', () => {
+    it('should call a subscriber immediately when added', () => {
+        const value = val();
+        
+        const spy = sinon.spy();
+        value.subscribe(spy);
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(undefined);
+        expect(spy.args[0][1]).to.equal(undefined);
+    });
+
+    it('should call subscribers when the internal value changes', () => {
         const value = val(10);
         
         const spy = sinon.spy();
