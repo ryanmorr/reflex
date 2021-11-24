@@ -47,7 +47,8 @@ function removeNode(parent, node) {
     dispose(node);
 }
 
-function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode) {
+function reconcile(parent, renderedValues, source, createFn, beforeNode, afterNode) {
+    const data = Array.from(source);
     if (data.length === 0) {
         if (beforeNode !== undefined || afterNode !== undefined) {
             let node = beforeNode !== undefined ? beforeNode.nextSibling : parent.firstChild, tmp;
@@ -67,7 +68,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
     if (renderedValues.length === 0) {
         let node, mode = afterNode !== undefined ? 1 : 0;
         for(let i = 0, len = data.length; i < len; i++) {
-            node = createFn(data[i], i, data);
+            node = createFn(data[i], i, source);
             mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
         }
         return;
@@ -156,7 +157,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
         if (newStart <= newEnd) {
             let node, mode = afterNode ? 1 : 0;
             while(newStart <= newEnd) {
-                node = createFn(data[newStart], newStart, data);
+                node = createFn(data[newStart], newStart, source);
                 mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
                 newStart++;
             }
@@ -197,7 +198,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
         }
         let node, mode = afterNode ? 1 : 0;
         for (let i = newStart; i <= newEnd; i++) {
-            node = createFn(data[i], i, data);
+            node = createFn(data[i], i, source);
             mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
         }
         return;
@@ -220,7 +221,7 @@ function reconcile(parent, renderedValues, data, createFn, beforeNode, afterNode
             lisIdx--;
         } else {
             if (P[i] === -1) {
-                tmpD = createFn(data[i], i, data);
+                tmpD = createFn(data[i], i, source);
             } else {
                 tmpD = nodes[P[i]];
             }
@@ -242,9 +243,7 @@ export function each(store, callback) {
         if (nextItems == null) {
             nextItems = [];
         }
-        if (prevItems == null) {
-            prevItems = [];
-        }
+        prevItems = (prevItems == null) ? [] : Array.from(prevItems);
         const parent = beforeNode.parentNode;
         if (initialized) {
             queueRender(key, nextItems, (value) => reconcile(parent, prevItems, value, callback, beforeNode, afterNode));

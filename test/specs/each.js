@@ -490,4 +490,58 @@ describe('each', () => {
             done();
         });
     });
+
+    it('should support iterable collections', (done) => {
+        const set = new Set([1, 2, 3, 4]);
+        const list = val(set);
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li>');
+        
+        expect(callback.callCount).to.equal(4);
+
+        expect(callback.args[0][0]).to.equal(1);
+        expect(callback.args[0][1]).to.equal(0);
+        expect(callback.args[0][2]).to.equal(set);
+
+        expect(callback.args[1][0]).to.equal(2);
+        expect(callback.args[1][1]).to.equal(1);
+        expect(callback.args[1][2]).to.equal(set);
+
+        expect(callback.args[2][0]).to.equal(3);
+        expect(callback.args[2][1]).to.equal(2);
+        expect(callback.args[2][2]).to.equal(set);
+
+        expect(callback.args[3][0]).to.equal(4);
+        expect(callback.args[3][1]).to.equal(3);
+        expect(callback.args[3][2]).to.equal(set);
+
+        const string = 'abc';
+        list.set(string).then(() => {
+            expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
+        
+            expect(callback.callCount).to.equal(7);
+
+            expect(callback.args[4][0]).to.equal('a');
+            expect(callback.args[4][1]).to.equal(0);
+            expect(callback.args[4][2]).to.equal(string);
+
+            expect(callback.args[5][0]).to.equal('b');
+            expect(callback.args[5][1]).to.equal(1);
+            expect(callback.args[5][2]).to.equal(string);
+
+            expect(callback.args[6][0]).to.equal('c');
+            expect(callback.args[6][1]).to.equal(2);
+            expect(callback.args[6][2]).to.equal(string);
+
+            done();
+        });
+    });
 });
