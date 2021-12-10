@@ -58,20 +58,4 @@ describe('tick', () => {
             done();
         });
     });
-
-    it('should support adding multiple thenables via spread arguments', (done) => {
-        const text = val();
-        const el = html`<div>${text}</div>`;
-
-        const spy1 = sinon.spy();
-        const spy2 = sinon.spy();
-        
-        text.set('foo');
-        tick(spy1, spy2, () => {
-            expect(spy1.callCount).to.equal(1);
-            expect(spy2.callCount).to.equal(1);
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-            done();
-        });
-    });
 });

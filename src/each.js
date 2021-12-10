@@ -1,4 +1,4 @@
-import { queueRender } from './render';
+import { render } from './scheduler';
 import { dispose } from './bindings';
 import { uuid } from './util';
 
@@ -246,7 +246,7 @@ export function each(store, callback) {
         prevItems = (prevItems == null) ? [] : Array.from(prevItems);
         const parent = beforeNode.parentNode;
         if (initialized) {
-            queueRender(key, nextItems, (value) => reconcile(parent, prevItems, value, callback, beforeNode, afterNode));
+            render(key, nextItems, (value) => reconcile(parent, prevItems, value, callback, beforeNode, afterNode));
         } else {
             reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode);
         }

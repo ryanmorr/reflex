@@ -4,5 +4,5 @@ export { bind } from './bind';
 export { each } from './each';
 export { component } from './component';
 export { dispose } from './bindings';
-export { tick } from './render';
+export { tick } from './scheduler';
 export { hook } from './hook';

@@ -2,7 +2,7 @@ import htm from 'htm';
 import { isStore } from './store';
 import { isBinding } from './bind';
 import { isHook } from './hook';
-import { queueRender } from './render';
+import { render } from './scheduler';
 import { attach } from './bindings';
 import { uuid, isPromise } from './util';
 
@@ -228,7 +228,7 @@ function observeAttributeStore(element, store, name, isSvg) {
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {
-            queueRender(key, nextVal, (value) => {
+            render(key, nextVal, (value) => {
                 patchAttribute(element, name, prevVal, value, isSvg);
                 prevVal = value;
             });
@@ -260,7 +260,7 @@ function observeNodeStore(store) {
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal) {
-            queueRender(key, nextVal, (value) => {
+            render(key, nextVal, (value) => {
                 prevNode = patchNode(prevNode, value, marker);
                 prevVal = value;
                 attach(prevNode, unsubscribe);
@@ -290,7 +290,7 @@ function observeNodeStore(store) {
 function observeNodePromise(promise) {
     const node = document.createTextNode('');
     const marker = document.createTextNode('');
-    promise.then((nextVal) => queueRender(uuid(), nextVal, (value) => patchNode(node, value, marker)));
+    promise.then((nextVal) => render(uuid(), nextVal, (value) => patchNode(node, value, marker)));
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);
@@ -298,7 +298,7 @@ function observeNodePromise(promise) {
 }
 
 function observeAttributePromise(element, promise, name, isSvg) {
-    promise.then((nextVal) => queueRender(uuid(), nextVal, (value) => patchAttribute(element, name, null, value, isSvg)));
+    promise.then((nextVal) => render(uuid(), nextVal, (value) => patchAttribute(element, name, null, value, isSvg)));
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {

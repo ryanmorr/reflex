@@ -1,5 +1,5 @@
 import { attach } from './bindings';
-import { queueRender } from './render';
+import { render } from './scheduler';
 import { uuid } from './util';
 
 const BINDING = Symbol('binding');
@@ -13,7 +13,7 @@ function bindInput(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            queueRender(key, nextVal, (value) => {
+            render(key, nextVal, (value) => {
                 element.value = prevVal = value;
             });
         }
@@ -39,7 +39,7 @@ function bindNumericInput(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            queueRender(key, nextVal, (value) => {
+            render(key, nextVal, (value) => {
                 element.value = prevVal = value;
             });
         }
@@ -65,7 +65,7 @@ function bindCheckboxAndRadio(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            queueRender(key, nextVal, (value) => {
+            render(key, nextVal, (value) => {
                 element.checked = prevVal = value;
             });
         }
@@ -102,7 +102,7 @@ function bindSelect(element, store) {
     };
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            queueRender(key, nextVal, setOption);
+            render(key, nextVal, setOption);
         }
     });
     const onInput = () => {
@@ -136,7 +136,7 @@ function bindSelectMultiple(element, store) {
     };
     const unsubscribe = store.subscribe((nextVal) => {
         if (initialized) {
-            queueRender(key, nextVal, setOptions);
+            render(key, nextVal, setOptions);
         }
     });
     const onInput = () => store.set(Array.from(element.selectedOptions).map((option) => option.value));

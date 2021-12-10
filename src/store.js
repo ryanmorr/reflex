@@ -1,5 +1,5 @@
 import createStore from '@ryanmorr/create-store';
-import { tick } from './render';
+import { tick } from './scheduler';
 
 export function isStore(obj) {
     return obj && typeof obj.subscribe === 'function';
