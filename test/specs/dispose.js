@@ -1,4 +1,4 @@
-import { html, val, bind, each, dispose } from '../../src/reflex';
+import { html, val, bind, each, dispose, tick } from '../../src/reflex';
 
 describe('dispose', () => {
     it('should dispose a node binding', (done) => {
@@ -341,6 +341,41 @@ describe('dispose', () => {
                 select.options[1].selected = false;
                 select.options[2].selected = false;
                 select.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+
+    it('should dispose a binding between an event listener and a store', (done) => {
+        const clicked = val();
+        const el = html`<div onclick=${bind(clicked)} />`;
+
+        const spy = sinon.spy();
+        clicked.subscribe(spy);
+
+        expect(spy.callCount).to.equal(1);
+
+        const event = new Event('click');
+        el.dispatchEvent(event);
+
+        tick().then(() => {
+            expect(spy.callCount).to.equal(2);
+            expect(clicked.get()).to.equal(event);
+
+            const removeEventSpy = sinon.spy(el, 'removeEventListener');
+
+            expect(removeEventSpy.callCount).to.equal(0);
+
+            dispose(el);
+
+            expect(removeEventSpy.callCount).to.equal(1);
+
+            el.dispatchEvent(new Event('click'));
+
+            tick().then(() => {
+                expect(spy.callCount).to.equal(2);
+                expect(clicked.get()).to.equal(event);
+    
+                done();
             });
         });
     });

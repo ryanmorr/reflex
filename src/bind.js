@@ -149,8 +149,17 @@ function bindSelectMultiple(element, store) {
     });
 }
 
+function bindEvent(element, store, type) {
+    const callback = (event) => store.set(event);
+    element.addEventListener(type, callback);
+    attach(element, () => element.removeEventListener(type, callback));
+}
+
 export function bind(store) {
     const binding = (element, attr) => {
+        if (attr.startsWith('on')) {
+            return bindEvent(element, store, attr.slice(2).toLowerCase());
+        }
         const nodeName = element.nodeName.toLowerCase();
         if (nodeName === 'textarea' && attr === 'value') {
             return bindInput(element, store);

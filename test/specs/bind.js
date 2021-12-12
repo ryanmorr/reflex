@@ -400,4 +400,30 @@ describe('bind', () => {
             input1.dispatchEvent(new Event('input'));
         });
     });
+
+    it('should support binding a store to an event listener', (done) => {
+        const clicked = val();
+        const el = html`<div onclick=${bind(clicked)} />`;
+
+        const spy1 = sinon.spy();
+        const spy2 = sinon.spy();
+        clicked.subscribe(spy1);
+        clicked.subscribe(spy2);
+
+        expect(spy1.callCount).to.equal(1);
+        expect(spy2.callCount).to.equal(1);
+
+        const event = new Event('click');
+        el.dispatchEvent(event);
+
+        tick().then(() => {
+            expect(spy1.callCount).to.equal(2);
+            expect(spy2.callCount).to.equal(2);
+            expect(spy1.args[1][0]).to.equal(event);
+            expect(spy2.args[1][0]).to.equal(event);
+            expect(clicked.get()).to.equal(event);
+
+            done();
+        });
+    });
 });
