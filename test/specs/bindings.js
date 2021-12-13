@@ -103,6 +103,22 @@ describe('bindings', () => {
         });
     });
 
+    it('should update an attribute with a function', (done) => {
+        const attr = val();
+        const el = html`<div foo=${attr}></div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        const callback = sinon.spy(() => 'bar');
+
+        attr.set(callback).then(() => {
+            expect(el.outerHTML).to.equal('<div foo="bar"></div>');
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
+            done();
+        });
+    });
+
     it('should remove attributes by providing null, undefined, or false', (done) => {
         const attr = val('bar');
         const el = html`<div foo=${attr}></div>`;
@@ -155,6 +171,30 @@ describe('bindings', () => {
         });
     });
 
+    it('should update the class attribute with a function', (done) => {
+        const className = val();
+        const el = html`<div class=${className}></div>`;
+        
+        expect(el.className).to.equal('');
+
+        const callback1 = sinon.spy(() => ['foo', 'bar']);
+
+        className.set(callback1).then(() => {
+            expect(el.className).to.equal('foo bar');
+            expect(callback1.callCount).to.equal(1);
+            expect(callback1.args[0][0]).to.equal(el);
+
+            const callback2 = sinon.spy(() => ({foo: true, bar: false, baz: true, qux: true}));
+            
+            className.set(callback2).then(() => {
+                expect(el.className).to.equal('foo baz qux');
+                expect(callback2.callCount).to.equal(1);
+                expect(callback2.args[0][0]).to.equal(el);
+                done();
+            });
+        });
+    });
+
     it('should update CSS styles as a string', (done) => {
         const style = val('width: 100px; height: 200px');
         const el = html`<div style=${style}></div>`;
@@ -176,6 +216,30 @@ describe('bindings', () => {
         style.set({paddingTop: '7px', 'padding-left': '12px'}).then(() => {
             expect(el.outerHTML).to.equal('<div style="padding-top: 7px; padding-left: 12px;"></div>');
             done();
+        });
+    });
+
+    it('should update CSS styles with a function', (done) => {
+        const style = val();
+        const el = html`<div style=${style}></div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        const callback1 = sinon.spy(() => 'width: 43px; height: 86px');
+
+        style.set(callback1).then(() => {
+            expect(el.outerHTML).to.equal('<div style="width: 43px; height: 86px;"></div>');
+            expect(callback1.callCount).to.equal(1);
+            expect(callback1.args[0][0]).to.equal(el);
+
+            const callback2 = sinon.spy(() => ({width: '68px', paddingTop: '12px'}));
+            
+            style.set(callback2).then(() => {
+                expect(el.outerHTML).to.equal('<div style="width: 68px; height: 86px; padding-top: 12px;"></div>');
+                expect(callback2.callCount).to.equal(1);
+                expect(callback2.args[0][0]).to.equal(el);
+                done();
+            });
         });
     });
 
@@ -228,7 +292,23 @@ describe('bindings', () => {
         });
     });
 
-    it('should update dynamic properties', (done) => {
+    it('should update boolean attribute with a function', (done) => {
+        const checked = val(true);
+        const el = html`<input type="radio" checked=${checked} />`;
+
+        expect(el.checked).to.equal(true);
+
+        const callback = sinon.spy(() => false);
+
+        checked.set(callback).then(() => {
+            expect(el.checked).to.equal(false);
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
+            done();
+        });
+    });
+
+    it('should update a DOM property', (done) => {
         const value = val('foo');
         const el = html`<input type="text" value=${value} />`;
 
@@ -242,6 +322,22 @@ describe('bindings', () => {
                 expect(el.value).to.equal('baz');
                 done();
             });
+        });
+    });
+
+    it('should update a DOM property with a function', (done) => {
+        const value = val();
+        const el = html`<input type="text" value=${value} />`;
+
+        expect(el.value).to.equal('');
+
+        const callback = sinon.spy(() => 'foo');
+
+        value.set(callback).then(() => {
+            expect(el.value).to.equal('foo');
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
+            done();
         });
     });
 
@@ -587,6 +683,21 @@ describe('bindings', () => {
         promise.then(() => tick().then(() => {
             expect(el.id).to.equal('foo');
 
+            done();
+        }));
+    });
+
+    it('should render promises that resolve with a function for attributes', (done) => {
+        const callback = sinon.spy(() => 'foo');
+        const promise = Promise.resolve(callback);
+        const el = html`<div id=${promise}></div>`;
+
+        expect(el.id).to.equal('');
+
+        promise.then(() => tick().then(() => {
+            expect(el.id).to.equal('foo');
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
             done();
         }));
     });

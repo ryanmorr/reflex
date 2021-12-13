@@ -302,6 +302,20 @@ function observeAttributePromise(element, promise, name, isSvg) {
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
+    const nextType = typeof nextVal;
+    if (name.startsWith('on') && (typeof prevVal === 'function' || nextType === 'function')) {
+        name = name.slice(2).toLowerCase();
+        if (nextVal) {
+            element.addEventListener(name, nextVal);
+        }
+        if (prevVal) {
+            element.removeEventListener(name, prevVal);
+        }
+        return;
+    }
+    if (nextType === 'function') {
+        nextVal = nextVal(element);
+    }
     if (name === 'class') {
 		name = 'className';
     }
@@ -320,14 +334,6 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
                     element.style[key] = style;
                 }
             }
-        }
-    } else if (name.startsWith('on') && (typeof prevVal === 'function' || typeof nextVal === 'function')) {
-        name = name.slice(2).toLowerCase();
-        if (nextVal) {
-            element.addEventListener(name, nextVal);
-        }
-        if (prevVal) {
-            element.removeEventListener(name, prevVal);
         }
     } else if (!isSvg && name !== 'list' && name !== 'form' && name in element) {
         element[name] = nextVal == null ? '' : nextVal;

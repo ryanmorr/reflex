@@ -35,6 +35,15 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div id="foo" class="bar"></div>');
     });
 
+    it('should set an attribute value with a function', () => {
+        const callback = sinon.spy(() => 'bar');
+        const el = html`<div foo=${callback}></div>`;
+
+        expect(el.outerHTML).to.equal('<div foo="bar"></div>');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
+    });
+
     it('should support the class attribute as an array', () => {
         const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
         
@@ -45,6 +54,24 @@ describe('html', () => {
         const el = html`<div class=${{foo: true, bar: true, baz: true}}></div>`;
         
         expect(el.className).to.equal('foo bar baz');
+    });
+
+    it('should set the class attribute with a function that returns an array', () => {
+        const callback = sinon.spy(() => ['foo', 'bar', 'baz', 'qux']);
+        const el = html`<div class=${callback}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz qux');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
+    });
+
+    it('should set the class attribute with a function that returns an object', () => {  
+        const callback = sinon.spy(() => ({foo: true, bar: false, baz: true}));
+        const el = html`<div class=${callback}></div>`;
+        
+        expect(el.className).to.equal('foo baz');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
     });
 
     it('should alias className to class', () => {
@@ -72,6 +99,24 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div style="background-color: rgb(20, 20, 20); position: static;"></div>');
     });
 
+    it('should set CSS styles with a function that returns a key/value map', () => {
+        const callback = sinon.spy(() => ({width: '60px', height: '60px'}));
+        const el = html`<div style=${callback}></div>`;
+
+        expect(el.outerHTML).to.equal('<div style="width: 60px; height: 60px;"></div>');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
+    });
+
+    it('should set CSS styles with a function that returns styles as a string', () => {
+        const callback = sinon.spy(() => 'color: rgb(90, 20, 70); position: relative;');
+        const el = html`<div style=${callback}></div>`;
+
+        expect(el.outerHTML).to.equal('<div style="color: rgb(90, 20, 70); position: relative;"></div>');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
+    });
+
     it('should support CSS variables', () => {
         const el = html`<div style=${{color: 'var(--color)', '--color': 'red'}}></div>`;
         document.body.appendChild(el);
@@ -87,6 +132,15 @@ describe('html', () => {
         const el = html`<input type="text" value="foo" />`;
 
         expect(el.value).to.equal('foo');
+    });
+
+    it('should set a DOM property with a function', () => {
+        const callback = sinon.spy(() => 'foo');
+        const el = html`<input type="text" value=${callback} />`;
+
+        expect(el.value).to.equal('foo');
+        expect(callback.callCount).to.equal(1);
+        expect(callback.args[0][0]).to.equal(el);
     });
 
     it('should support the input list attribute', () => {
