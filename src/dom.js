@@ -4,7 +4,7 @@ import { isBinding } from './bind';
 import { isHook } from './hook';
 import { render } from './scheduler';
 import { attach } from './bindings';
-import { uuid, isPromise } from './util';
+import { uuid, isPromise, unpack } from './util';
 
 const build = htm.bind(createElement);
 
@@ -314,7 +314,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
         return;
     }
     if (nextType === 'function') {
-        nextVal = nextVal(element);
+        nextVal = unpack(nextVal, element);
     }
     if (name === 'class') {
 		name = 'className';

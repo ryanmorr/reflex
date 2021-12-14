@@ -44,6 +44,13 @@ describe('html', () => {
         expect(callback.args[0][0]).to.equal(el);
     });
 
+    it('should unpack deeply nested functions', () => {
+        const callback = () => () => () => () => 'baz';
+        const el = html`<div foo=${callback}></div>`;
+
+        expect(el.outerHTML).to.equal('<div foo="baz"></div>');
+    });
+
     it('should support the class attribute as an array', () => {
         const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
         
