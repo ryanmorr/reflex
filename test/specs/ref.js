@@ -55,6 +55,28 @@ describe('ref', () => {
         expect(spy.args[0][0]).to.equal(span);
     });
 
+    it('should support functions that return a store', () => {
+        const store = val();
+        const spy = sinon.spy(() => store);
+
+        const div = html`<div><span ref=${spy} /></div>`;
+        const span = div.firstChild;
+
+        expect(store.get()[0]).to.equal(span);
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(span);
+    });
+
+    it('should support deeply nested functions', () => {
+        const spy = sinon.spy();
+
+        const div = html`<div><span ref=${() => () => () => spy} /></div>`;
+        const span = div.firstChild;
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(span);
+    });
+
     it('should remove an element from a ref store when the element is disposed', () => {
         const foo = val();
         const div = html`<div ref=${foo}></div>`;

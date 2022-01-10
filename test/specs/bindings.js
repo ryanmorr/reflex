@@ -47,6 +47,22 @@ describe('bindings', () => {
         });
     });
 
+    it('should update an element with a function', (done) => {
+        const child = val();
+        const el = html`<div>${child}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        child.set(() => 'foo').then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+            
+            child.set(() => html`<em />`).then(() => {
+                expect(el.outerHTML).to.equal('<div><em></em></div>');
+                done();
+            });
+        });
+    });
+
     it('should update multiple nodes', (done) => {
         const nodes = val();
         const el = html`<div>${nodes}</div>`;
@@ -58,6 +74,56 @@ describe('bindings', () => {
             
             nodes.set(html`<i />foo`).then(() => {
                 expect(el.outerHTML).to.equal('<div><i></i>foo</div>');
+                done();
+            });
+        });
+    });
+
+    it('should update multiple nodes with a function', (done) => {
+        const nodes = val();
+        const el = html`<div>${nodes}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        nodes.set(() => html`bar<span />baz`).then(() => {
+            expect(el.outerHTML).to.equal('<div>bar<span></span>baz</div>');
+            
+            nodes.set(() => [html`<i />`, 'qux']).then(() => {
+                expect(el.outerHTML).to.equal('<div><i></i>qux</div>');
+                done();
+            });
+        });
+    });
+
+    it('should update an element with a function that returns a store', (done) => {
+        const child = val('foo');
+        const callback = () => child;
+        const el = html`<div>${callback}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>foo</div>');
+
+        child.set('bar').then(() => {
+            expect(el.outerHTML).to.equal('<div>bar</div>');
+            
+            child.set('baz').then(() => {
+                expect(el.outerHTML).to.equal('<div>baz</div>');
+                done();
+            });
+        });
+    });
+
+    it('should update an element with a store that returns a function', (done) => {
+        const callback = () => 'bar';
+        const child = val(callback);
+        const el = html`<div>${child}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>bar</div>');
+
+        child.set(() => 'foo').then(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+            
+            child.set(() => null).then(() => {
+                expect(el.outerHTML).to.equal('<div></div>');
                 done();
             });
         });
@@ -88,6 +154,23 @@ describe('bindings', () => {
                     });
                 });
             });
+        });
+    });
+
+    it('should remove text nodes if a callback function returns null or undefined', (done) => {
+        const foo = val('a');
+        const bar = val('b');
+
+        const el = html`<div>${foo} ${bar}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>a b</div>');
+
+        foo.set(() => null);
+        bar.set(() => undefined);
+        
+        tick().then(() => {
+            expect(el.outerHTML).to.equal('<div> </div>');
+            done();
         });
     });
 
@@ -144,6 +227,25 @@ describe('bindings', () => {
                     });
                 });
             });
+        });
+    });
+
+    it('should remove an attribute if a callback function returns null, undefined, or false', (done) => {
+        const foo = val('a');
+        const bar = val('a');
+        const baz = val('a');
+
+        const el = html`<div foo=${foo} bar=${bar} baz=${baz}></div>`;
+
+        expect(el.outerHTML).to.equal('<div foo="a" bar="a" baz="a"></div>');
+
+        foo.set(() => null);
+        bar.set(() => undefined);
+        baz.set(() => false);
+        
+        tick().then(() => {
+            expect(el.outerHTML).to.equal('<div></div>');
+            done();
         });
     });
 
@@ -674,6 +776,34 @@ describe('bindings', () => {
         }));
     });
 
+    it('should update an element with a function that returns a promise', (done) => {
+        const promise = Promise.resolve('qux');
+        const callback = () => promise;
+        const el = html`<div>${callback}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>qux</div>');
+            
+            done();
+        }));
+    });
+
+    it('should update an element with a promise that resolves with a function', (done) => {
+        const callback = () => 'baz';
+        const promise = Promise.resolve(callback);
+        const el = html`<div>${promise}</div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+
+        promise.then(() => tick().then(() => {
+            expect(el.outerHTML).to.equal('<div>baz</div>');
+            
+            done();
+        }));
+    });
+
     it('should render promises for attributes', (done) => {
         const promise = Promise.resolve('foo');
         const el = html`<div id=${promise}></div>`;
@@ -696,6 +826,21 @@ describe('bindings', () => {
 
         promise.then(() => tick().then(() => {
             expect(el.id).to.equal('foo');
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
+            done();
+        }));
+    });
+
+    it('should render functions that return a promise for attributes', (done) => {
+        const promise = Promise.resolve('bar');
+        const callback = sinon.spy(() => promise);
+        const el = html`<div id=${callback}></div>`;
+
+        expect(el.id).to.equal('');
+
+        promise.then(() => tick().then(() => {
+            expect(el.id).to.equal('bar');
             expect(callback.callCount).to.equal(1);
             expect(callback.args[0][0]).to.equal(el);
             done();
@@ -797,6 +942,21 @@ describe('bindings', () => {
     
             done();
         }));
+    });
+
+    it('should render functions that return a store for attributes', (done) => {
+        const store = val('foo');
+        const callback = sinon.spy(() => store);
+        const el = html`<div class=${callback}></div>`;
+
+        expect(el.className).to.equal('foo');
+
+        store.set('bar').then(() => {
+            expect(el.className).to.equal('bar');
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(el);
+            done();
+        });
     });
 
     it('should update an element for a store that returns a promise', (done) => {
@@ -973,8 +1133,14 @@ describe('bindings', () => {
     
                 tick().then(() => {
                     expect(el.outerHTML).to.equal('<div class="a b"></div>');
-            
-                    done();
+
+                    content.set(() => 'foo bar baz');
+
+                    tick().then(() => {
+                        expect(el.outerHTML).to.equal('<div class="a b">foo bar baz</div>');
+
+                        done();
+                    });
                 });
             }));
         }));

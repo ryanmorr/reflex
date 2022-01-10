@@ -1,7 +1,6 @@
 import htm from 'htm';
 import { isStore } from './store';
 import { isBinding } from './bind';
-import { isHook } from './hook';
 import { render } from './scheduler';
 import { attach } from './bindings';
 import { uuid, isPromise } from './util';
@@ -134,21 +133,25 @@ function clearNodes(parent, element) {
 }
 
 function addRef(store, element) {
-    store.update((prev) => {
-        if (prev) {
+    if (typeof store === 'function') {
+        addRef(store(element), element);
+    } else if (isStore(store)) {
+        store.update((prev) => {
+            if (prev) {
+                const next = prev.slice();
+                next.push(element);
+                return next;
+            } else {
+                return [element];
+            }
+        });
+        attach(element, () => store.update((prev) => {
             const next = prev.slice();
-            next.push(element);
+            const index = prev.indexOf(element);
+            next.splice(index, 1);
             return next;
-        } else {
-            return [element];
-        }
-    });
-    attach(element, () => store.update((prev) => {
-        const next = prev.slice();
-        const index = prev.indexOf(element);
-        next.splice(index, 1);
-        return next;
-    }));
+        }));
+    }
 }
 
 function createElement(nodeName, attributes, ...children) {
@@ -163,38 +166,34 @@ function createElement(nodeName, attributes, ...children) {
         element.appendChild(arrayToFrag(children));
     }
     if (attributes) {
-        const props = Object.keys(attributes);
-        props.forEach((name) => {
+        Object.keys(attributes).forEach((name) => {
             const value = attributes[name];
-            if (isHook(value)) {
-                value(element, name, attributes);
-            }
-        });
-        props.forEach((name) => {
-            const value = attributes[name];
-            if (!isHook(value)) {
-                if (isBinding(value)) {
-                    value(element, name);
-                } else if (name === 'ref') {
-                    if (isStore(value)) {
-                        addRef(value, element);
-                    } else {
-                        value(element);
-                    }                    
-                } else if (isStore(value)) {
-                    observeAttributeStore(element, value, name, isSvg);
-                } else if (isPromise(value)) {
-                    observeAttributePromise(element, value, name, isSvg);
-                } else {
-                    patchAttribute(element, name, null, value, isSvg);
-                }
+            if (isBinding(value)) {
+                value(element, name);
+            } else if (name === 'ref') {
+                addRef(value, element);
+            } else {
+                defineProperty(element, name, value, isSvg);
             }
         });
     }
     return element;
 }
 
+function defineProperty(element, name, value, isSvg) {
+    if (isStore(value)) {
+        observeAttributeStore(element, value, name, isSvg);
+    } else if (isPromise(value)) {
+        observeAttributePromise(element, value, name, isSvg);
+    } else {
+        patchAttribute(element, name, null, value, isSvg);
+    }
+}
+
 function createNode(value) {
+    if (typeof value === 'function') {
+        return createNode(value());
+    }
     if (value == null || isPromise(value)) {
         return document.createTextNode('');
     }
@@ -216,6 +215,9 @@ function getNode(node) {
     }
     if (isPromise(node)) {
         return observeNodePromise(node);
+    }
+    if (typeof node === 'function') {
+        return getNode(node());
     }
     return createNode(node);
 }
@@ -314,7 +316,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
         return;
     }
     if (nextType === 'function') {
-        return patchAttribute(element, name, prevVal, nextVal(element), isSvg);
+        return defineProperty(element, name, nextVal(element), isSvg);
     }
     if (name === 'class') {
 		name = 'className';
@@ -345,6 +347,9 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
 }
 
 function patchNode(prevNode, nextVal, marker) {
+    if (typeof nextVal === 'function') {
+        return patchNode(prevNode, nextVal(), marker);
+    }
     if (typeof nextVal === 'number') {
         nextVal = String(nextVal);
     }

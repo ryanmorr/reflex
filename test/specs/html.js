@@ -51,6 +51,12 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div foo="baz"></div>');
     });
 
+    it('should not set an attribute if a callback function returns null, undefined, or false', () => {
+        const el = html`<div foo=${() => null} bar=${() => undefined} baz=${() => false}></div>`;
+
+        expect(el.outerHTML).to.equal('<div></div>');
+    });
+
     it('should support the class attribute as an array', () => {
         const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
         
@@ -221,6 +227,29 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div><span></span></div>');
     });
 
+    it('should create child nodes with a function that returns a string', () => {
+        const callback = sinon.spy(() => 'foo');
+        const el = html`<div>${callback}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>foo</div>');
+        expect(callback.callCount).to.equal(1);
+    });
+    
+    it('should create child nodes with a function that returns a DOM node', () => {
+        const callback = sinon.spy(() => html`<span />`);
+        const el = html`<div>${callback}</div>`;
+
+        expect(el.outerHTML).to.equal('<div><span></span></div>');
+        expect(callback.callCount).to.equal(1);
+    });
+
+    it('should unpack deeply nested functions', () => {
+        const callback = () => () => () => () => 'bar';
+        const el = html`<div>${callback}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>bar</div>');
+    });
+
     it('should escape HTML characters', () => {
         const el = html`<div>${'<i id="foo" class=\'bar\'>bar</i>'}</div>`;
 
@@ -256,6 +285,26 @@ describe('html', () => {
 
         const el = html`<div>${children}</div>`;
         expect(el.outerHTML).to.equal('<div><div></div><span></span><em></em><i></i><section></section><p></p></div>');
+    });
+
+    it('should create child nodes with a function that returns an array', () => {
+        const callback = sinon.spy(() => [
+            html`<em />`,
+            'bar',
+            null,
+            document.createElement('span'),
+            50
+        ]);
+
+        const el = html`<div>${callback}</div>`;
+        expect(el.outerHTML).to.equal('<div><em></em>bar<span></span>50</div>');
+        expect(callback.callCount).to.equal(1);
+    });
+
+    it('should not create nodes if a callback function returns null or undefined', () => {
+        const el = html`<div>${() => null} ${() => undefined}</div>`;
+
+        expect(el.outerHTML).to.equal('<div> </div>');
     });
 
     it('should execute scripts', () => {
