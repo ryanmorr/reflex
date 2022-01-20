@@ -230,9 +230,9 @@ function observeAttributeStore(element, store, name, isSvg) {
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {
-            render(key, nextVal, (value) => {
-                patchAttribute(element, name, prevVal, value, isSvg);
-                prevVal = value;
+            render(key, () => {
+                patchAttribute(element, name, prevVal, nextVal, isSvg);
+                prevVal = nextVal;
             });
         }
     };
@@ -262,9 +262,9 @@ function observeNodeStore(store) {
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal) {
-            render(key, nextVal, (value) => {
-                prevNode = patchNode(prevNode, value, marker);
-                prevVal = value;
+            render(key, () => {
+                prevNode = patchNode(prevNode, nextVal, marker);
+                prevVal = nextVal;
                 attach(prevNode, unsubscribe);
             });
         }
@@ -292,7 +292,7 @@ function observeNodeStore(store) {
 function observeNodePromise(promise) {
     const node = document.createTextNode('');
     const marker = document.createTextNode('');
-    promise.then((nextVal) => render(uuid(), nextVal, (value) => patchNode(node, value, marker)));
+    promise.then((nextVal) => render(uuid(), () => patchNode(node, nextVal, marker)));
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);
@@ -300,7 +300,7 @@ function observeNodePromise(promise) {
 }
 
 function observeAttributePromise(element, promise, name, isSvg) {
-    promise.then((nextVal) => render(uuid(), nextVal, (value) => patchAttribute(element, name, null, value, isSvg)));
+    promise.then((nextVal) => render(uuid(), () => patchAttribute(element, name, null, nextVal, isSvg)));
 }
 
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {

@@ -246,7 +246,7 @@ export function each(store, callback) {
         prevItems = (prevItems == null) ? [] : Array.from(prevItems);
         const parent = beforeNode.parentNode;
         if (initialized) {
-            render(key, nextItems, (value) => reconcile(parent, prevItems, value, callback, beforeNode, afterNode));
+            render(key, () => reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode));
         } else {
             reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode);
         }

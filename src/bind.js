@@ -13,8 +13,8 @@ function bindInput(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            render(key, nextVal, (value) => {
-                element.value = prevVal = value;
+            render(key, () => {
+                element.value = prevVal = nextVal;
             });
         }
     });
@@ -39,8 +39,8 @@ function bindNumericInput(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            render(key, nextVal, (value) => {
-                element.value = prevVal = value;
+            render(key, () => {
+                element.value = prevVal = nextVal;
             });
         }
     });
@@ -65,8 +65,8 @@ function bindCheckboxAndRadio(element, store) {
     const key = uuid();
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            render(key, nextVal, (value) => {
-                element.checked = prevVal = value;
+            render(key, () => {
+                element.checked = prevVal = nextVal;
             });
         }
     });
@@ -102,7 +102,7 @@ function bindSelect(element, store) {
     };
     const unsubscribe = store.subscribe((nextVal) => {
         if (nextVal !== prevVal) {
-            render(key, nextVal, setOption);
+            render(key, () => setOption(nextVal));
         }
     });
     const onInput = () => {
@@ -136,7 +136,7 @@ function bindSelectMultiple(element, store) {
     };
     const unsubscribe = store.subscribe((nextVal) => {
         if (initialized) {
-            render(key, nextVal, setOptions);
+            render(key, () => setOptions(nextVal));
         }
     });
     const onInput = () => store.set(Array.from(element.selectedOptions).map((option) => option.value));

@@ -9,7 +9,7 @@ export function addEffect(key, callback) {
     effects.set(key, callback);
 }
 
-export function render(key, value, callback) {
+export function render(key, callback) {
     if (!tasks.has(key)) {
         currentTask = scheduleRender(() => {
             tasks.get(key)();
@@ -17,12 +17,12 @@ export function render(key, value, callback) {
             if (tasks.size === 0) {
                 currentTask = null;
                 if (effects.size > 0) {
-                    effects.forEach((callback, key) => effects.delete(key) && render(key, null, callback));
+                    effects.forEach((callback, key) => effects.delete(key) && render(key, callback));
                 }
             }
         });
     }
-    tasks.set(key, () => callback(value));
+    tasks.set(key, callback);
 }
 
 export function tick() {
