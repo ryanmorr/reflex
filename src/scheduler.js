@@ -2,7 +2,12 @@ import scheduleRender from '@ryanmorr/schedule-render';
 
 let currentTask;
 const tasks = new Map();
+const effects = new Map();
 const resolvedPromise = Promise.resolve();
+
+export function addEffect(key, callback) {
+    effects.set(key, callback);
+}
 
 export function render(key, value, callback) {
     if (!tasks.has(key)) {
@@ -11,6 +16,9 @@ export function render(key, value, callback) {
             tasks.delete(key);
             if (tasks.size === 0) {
                 currentTask = null;
+                if (effects.size > 0) {
+                    effects.forEach((callback, key) => effects.delete(key) && render(key, null, callback));
+                }
             }
         });
     }

@@ -2,6 +2,7 @@ import './html';
 import './val';
 import './derived';
 import './bindings';
+import './effect';
 import './bind';
 import './each';
 import './ref';
