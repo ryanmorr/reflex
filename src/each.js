@@ -1,5 +1,5 @@
 import { render } from './scheduler';
-import { dispose } from './bindings';
+import { dispose } from './disposal';
 import { uuid } from './util';
 
 // Adapted from https://github.com/Freak613/stage0/blob/master/reconcile.js

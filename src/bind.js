@@ -1,4 +1,4 @@
-import { attach } from './bindings';
+import { cleanup } from './disposal';
 import { render } from './scheduler';
 import { uuid } from './util';
 
@@ -24,7 +24,7 @@ function bindInput(element, store) {
     };
     element.addEventListener('input', onInput);
     element.value = prevVal;
-    attach(element, () => {
+    cleanup(element, () => {
         unsubscribe();
         element.removeEventListener('input', onInput);
     });
@@ -50,7 +50,7 @@ function bindNumericInput(element, store) {
     };
     element.addEventListener('input', onInput);
     element.value = prevVal;
-    attach(element, () => {
+    cleanup(element, () => {
         unsubscribe();
         element.removeEventListener('input', onInput);
     });
@@ -76,7 +76,7 @@ function bindCheckboxAndRadio(element, store) {
     };
     element.addEventListener('change', onChange);
     element.checked = prevVal;
-    attach(element, () => {
+    cleanup(element, () => {
         unsubscribe();
         element.removeEventListener('change', onChange);
     });
@@ -114,7 +114,7 @@ function bindSelect(element, store) {
     };
     element.addEventListener('input', onInput);
     setOption(prevVal);
-    attach(element, () => {
+    cleanup(element, () => {
         unsubscribe();
         element.removeEventListener('input', onInput);
     });
@@ -143,7 +143,7 @@ function bindSelectMultiple(element, store) {
     element.addEventListener('input', onInput);
     initialized = true;
     setOptions(prevVal);
-    attach(element, () => {
+    cleanup(element, () => {
         unsubscribe();
         element.removeEventListener('input', onInput);
     });
@@ -152,7 +152,7 @@ function bindSelectMultiple(element, store) {
 function bindEvent(element, store, type) {
     const callback = (event) => store.set(event);
     element.addEventListener(type, callback);
-    attach(element, () => element.removeEventListener(type, callback));
+    cleanup(element, () => element.removeEventListener(type, callback));
 }
 
 export function bind(store) {

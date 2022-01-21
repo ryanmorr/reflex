@@ -2,7 +2,7 @@ import htm from 'htm';
 import { isStore } from './store';
 import { isBinding } from './bind';
 import { render } from './scheduler';
-import { attach } from './bindings';
+import { cleanup } from './disposal';
 import { uuid, isPromise } from './util';
 
 const build = htm.bind(createElement);
@@ -145,7 +145,7 @@ function addRef(store, element) {
                 return [element];
             }
         });
-        attach(element, () => store.update((prev) => {
+        cleanup(element, () => store.update((prev) => {
             const next = prev.slice();
             const index = prev.indexOf(element);
             next.splice(index, 1);
@@ -249,7 +249,7 @@ function observeAttributeStore(element, store, name, isSvg) {
             }
         }
     });
-    attach(element, unsubscribe);
+    cleanup(element, unsubscribe);
 }
 
 function observeNodeStore(store) {
@@ -265,7 +265,7 @@ function observeNodeStore(store) {
             render(key, () => {
                 prevNode = patchNode(prevNode, nextVal, marker);
                 prevVal = nextVal;
-                attach(prevNode, unsubscribe);
+                cleanup(prevNode, unsubscribe);
             });
         }
     };
@@ -282,7 +282,7 @@ function observeNodeStore(store) {
     });
     const node = createNode(prevVal);
     prevNode = getNodes(node);
-    attach(prevNode, unsubscribe);
+    cleanup(prevNode, unsubscribe);
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);

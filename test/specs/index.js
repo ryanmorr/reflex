@@ -7,4 +7,5 @@ import './bind';
 import './each';
 import './ref';
 import './dispose';
+import './cleanup';
 import './tick';
