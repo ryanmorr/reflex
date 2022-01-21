@@ -419,6 +419,50 @@ describe('each', () => {
         });
     });
 
+    it('should reorder, add, and remove components', (done) => {
+        const list = val([
+            {name: 'a', num: 1},
+            {name: 'b', num: 2},
+            {name: 'c', num: 3},
+            {name: 'd', num: 4},
+            {name: 'e', num: 5},
+            {name: 'f', num: 6}
+        ]);
+    
+        const Component = ({name, num}) => {
+            return html`<li>${name} ${num}</li>`;
+        };
+    
+        const el = html`
+            <ul>
+                ${each(list, (data) => html`<${Component} ...${data} />`)}
+            </ul>
+        `;
+    
+        expect(el.innerHTML).to.equal('<li>a 1</li><li>b 2</li><li>c 3</li><li>d 4</li><li>e 5</li><li>f 6</li>');
+    
+        const li1 = el.children[0];
+        const li2 = el.children[1];
+        const li4 = el.children[3];
+        const li6 = el.children[5];
+    
+        list.update((values) => {
+            return [
+                values[3],
+                values[5],
+                values[1],
+                values[0]
+            ];
+        }).then(() => {
+            expect(el.innerHTML).to.equal('<li>d 4</li><li>f 6</li><li>b 2</li><li>a 1</li>');
+            expect(el.children[0]).to.equal(li4);
+            expect(el.children[1]).to.equal(li6);
+            expect(el.children[2]).to.equal(li2);
+            expect(el.children[3]).to.equal(li1);
+            done();
+        });
+    });
+
     it('should render a list between sibling nodes', (done) => {
         const list = val([1, 2, 3]);
 
