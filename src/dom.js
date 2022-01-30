@@ -347,7 +347,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     }
 }
 
-function patchNode(prevNode, nextVal, marker) {
+export function patchNode(prevNode, nextVal, marker) {
     if (typeof nextVal === 'function') {
         return patchNode(prevNode, nextVal(), marker);
     }

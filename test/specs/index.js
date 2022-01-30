@@ -5,6 +5,7 @@ import './bindings';
 import './effect';
 import './bind';
 import './each';
+import './when';
 import './ref';
 import './dispose';
 import './cleanup';
