@@ -155,6 +155,7 @@ function addRef(store, element) {
 }
 
 function createElement(nodeName, attributes, ...children) {
+    this[0] = 3;
     attributes = attributes || {};
     if (typeof nodeName === 'function') {
         attributes.children = children;

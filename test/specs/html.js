@@ -379,4 +379,17 @@ describe('html', () => {
         expect(Component.args[0][0].children[0].outerHTML).to.equal('<span>baz</span>');
         expect(el.outerHTML).to.equal('<div foo="abc" bar="123"><span>baz</span></div>');
     });
+
+    it('should not cache elements with identical markup', () => {
+        const text = () => html`foo`;
+        const element = () => html`<div></div>`;
+        const frag = () => html`<div></div><span></span>`;
+
+        expect(html`foo`).to.not.equal(html`foo`);
+        expect(html`<div></div>`).to.not.equal(html`<div></div>`);
+        expect(html`<div></div><span></span>`).to.not.equal(html`<div></div><span></span>`);
+        expect(text()).to.not.equal(text());
+        expect(element()).to.not.equal(element());
+        expect(frag()).to.not.equal(frag());
+    });
 });
