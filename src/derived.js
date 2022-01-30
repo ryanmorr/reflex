@@ -1,24 +1,4 @@
 import createStore from '@ryanmorr/create-store';
-import { tick } from './scheduler';
-
-export function isStore(obj) {
-    return obj && typeof obj.subscribe === 'function';
-}
-
-export const val = createStore((get, set) => (value) => {
-    set(value);
-    const setValue = (val) => {
-        set(val, get());
-        return tick();
-    };
-    return {
-        get,
-        set: setValue,
-        update(callback) {
-            return setValue(callback(get()));
-        }
-    };
-});
 
 export const derived = createStore((get, set) => (...deps) => {
     let initialized = false;

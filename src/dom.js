@@ -1,9 +1,8 @@
 import htm from 'htm';
-import { isStore } from './store';
 import { isBinding } from './bind';
 import { render } from './scheduler';
 import { cleanup } from './disposal';
-import { uuid, isPromise } from './util';
+import { uuid, isStore, isPromise } from './util';
 
 const build = htm.bind(createElement);
 

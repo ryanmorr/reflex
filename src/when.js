@@ -1,8 +1,7 @@
 import { patchNode } from './dom';
 import { render } from './scheduler';
 import { cleanup, dispose } from './disposal';
-import { isStore } from './store';
-import { uuid, isPromise } from './util';
+import { uuid, isStore, isPromise } from './util';
 
 const MARKER = Symbol('marker');
 
