@@ -1,4 +1,4 @@
-import { html, val, each, dispose, cleanup } from '../../src/reflex';
+import { html, val, each } from '../../src/reflex';
 
 describe('each', () => {
     it('should render a list', () => {
@@ -587,27 +587,5 @@ describe('each', () => {
 
             done();
         });
-    });
-
-    it('should dispose a list if the parent node is disposed', () => {
-        const array = [1, 2, 3];
-        const list = val(array);
-        const spy = sinon.spy();
-
-        const el = html`
-            <ul>
-                ${each(list, (item) => {
-                    const li = html`<li>${item}</li>`;
-                    cleanup(li, spy);
-                    return li;
-                })}
-            </ul>
-        `;
-
-        expect(spy.callCount).to.equal(0);
-        
-        dispose(el);
-
-        expect(spy.callCount).to.equal(3);
     });
 });

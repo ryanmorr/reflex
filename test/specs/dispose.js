@@ -1,4 +1,4 @@
-import { html, val, bind, each, dispose, tick } from '../../src/reflex';
+import { html, val, bind, each, dispose, cleanup, tick } from '../../src/reflex';
 
 describe('dispose', () => {
     it('should dispose a node binding', (done) => {
@@ -526,6 +526,61 @@ describe('dispose', () => {
                     done();
                 });
             });
+        });
+    });
+
+    it('should dispose a list if the parent node is disposed', () => {
+        const array = [1, 2, 3];
+        const list = val(array);
+        const spy = sinon.spy();
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => {
+                    const li = html`<li>${item}</li>`;
+                    cleanup(li, spy);
+                    return li;
+                })}
+            </ul>
+        `;
+
+        expect(spy.callCount).to.equal(0);
+        
+        dispose(el);
+
+        expect(spy.callCount).to.equal(3);
+    });
+
+    it('should not dispose a list item if it was not removed after an each reconciliation', (done) => {
+        const array = [1, 2, 3];
+        const list = val(array);
+
+        const spies = [
+            sinon.spy(),
+            sinon.spy(),
+            sinon.spy()
+        ];
+
+        html`
+            <ul>
+                ${each(list, (item, i) => {
+                    const li = html`<li>${item}</li>`;
+                    cleanup(li, spies[i]);
+                    return li;
+                })}
+            </ul>
+        `;
+
+        expect(spies[0].callCount).to.equal(0);
+        expect(spies[1].callCount).to.equal(0);
+        expect(spies[2].callCount).to.equal(0);
+
+        list.set([2]).then(() => {
+            expect(spies[0].callCount).to.equal(1);
+            expect(spies[1].callCount).to.equal(0);
+            expect(spies[2].callCount).to.equal(1);
+
+            done();
         });
     });
 });
