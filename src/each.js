@@ -1,5 +1,5 @@
 import { render } from './scheduler';
-import { dispose } from './disposal';
+import { cleanup, dispose } from './disposal';
 import { uuid } from './util';
 
 // Adapted from https://github.com/Freak613/stage0/blob/master/reconcile.js
@@ -239,7 +239,7 @@ export function each(store, callback) {
     const afterNode = document.createTextNode('');
     frag.appendChild(beforeNode);
     frag.appendChild(afterNode);
-    store.subscribe((nextItems, prevItems) => {
+    const unsubscribe = store.subscribe((nextItems, prevItems) => {
         if (nextItems == null) {
             nextItems = [];
         }
@@ -251,6 +251,7 @@ export function each(store, callback) {
             reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode);
         }
     });
+    cleanup(beforeNode, unsubscribe);
     initialized = true;
     return frag;
 }
