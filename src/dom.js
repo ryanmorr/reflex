@@ -154,7 +154,7 @@ function addRef(store, element) {
 }
 
 function createElement(nodeName, attributes, ...children) {
-    this[0] = 3;
+    this[0] = 3; // Disable htm caching
     attributes = attributes || {};
     if (typeof nodeName === 'function') {
         attributes.children = children;
