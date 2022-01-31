@@ -1,5 +1,5 @@
 import { addEffect } from './scheduler';
-import { uuid } from './util';
+import { uuid, isPromise } from './util';
 
 export function effect(...deps) {
     let initialized = false;
@@ -7,9 +7,18 @@ export function effect(...deps) {
     const callback = deps.pop();
     const values = [];
     deps.forEach((dep, i) => dep.subscribe((value) => {
-        values[i] = value;
-        if (initialized) {
-            addEffect(key, () => callback(...values));
+        if (isPromise(value)) {
+            value.then((v) => {
+                values[i] = v;
+                if (initialized) {
+                    addEffect(key, () => callback(...values));
+                }
+            });
+        } else {
+            values[i] = value;
+            if (initialized) {
+                addEffect(key, () => callback(...values));
+            }
         }
     }));
     initialized = true;
