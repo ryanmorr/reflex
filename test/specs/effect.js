@@ -1,10 +1,6 @@
 import { html, val, effect } from '../../src/reflex';
 
 describe('effect', () => {
-    function createPromise(value, time) {
-        return new Promise((resolve) => setTimeout(() => resolve(value), time));
-    }
-
     it('should run effects after a store is changed and the DOM is updated', (done) => {
         const store = val();
 
@@ -119,7 +115,7 @@ describe('effect', () => {
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div></div>');
     
-        foo.set(createPromise('foo', 10));
+        foo.set(new Promise((resolve) => setTimeout(() => resolve('foo'), 10)));
     });
 
     it('should run effects after multiple store\'s promises have been resolved', (done) => {
@@ -146,8 +142,8 @@ describe('effect', () => {
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div>foo bar</div>');
         
-        foo.set(createPromise('baz', 10));
-        bar.set(createPromise('qux', 20));
+        foo.set(new Promise((resolve) => setTimeout(() => resolve('baz'), 10)));
+        bar.set(new Promise((resolve) => setTimeout(() => resolve('qux'), 20)));
     });
 
     it('should not run effects if a store\'s promise is rejected', (done) => {
