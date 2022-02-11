@@ -35,228 +35,50 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div id="foo" class="bar"></div>');
     });
 
-    it('should set an attribute value with a function', () => {
-        const callback = sinon.spy(() => 'bar');
-        const el = html`<div foo=${callback}></div>`;
-
-        expect(el.outerHTML).to.equal('<div foo="bar"></div>');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should unpack deeply nested functions', () => {
-        const callback = () => () => () => () => 'baz';
-        const el = html`<div foo=${callback}></div>`;
-
-        expect(el.outerHTML).to.equal('<div foo="baz"></div>');
-    });
-
-    it('should not set an attribute if a callback function returns null, undefined, or false', () => {
-        const el = html`<div foo=${() => null} bar=${() => undefined} baz=${() => false}></div>`;
-
-        expect(el.outerHTML).to.equal('<div></div>');
-    });
-
-    it('should support the class attribute as an array', () => {
-        const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
-        
-        expect(el.className).to.equal('foo bar baz');
-    });
-
-    it('should support the class attribute as an object', () => {        
-        const el = html`<div class=${{foo: true, bar: true, baz: true}}></div>`;
-        
-        expect(el.className).to.equal('foo bar baz');
-    });
-
-    it('should set the class attribute with a function that returns an array', () => {
-        const callback = sinon.spy(() => ['foo', 'bar', 'baz', 'qux']);
-        const el = html`<div class=${callback}></div>`;
-        
-        expect(el.className).to.equal('foo bar baz qux');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should set the class attribute with a function that returns an object', () => {  
-        const callback = sinon.spy(() => ({foo: true, bar: false, baz: true}));
-        const el = html`<div class=${callback}></div>`;
-        
-        expect(el.className).to.equal('foo baz');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should alias className to class', () => {
-        const el = html`<div className="foo"></div>`;
-        
-        expect(el.className).to.equal('foo');
-    });
-
-    it('should support boolean attributes', () => {
-        const el = html`<input disabled />`;
-
-        expect(el.disabled).to.equal(true);
-        expect(el.outerHTML).to.equal('<input disabled="">');
-    });
-
-    it('should support CSS styles as a key/value map', () => {
-        const el = html`<div style=${{width: '100px', height: '100px'}}></div>`;
-
-        expect(el.outerHTML).to.equal('<div style="width: 100px; height: 100px;"></div>');
-    });
-
-    it('should support CSS styles as a string', () => {
-        const el = html`<div style=${'background-color: rgb(20, 20, 20); position: static;'}></div>`;
-
-        expect(el.outerHTML).to.equal('<div style="background-color: rgb(20, 20, 20); position: static;"></div>');
-    });
-
-    it('should set CSS styles with a function that returns a key/value map', () => {
-        const callback = sinon.spy(() => ({width: '60px', height: '60px'}));
-        const el = html`<div style=${callback}></div>`;
-
-        expect(el.outerHTML).to.equal('<div style="width: 60px; height: 60px;"></div>');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should set CSS styles with a function that returns styles as a string', () => {
-        const callback = sinon.spy(() => 'color: rgb(90, 20, 70); position: relative;');
-        const el = html`<div style=${callback}></div>`;
-
-        expect(el.outerHTML).to.equal('<div style="color: rgb(90, 20, 70); position: relative;"></div>');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should support CSS variables', () => {
-        const el = html`<div style=${{color: 'var(--color)', '--color': 'red'}}></div>`;
-        document.body.appendChild(el);
-
-        expect(el.style.color).to.equal('var(--color)');
-        expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(255, 0, 0)');
-        expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('red');
-        expect(el.outerHTML).to.equal('<div style="color: var(--color); --color:red;"></div>');
-        document.body.removeChild(el);
-    });
-
-    it('should support DOM properties', () => {
-        const el = html`<input type="text" value="foo" />`;
-
-        expect(el.value).to.equal('foo');
-    });
-
-    it('should set a DOM property with a function', () => {
-        const callback = sinon.spy(() => 'foo');
-        const el = html`<input type="text" value=${callback} />`;
-
-        expect(el.value).to.equal('foo');
-        expect(callback.callCount).to.equal(1);
-        expect(callback.args[0][0]).to.equal(el);
-    });
-
-    it('should support the input list attribute', () => {
-        const el = html`<input list="foo" />`;
-
-        expect(el.outerHTML).to.equal('<input list="foo">');
-    });
-
-    it('should support the input form attribute', () => {
-        const el = html`<input form="foo" />`;
-
-        expect(el.outerHTML).to.equal('<input form="foo">');
-    });
-
-    it('should support event listeners', (done) => {
-        const event = new MouseEvent('click');
-
-        const onClick = (e) => {
-            expect(e).to.equal(event);
-            document.body.removeChild(el);
-            done();
-        };
-
-        const el = html`<div onclick=${onClick}></div>`;
-        document.body.appendChild(el);
-        el.dispatchEvent(event);
-    });
-
-    it('should support custom events', (done) => {
-        const event = new CustomEvent('foo');
-
-        const callback = sinon.spy((e) => {
-            expect(e).to.equal(event);
-            document.body.removeChild(el);
-            done();
-        });
-
-        const el = html`<div onfoo=${callback}></div>`;
-        document.body.appendChild(el);
-        el.dispatchEvent(event);
-    });
-
-    it('should support camel-cased event names', (done) => {
-        const event = new MouseEvent('mouseover');
-
-        const onMouseOver = (e) => {
-            expect(e).to.equal(event);
-            done();
-        };
-
-        const el = html`<div onMouseOver=${onMouseOver}></div>`;
-
-        el.dispatchEvent(event);
-    });
-
-    it('should create child nodes', () => {
-        const el = html`<div>foo<span a="1">bar<em b="2" c="3">baz</em></span>qux</div>`;
-
-        expect(el.outerHTML).to.equal('<div>foo<span a="1">bar<em b="2" c="3">baz</em></span>qux</div>');
-    });
-
-    it('should convert numbers to text nodes', () => {
-        const el = html`<div>${123}</div>`;
-
-        expect(el.outerHTML).to.equal('<div>123</div>');
-    });
-
-    it('should support a dynamic element', () => {
-        const el = html`<div>${html`<span></span>`}</div>`;
-
-        expect(el.outerHTML).to.equal('<div><span></span></div>');
-    });
-
-    it('should create child nodes with a function that returns a string', () => {
-        const callback = sinon.spy(() => 'foo');
-        const el = html`<div>${callback}</div>`;
+    it('should render a string as a text node', () => {
+        const string = 'foo';
+        const el = html`<div>${string}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
-        expect(callback.callCount).to.equal(1);
+    });
+
+    it('should render a number as a text node', () => {
+        const number = 100;
+        const el = html`<div>${number}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>100</div>');
+    });
+
+    it('should render a string as an attribute', () => {
+        const string = 'foo';
+        const el = html`<div class=${string}></div>`;
+
+        expect(el.outerHTML).to.equal('<div class="foo"></div>');
+    });
+
+    it('should render a text node', () => {
+        const text = document.createTextNode('foo');
+        const el = html`<div>${text}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>foo</div>');
     });
     
-    it('should create child nodes with a function that returns a DOM node', () => {
-        const callback = sinon.spy(() => html`<span />`);
-        const el = html`<div>${callback}</div>`;
+    it('should render an element', () => {
+        const span = document.createElement('span');
+        const el = html`<div>${span}</div>`;
 
         expect(el.outerHTML).to.equal('<div><span></span></div>');
-        expect(callback.callCount).to.equal(1);
     });
 
-    it('should unpack deeply nested functions', () => {
-        const callback = () => () => () => () => 'bar';
-        const el = html`<div>${callback}</div>`;
+    it('should render a document fragment', () => {
+        const frag = html`<i></i><em></em>`;
 
-        expect(el.outerHTML).to.equal('<div>bar</div>');
+        const el = html`<div>${frag}</div>`;
+
+        expect(el.outerHTML).to.equal('<div><i></i><em></em></div>');
     });
 
-    it('should escape HTML characters', () => {
-        const el = html`<div>${'<i id="foo" class=\'bar\'>bar</i>'}</div>`;
-
-        expect(el.outerHTML).to.equal('<div>&lt;i id="foo" class=\'bar\'&gt;bar&lt;/i&gt;</div>');
-    });
-
-    it('should support an array of children', () => {
+    it('should render child nodes from an array', () => {
         const children = [
             'foo',
             null,
@@ -269,7 +91,7 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div>foo<div>bar</div><span></span></div>');
     });
 
-    it('should support a multi-dimensional array of children', () => {
+    it('should render child nodes from a multi-dimensional array', () => {
         const children = [
             html`<div />`,
             [
@@ -287,24 +109,123 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div><div></div><span></span><em></em><i></i><section></section><p></p></div>');
     });
 
-    it('should create child nodes with a function that returns an array', () => {
-        const callback = sinon.spy(() => [
-            html`<em />`,
-            'bar',
-            null,
-            document.createElement('span'),
-            50
-        ]);
-
-        const el = html`<div>${callback}</div>`;
-        expect(el.outerHTML).to.equal('<div><em></em>bar<span></span>50</div>');
-        expect(callback.callCount).to.equal(1);
+    it('should set the class attribute with an array', () => {
+        const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz');
     });
 
-    it('should not create nodes if a callback function returns null or undefined', () => {
-        const el = html`<div>${() => null} ${() => undefined}</div>`;
+    it('should set the class attribute with an object', () => {        
+        const el = html`<div class=${{foo: true, bar: true, baz: true}}></div>`;
+        
+        expect(el.className).to.equal('foo bar baz');
+    });
 
-        expect(el.outerHTML).to.equal('<div> </div>');
+    it('should alias className to class', () => {
+        const el = html`<div className="foo"></div>`;
+        
+        expect(el.className).to.equal('foo');
+    });
+
+    it('should support boolean attributes', () => {
+        const el = html`<input disabled />`;
+
+        expect(el.disabled).to.equal(true);
+        expect(el.outerHTML).to.equal('<input disabled="">');
+    });
+
+    it('should set CSS styles with a key/value map', () => {
+        const el = html`<div style=${{width: '100px', height: '100px'}}></div>`;
+
+        expect(el.outerHTML).to.equal('<div style="width: 100px; height: 100px;"></div>');
+    });
+
+    it('should set CSS styles with a string', () => {
+        const el = html`<div style=${'background-color: rgb(20, 20, 20); position: static;'}></div>`;
+
+        expect(el.outerHTML).to.equal('<div style="background-color: rgb(20, 20, 20); position: static;"></div>');
+    });
+
+    it('should set CSS variables', () => {
+        const el = html`<div style=${{color: 'var(--color)', '--color': 'red'}}></div>`;
+        document.body.appendChild(el);
+
+        expect(el.style.color).to.equal('var(--color)');
+        expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(255, 0, 0)');
+        expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('red');
+        expect(el.outerHTML).to.equal('<div style="color: var(--color); --color:red;"></div>');
+        document.body.removeChild(el);
+    });
+
+    it('should support DOM properties', () => {
+        const el = html`<input type="text" value="foo" />`;
+
+        expect(el.value).to.equal('foo');
+    });
+
+    it('should support the input list attribute', () => {
+        const el = html`<input list="foo" />`;
+
+        expect(el.outerHTML).to.equal('<input list="foo">');
+    });
+
+    it('should support the input form attribute', () => {
+        const el = html`<input form="foo" />`;
+
+        expect(el.outerHTML).to.equal('<input form="foo">');
+    });
+
+    it('should set an event listener', (done) => {
+        const event = new MouseEvent('click');
+
+        const onClick = (e) => {
+            expect(e).to.equal(event);
+            document.body.removeChild(el);
+
+            done();
+        };
+
+        const el = html`<div onclick=${onClick}></div>`;
+        document.body.appendChild(el);
+        el.dispatchEvent(event);
+    });
+
+    it('should set an event listener for a custom event', (done) => {
+        const event = new CustomEvent('foo');
+
+        const callback = sinon.spy((e) => {
+            expect(e).to.equal(event);
+            document.body.removeChild(el);
+
+            done();
+        });
+
+        const el = html`<div onfoo=${callback}></div>`;
+        document.body.appendChild(el);
+        el.dispatchEvent(event);
+    });
+
+    it('should support camel-cased event names', (done) => {
+        const event = new MouseEvent('mouseover');
+
+        const onMouseOver = (e) => {
+            expect(e).to.equal(event);
+            
+            done();
+        };
+
+        const el = html`<div onMouseOver=${onMouseOver}></div>`;
+
+        el.dispatchEvent(event);
+    });
+
+    it('should escape an HTML string', () => {
+        /* eslint-disable quotes */
+        const string = `<span id="foo" class='bar'>this & that</span>`;
+        const el = html`<div>${string}</div>`;
+
+        expect(el.outerHTML).to.equal(`<div>&lt;span id="foo" class='bar'&gt;this &amp; that&lt;/span&gt;</div>`);
+        /* eslint-enable quotes */
     });
 
     it('should execute scripts', () => {

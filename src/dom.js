@@ -4,7 +4,7 @@ import { render } from './scheduler';
 import { cleanup } from './disposal';
 import { uuid, isStore, isPromise } from './util';
 
-const build = htm.bind(createElement);
+const buildHTML = htm.bind(createElement);
 
 const SVG_TAGS = [
     'svg',
@@ -259,7 +259,9 @@ function observeNodeStore(store) {
     let prevVal;
     let prevNode;
     const setValue = (nextVal) => {
-        if (isPromise(nextVal)) {
+        if (typeof nextVal === 'function') {
+            setValue(nextVal());
+        } else if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal) {
             render(key, () => {
@@ -269,8 +271,10 @@ function observeNodeStore(store) {
             });
         }
     };
-    const unsubscribe = store.subscribe((nextVal) => {
-        if (!initialRender) { 
+    const onSubscribe = (nextVal) => {
+        if (typeof nextVal === 'function') {
+            onSubscribe(nextVal());
+        } else if (!initialRender) { 
             setValue(nextVal);
         } else {
             prevVal = nextVal;
@@ -279,7 +283,8 @@ function observeNodeStore(store) {
                 nextVal.then(setValue);
             }
         }
-    });
+    };
+    const unsubscribe = store.subscribe(onSubscribe);
     const node = createNode(prevVal);
     prevNode = getNodes(node);
     cleanup(prevNode, unsubscribe);
@@ -347,9 +352,6 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
 }
 
 export function patchNode(prevNode, nextVal, marker) {
-    if (typeof nextVal === 'function') {
-        return patchNode(prevNode, nextVal(), marker);
-    }
     if (typeof nextVal === 'number') {
         nextVal = String(nextVal);
     }
@@ -376,6 +378,6 @@ export function patchNode(prevNode, nextVal, marker) {
 }
 
 export function html(...args) {
-    const result = build(...args);
+    const result = buildHTML(...args);
     return Array.isArray(result) ? arrayToFrag(result) : getNode(result);
 }

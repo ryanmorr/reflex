@@ -1,7 +1,9 @@
 import './html';
 import './val';
 import './derived';
-import './bindings';
+import './interpolation-store';
+import './interpolation-function';
+import './interpolation-promise';
 import './effect';
 import './bind';
 import './each';
