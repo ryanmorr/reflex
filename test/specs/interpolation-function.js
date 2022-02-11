@@ -225,4 +225,12 @@ describe('interpolation-function', () => {
         expect(fn3.callCount).to.equal(1);
         expect(fn3.args[0][0]).to.equal(el);
     });
+
+    it('should support multiple interpolations of the same function', () => {
+        const fn = sinon.spy(() => 'foo');
+        const el = html`<div id=${fn}>${fn}</div>`;
+
+        expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
+        expect(fn.callCount).to.equal(2);
+    });
 });
