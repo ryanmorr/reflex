@@ -135,10 +135,14 @@ describe('interpolation-function', () => {
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        child.set('bar').then(() => {
+        child.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>bar</div>');
             
-            child.set('baz').then(() => {
+            child.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>baz</div>');
 
                 done();
@@ -153,10 +157,14 @@ describe('interpolation-function', () => {
 
         expect(el.outerHTML).to.equal('<div class="foo"></div>');
 
-        child.set('bar').then(() => {
+        child.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div class="bar"></div>');
             
-            child.set('baz').then(() => {
+            child.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div class="baz"></div>');
 
                 done();

@@ -1,4 +1,4 @@
-import { html, val, dispose } from '../../src/reflex';
+import { html, val, dispose, tick } from '../../src/reflex';
 
 describe('disposal-store', () => {
     it('should dispose a node binding', (done) => {
@@ -7,12 +7,16 @@ describe('disposal-store', () => {
         
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        text.set('bar').then(() => {
+        text.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>bar</div>');
             
             dispose(el);
 
-            text.set('baz').then(() => {
+            text.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>bar</div>');
                 done();
             });
@@ -25,12 +29,16 @@ describe('disposal-store', () => {
         
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
 
-        attr.set('bar').then(() => {
+        attr.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div id="bar"></div>');
             
             dispose(el);
 
-            attr.set('baz').then(() => {
+            attr.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div id="bar"></div>');
                 done();
             });
@@ -45,13 +53,17 @@ describe('disposal-store', () => {
         expect(el.outerHTML).to.equal('<div id="foo">bar</div>');
 
         attr.set('baz');
-        text.set('qux').then(() => {
+        text.set('qux');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
             
             dispose(el);
             
             attr.set('abc');
-            text.set('xyz').then(() => {
+            text.set('xyz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
                 done();
             });
@@ -64,12 +76,16 @@ describe('disposal-store', () => {
         
         expect(el.outerHTML).to.equal('<div><section><span>foo</span><em>foo</em></section></div>');
 
-        text.set('bar').then(() => {
+        text.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
             
             dispose(el);
 
-            text.set('baz').then(() => {
+            text.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
                 done();
             });
@@ -84,12 +100,16 @@ describe('disposal-store', () => {
 
         expect(el.outerHTML).to.equal('<div><span>foo</span></div>');
 
-        text.set('bar').then(() => {
+        text.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
             
             dispose(el);
                 
-            text.set('baz').then(() => {
+            text.set('baz');
+        
+            tick().then(() => {
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
                 done();
@@ -107,16 +127,22 @@ describe('disposal-store', () => {
 
         expect(el.outerHTML).to.equal('<div id="bar"><span>foo</span></div>');
 
-        text.set('baz').then(() => {
+        text.set('baz');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
             
             dispose(span);
                 
-            text.set('qux').then(() => {
+            text.set('qux');
+        
+            tick().then(() => {
                 expect(span.outerHTML).to.equal('<span>baz</span>');
                 expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
                 
-                attr.set('qux').then(() => {
+                attr.set('qux');
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div id="qux"><span>baz</span></div>');
                     done();
                 });
@@ -136,14 +162,18 @@ describe('disposal-store', () => {
         expect(span.outerHTML).to.equal('<span>foo</span>');
         expect(em.outerHTML).to.equal('<em>foo</em>');
 
-        text.set('bar').then(() => {
+        text.set('bar');
+        
+        tick().then(() => {
             expect(div.outerHTML).to.equal('<div>bar</div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
             expect(em.outerHTML).to.equal('<em>bar</em>');
             
             dispose(span);
                 
-            text.set('baz').then(() => {
+            text.set('baz');
+        
+            tick().then(() => {
                 expect(div.outerHTML).to.equal('<div>baz</div>');
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(em.outerHTML).to.equal('<em>baz</em>');

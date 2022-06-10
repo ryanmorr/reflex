@@ -7,12 +7,16 @@ describe('disposal-bind', () => {
 
         expect(input.value).to.equal('foo');
 
-        value.set('bar').then(() => {
+        value.set('bar');
+        
+        tick().then(() => {
             expect(input.value).to.equal('bar');
             
             dispose(input);
 
-            value.set('baz').then(() => {
+            value.set('baz');
+        
+            tick().then(() => {
                 expect(input.value).to.equal('bar');
                 
                 input.addEventListener('input', () => {
@@ -32,12 +36,16 @@ describe('disposal-bind', () => {
 
         expect(input.value).to.equal('0');
 
-        value.set(3).then(() => {
+        value.set(3);
+        
+        tick().then(() => {
             expect(input.value).to.equal('3');
             
             dispose(input);
                 
-            value.set(5).then(() => {
+            value.set(5);
+        
+            tick().then(() => {
                 expect(input.value).to.equal('3');
                 
                 input.addEventListener('input', () => {
@@ -57,12 +65,16 @@ describe('disposal-bind', () => {
 
         expect(input.checked).to.equal(true);
 
-        checked.set(false).then(() => {
+        checked.set(false);
+        
+        tick().then(() => {
             expect(input.checked).to.equal(false);
             
             dispose(input);
 
-            checked.set(true).then(() => {
+            checked.set(true);
+        
+            tick().then(() => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
@@ -82,12 +94,16 @@ describe('disposal-bind', () => {
 
         expect(input.checked).to.equal(true);
 
-        checked.set(false).then(() => {
+        checked.set(false);
+        
+        tick().then(() => {
             expect(input.checked).to.equal(false);
             
             dispose(input);
                 
-            checked.set(true).then(() => {
+            checked.set(true);
+        
+            tick().then(() => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
@@ -107,12 +123,16 @@ describe('disposal-bind', () => {
 
         expect(textarea.value).to.equal('foo');
 
-        value.set('bar').then(() => {
+        value.set('bar');
+        
+        tick().then(() => {
             expect(textarea.value).to.equal('bar');
             
             dispose(textarea);
                 
-            value.set('baz').then(() => {
+            value.set('baz');
+        
+            tick().then(() => {
                 expect(textarea.value).to.equal('bar');
                 
                 textarea.addEventListener('input', () => {
@@ -139,13 +159,17 @@ describe('disposal-bind', () => {
         expect(select.value).to.equal('foo');
         expect(select.selectedIndex).to.equal(0);
 
-        value.set('bar').then(() => {
+        value.set('bar');
+        
+        tick().then(() => {
             expect(select.value).to.equal('bar');
             expect(select.selectedIndex).to.equal(1);
             
             dispose(select);
                 
-            value.set('baz').then(() => {
+            value.set('baz');
+        
+            tick().then(() => {
                 expect(select.value).to.equal('bar');
                 expect(select.selectedIndex).to.equal(1);
                 
@@ -173,12 +197,16 @@ describe('disposal-bind', () => {
         expect(select.value).to.equal('foo');
         expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0]]);
 
-        value.set(['foo', 'baz']).then(() => {
+        value.set(['foo', 'baz']);
+        
+        tick().then(() => {
             expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
             
             dispose(select);
 
-            value.set(['bar']).then(() => {
+            value.set(['bar']);
+        
+            tick().then(() => {
                 expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
                 
                 select.addEventListener('input', () => {

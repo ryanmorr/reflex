@@ -22,13 +22,9 @@ describe('tick', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        const promise = text.set('foo');
+        text.set('foo');
         
-        expect(promise).to.equal(tick());
-
-        expect(promise).to.be.a('promise');
-        
-        promise.then(() => {
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
             done();
         });

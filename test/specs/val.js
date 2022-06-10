@@ -14,10 +14,10 @@ describe('val', () => {
         
         expect(value.get()).to.equal('foo');
 
-        expect(value.set('bar')).to.be.a('promise');
+        expect(value.set('bar')).to.equal('bar');
         expect(value.get()).to.equal('bar');
 
-        expect(value.set('baz')).to.be.a('promise');
+        expect(value.set('baz')).to.equal('baz');
         expect(value.get()).to.equal('baz');
     });
 
@@ -26,10 +26,10 @@ describe('val', () => {
         
         expect(value.get()).to.equal(1);
 
-        expect(value.update((val) => val + 10)).to.be.a('promise');
+        expect(value.update((val) => val + 10)).to.equal(11);
         expect(value.get()).to.equal(11);
 
-        expect(value.update((val) => val + 100)).to.be.a('promise');
+        expect(value.update((val) => val + 100)).to.equal(111);
         expect(value.get()).to.equal(111);
     });
 
@@ -78,13 +78,13 @@ describe('val', () => {
         expect(spy.args[0][0]).to.equal(10);
         expect(spy.args[0][1]).to.equal(undefined);
 
-        expect(set(20)).to.be.a('promise');
+        expect(set(20)).to.equal(20);
         expect(get()).to.equal(20);
         expect(spy.callCount).to.equal(2);
         expect(spy.args[1][0]).to.equal(20);
         expect(spy.args[1][1]).to.equal(10);
 
-        expect(update((val) => val + 100)).to.be.a('promise');
+        expect(update((val) => val + 100)).to.equal(120);
         expect(get()).to.equal(120);
         expect(spy.callCount).to.equal(3);
         expect(spy.args[2][0]).to.equal(120);

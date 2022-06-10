@@ -1,4 +1,4 @@
-import { html, val, cleanup, dispose, each } from '../../src/reflex';
+import { html, val, cleanup, dispose, each, tick } from '../../src/reflex';
 
 describe('cleanup', () => {
     it('should call a cleanup callback when an element is disposed', () => {
@@ -77,7 +77,9 @@ describe('cleanup', () => {
 
         expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
 
-        list.set([1, 2]).then(() => {
+        list.set([1, 2]);
+        
+        tick().then(() => {
             expect(spy.callCount).to.equal(1);
             expect(spy.args[0][0]).to.equal(li3);
             done();

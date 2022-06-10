@@ -1,4 +1,4 @@
-import { html, val, each, dispose } from '../../src/reflex';
+import { html, val, each, dispose, tick } from '../../src/reflex';
 
 describe('ref', () => {
     it('should support adding elements to a store via the "ref" attribute', () => {
@@ -122,7 +122,9 @@ describe('ref', () => {
         expect(spy.args[3][1]).to.deep.equal([li1, li2]);
         expect(spy.args[3][0]).to.not.equal(spy.args[3][1]);
             
-        list.set([3, 4, 5]).then(() => {
+        list.set([3, 4, 5]);
+        
+        tick().then(() => {
             const li4 = el.children[1];
             const li5 = el.children[2];
 

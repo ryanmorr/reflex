@@ -43,13 +43,19 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        text.set('foo').then(() => {
+        text.set('foo');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
             
-            text.set(123).then(() => {
+            text.set(123);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>123</div>');
                 
-                text.set(false).then(() => {
+                text.set(false);
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div>false</div>');
 
                     done();
@@ -64,10 +70,14 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        child.set(html`<span />`).then(() => {
+        child.set(html`<span />`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div><span></span></div>');
             
-            child.set(html`<em />`).then(() => {
+            child.set(html`<em />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><em></em></div>');
 
                 done();
@@ -81,10 +91,14 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        child.set(() => 'bar').then(() => {
+        child.set(() => 'bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>bar</div>');
             
-            child.set(() => html`<em />`).then(() => {
+            child.set(() => html`<em />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><em></em></div>');
 
                 done();
@@ -98,10 +112,14 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        nodes.set(html`foo<span />bar<em />`).then(() => {
+        nodes.set(html`foo<span />bar<em />`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo<span></span>bar<em></em></div>');
             
-            nodes.set(html`<i />foo`).then(() => {
+            nodes.set(html`<i />foo`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><i></i>foo</div>');
 
                 done();
@@ -115,10 +133,14 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        nodes.set(() => html`bar<span />baz`).then(() => {
+        nodes.set(() => html`bar<span />baz`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>bar<span></span>baz</div>');
             
-            nodes.set(() => [html`<i />`, 'qux']).then(() => {
+            nodes.set(() => [html`<i />`, 'qux']);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><i></i>qux</div>');
 
                 done();
@@ -132,19 +154,29 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        node.set(null).then(() => {
+        node.set(null);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div></div>');
 
-            node.set(html`<span />`).then(() => {
+            node.set(html`<span />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><span></span></div>');
                 
-                node.set(undefined).then(() => {
+                node.set(undefined);
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div></div>');
                     
-                    node.set(html`<em />foo<i />`).then(() => {
+                    node.set(html`<em />foo<i />`);
+        
+                    tick().then(() => {
                         expect(el.outerHTML).to.equal('<div><em></em>foo<i></i></div>');
                         
-                        node.set(null).then(() => {
+                        node.set(null);
+        
+                        tick().then(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
 
                             done();
@@ -161,19 +193,29 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        node.set(() => null).then(() => {
+        node.set(() => null);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div></div>');
 
-            node.set(html`<span />`).then(() => {
+            node.set(html`<span />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><span></span></div>');
                 
-                node.set(() => undefined).then(() => {
+                node.set(() => undefined);
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div></div>');
                     
-                    node.set(html`<em />foo<i />`).then(() => {
+                    node.set(html`<em />foo<i />`);
+        
+                    tick().then(() => {
                         expect(el.outerHTML).to.equal('<div><em></em>foo<i></i></div>');
                         
-                        node.set(() => null).then(() => {
+                        node.set(() => null);
+        
+                        tick().then(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
 
                             done();
@@ -190,7 +232,9 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        attr.set('bar').then(() => {
+        attr.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div foo="bar"></div>');
 
             done();
@@ -205,7 +249,9 @@ describe('interpolation-store', () => {
 
         const fn = sinon.spy(() => 'bar');
 
-        attr.set(fn).then(() => {
+        attr.set(fn);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div foo="bar"></div>');
             expect(fn.callCount).to.equal(1);
             expect(fn.args[0][0]).to.equal(el);
@@ -220,19 +266,29 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
 
-        attr.set(null).then(() => {
+        attr.set(null);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div></div>');
             
-            attr.set('baz').then(() => {
+            attr.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div foo="baz"></div>');
                 
-                attr.set(undefined).then(() => {
+                attr.set(undefined);
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div></div>');
                     
-                    attr.set('qux').then(() => {
+                    attr.set('qux');
+        
+                    tick().then(() => {
                         expect(el.outerHTML).to.equal('<div foo="qux"></div>');
                         
-                        attr.set(false).then(() => {
+                        attr.set(false);
+        
+                        tick().then(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
 
                             done();
@@ -253,23 +309,33 @@ describe('interpolation-store', () => {
         const undefinedSpy = sinon.spy(() => undefined);
         const falseSpy = sinon.spy(() => false);
 
-        attr.set(nullSpy).then(() => {
+        attr.set(nullSpy);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div></div>');
             expect(nullSpy.callCount).to.equal(1);
             expect(nullSpy.args[0][0]).to.equal(el);
             
-            attr.set('baz').then(() => {
+            attr.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div foo="baz"></div>');
                 
-                attr.set(undefinedSpy).then(() => { 
+                attr.set(undefinedSpy);
+        
+                tick().then(() => { 
                     expect(el.outerHTML).to.equal('<div></div>');
                     expect(undefinedSpy.callCount).to.equal(1);
                     expect(undefinedSpy.args[0][0]).to.equal(el);
                     
-                    attr.set('qux').then(() => {
+                    attr.set('qux');
+        
+                    tick().then(() => {
                         expect(el.outerHTML).to.equal('<div foo="qux"></div>');
                         
-                        attr.set(falseSpy).then(() => {
+                        attr.set(falseSpy);
+        
+                        tick().then(() => {
                             expect(el.outerHTML).to.equal('<div></div>');
                             expect(falseSpy.callCount).to.equal(1);
                             expect(falseSpy.args[0][0]).to.equal(el);
@@ -288,7 +354,9 @@ describe('interpolation-store', () => {
         
         expect(el.className).to.equal('foo bar');
 
-        className.set(['foo', 'baz', 'qux']).then(() => {
+        className.set(['foo', 'baz', 'qux']);
+        
+        tick().then(() => {
             expect(el.className).to.equal('foo baz qux');
 
             done();
@@ -301,7 +369,9 @@ describe('interpolation-store', () => {
         
         expect(el.className).to.equal('foo bar baz');
 
-        className.set({foo: false, bar: true, baz: false, qux: true}).then(() => {
+        className.set({foo: false, bar: true, baz: false, qux: true});
+        
+        tick().then(() => {
             expect(el.className).to.equal('bar qux');
 
             done();
@@ -316,14 +386,18 @@ describe('interpolation-store', () => {
 
         const fn1 = sinon.spy(() => ['foo', 'bar']);
 
-        className.set(fn1).then(() => {
+        className.set(fn1);
+        
+        tick().then(() => {
             expect(el.className).to.equal('foo bar');
             expect(fn1.callCount).to.equal(1);
             expect(fn1.args[0][0]).to.equal(el);
 
             const fn2 = sinon.spy(() => ({foo: true, bar: false, baz: true, qux: true}));
             
-            className.set(fn2).then(() => {
+            className.set(fn2);
+        
+            tick().then(() => {
                 expect(el.className).to.equal('foo baz qux');
                 expect(fn2.callCount).to.equal(1);
                 expect(fn2.args[0][0]).to.equal(el);
@@ -339,7 +413,9 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div style="width: 100px; height: 200px;"></div>');
 
-        style.set('width: 150px; background-color: rgb(20, 20, 20);').then(() => {
+        style.set('width: 150px; background-color: rgb(20, 20, 20);');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div style="width: 150px; background-color: rgb(20, 20, 20);"></div>');
 
             done();
@@ -352,7 +428,9 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 5px;"></div>');
 
-        style.set({paddingTop: '7px', 'padding-left': '12px'}).then(() => {
+        style.set({paddingTop: '7px', 'padding-left': '12px'});
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div style="padding-top: 7px; padding-left: 12px;"></div>');
 
             done();
@@ -367,14 +445,18 @@ describe('interpolation-store', () => {
 
         const fn1 = sinon.spy(() => 'width: 43px; height: 86px');
 
-        style.set(fn1).then(() => {
+        style.set(fn1);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div style="width: 43px; height: 86px;"></div>');
             expect(fn1.callCount).to.equal(1);
             expect(fn1.args[0][0]).to.equal(el);
 
             const fn2 = sinon.spy(() => ({width: '68px', paddingTop: '12px'}));
             
-            style.set(fn2).then(() => {
+            style.set(fn2);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div style="width: 68px; height: 86px; padding-top: 12px;"></div>');
                 expect(fn2.callCount).to.equal(1);
                 expect(fn2.args[0][0]).to.equal(el);
@@ -390,7 +472,9 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div style="width: 100px;"></div>');
 
-        style.set({width: null}).then(() => {
+        style.set({width: null});
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div style=""></div>');
 
             done();
@@ -405,7 +489,9 @@ describe('interpolation-store', () => {
 
         const fn = sinon.spy(() => ({width: null}));
 
-        style.set(fn).then(() => {
+        style.set(fn);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div style=""></div>');
             expect(fn.callCount).to.equal(1);
             expect(fn.args[0][0]).to.equal(el);
@@ -424,7 +510,9 @@ describe('interpolation-store', () => {
         expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(255, 0, 0)');
         expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('red');
         
-        style.set({color: 'var(--color)', '--color': 'blue'}).then(() => {
+        style.set({color: 'var(--color)', '--color': 'blue'});
+        
+        tick().then(() => {
             expect(el.style.color).to.equal('var(--color)');
             expect(window.getComputedStyle(el).getPropertyValue('color')).to.equal('rgb(0, 0, 255)');
             expect(window.getComputedStyle(el).getPropertyValue('--color')).to.equal('blue');
@@ -441,10 +529,14 @@ describe('interpolation-store', () => {
         expect(el.outerHTML).to.equal('<input type="radio">');
         expect(el.checked).to.equal(true);
 
-        checked.set(false).then(() => {
+        checked.set(false);
+        
+        tick().then(() => {
             expect(el.checked).to.equal(false);
 
-            checked.set(true).then(() => {
+            checked.set(true);
+        
+            tick().then(() => {
                 expect(el.checked).to.equal(true);
 
                 done();
@@ -460,7 +552,9 @@ describe('interpolation-store', () => {
 
         const fn = sinon.spy(() => false);
 
-        checked.set(fn).then(() => {
+        checked.set(fn);
+        
+        tick().then(() => {
             expect(el.checked).to.equal(false);
             expect(fn.callCount).to.equal(1);
             expect(fn.args[0][0]).to.equal(el);
@@ -476,10 +570,14 @@ describe('interpolation-store', () => {
         expect(el.outerHTML).to.equal('<input type="text">');
         expect(el.value).to.equal('foo');
 
-        value.set('bar').then(() => {
+        value.set('bar');
+        
+        tick().then(() => {
             expect(el.value).to.equal('bar');
 
-            value.set('baz').then(() => {
+            value.set('baz');
+        
+            tick().then(() => {
                 expect(el.value).to.equal('baz');
 
                 done();
@@ -495,7 +593,9 @@ describe('interpolation-store', () => {
 
         const fn = sinon.spy(() => 'foo');
 
-        value.set(fn).then(() => {
+        value.set(fn);
+        
+        tick().then(() => {
             expect(el.value).to.equal('foo');
             expect(fn.callCount).to.equal(1);
             expect(fn.args[0][0]).to.equal(el);
@@ -511,7 +611,9 @@ describe('interpolation-store', () => {
         const addEventSpy = sinon.spy(el, 'addEventListener');
 
         const fn = sinon.spy();
-        clickHandler.set(fn).then(() => {
+        clickHandler.set(fn);
+        
+        tick().then(() => {
             expect(addEventSpy.callCount).to.equal(1);
             expect(addEventSpy.args[0][0]).to.equal('click');
             expect(addEventSpy.args[0][1]).to.equal(fn);
@@ -527,7 +629,9 @@ describe('interpolation-store', () => {
 
         const removeEventSpy = sinon.spy(el, 'removeEventListener');
 
-        clickHandler.set(null).then(() => {
+        clickHandler.set(null);
+        
+        tick().then(() => {
             expect(removeEventSpy.callCount).to.equal(1);
             expect(removeEventSpy.args[0][0]).to.equal('click');
             expect(removeEventSpy.args[0][1]).to.equal(fn);
@@ -545,7 +649,9 @@ describe('interpolation-store', () => {
         const addEventSpy = sinon.spy(el, 'addEventListener');
         const removeEventSpy = sinon.spy(el, 'removeEventListener');
 
-        clickHandler.set(onClick1).then(() => {
+        clickHandler.set(onClick1);
+        
+        tick().then(() => {
             el.dispatchEvent(event1);
             expect(onClick1.callCount).to.equal(1);
             const call1 = onClick1.getCall(0);
@@ -560,7 +666,9 @@ describe('interpolation-store', () => {
             const event2 = new CustomEvent('click');
             const onClick2 = sinon.spy();
 
-            clickHandler.set(onClick2).then(() => {
+            clickHandler.set(onClick2);
+        
+            tick().then(() => {
                 el.dispatchEvent(event2);
                 expect(onClick1.callCount).to.equal(1);
                 expect(onClick2.callCount).to.equal(1);
@@ -596,7 +704,9 @@ describe('interpolation-store', () => {
         expect(el.childNodes[4]).to.equal(em);
         expect(el.childNodes[5]).to.equal(p);
 
-        child.set(html`<section />`).then(() => {
+        child.set(html`<section />`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo<span></span><section></section>baz<em></em><p></p></div>');
             expect(el.childNodes[0]).to.equal(foo);
             expect(el.childNodes[1]).to.equal(span);
@@ -604,7 +714,9 @@ describe('interpolation-store', () => {
             expect(el.childNodes[4]).to.equal(em);
             expect(el.childNodes[5]).to.equal(p);
 
-            child.set(html`<h1 /><h2 /><h3 />`).then(() => {
+            child.set(html`<h1 /><h2 /><h3 />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>foo<span></span><h1></h1><h2></h2><h3></h3>baz<em></em><p></p></div>');
                 expect(el.childNodes[0]).to.equal(foo);
                 expect(el.childNodes[1]).to.equal(span);
@@ -625,7 +737,9 @@ describe('interpolation-store', () => {
     
         expect(el.outerHTML).to.equal('<div>fooabcbar</div>');
 
-        text.set(123).then(() => {
+        text.set(123);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo123bar</div>');
             expect(el.childNodes[0]).to.equal(foo);
             expect(el.childNodes[2]).to.equal(baz);
@@ -640,10 +754,14 @@ describe('interpolation-store', () => {
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
     
-        text.set('foo').then(() => {
+        text.set('foo');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40">foo</circle></svg>');
             
-            text.set('bar').then(() => {
+            text.set('bar');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40">bar</circle></svg>');
 
                 done();
@@ -657,10 +775,14 @@ describe('interpolation-store', () => {
     
         expect(el.outerHTML).to.equal('<svg></svg>');
     
-        child.set(html`<circle cx="50" cy="50" r="40" />`).then(() => {
+        child.set(html`<circle cx="50" cy="50" r="40" />`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
             
-            child.set(html`<rect width="100" height="100" />`).then(() => {
+            child.set(html`<rect width="100" height="100" />`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<svg><rect width="100" height="100"></rect></svg>');
 
                 done();
@@ -674,7 +796,9 @@ describe('interpolation-store', () => {
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="50"></circle></svg>');
     
-        radius.set(70).then(() => {
+        radius.set(70);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="70"></circle></svg>');
 
             done();
@@ -690,7 +814,9 @@ describe('interpolation-store', () => {
         expect(circle.getAttribute('textContent')).to.equal('foo');
         expect(circle.textContent).to.equal('');
     
-        textContent.set('bar').then(() => {
+        textContent.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40" fill="red" textContent="bar"></circle></svg>');
             expect(circle.getAttribute('textContent')).to.equal('bar');
             expect(circle.textContent).to.equal('');
@@ -707,11 +833,15 @@ describe('interpolation-store', () => {
         expect(div.outerHTML).to.equal('<div>foo</div>');
         expect(span.outerHTML).to.equal('<span>foo</span>');
 
-        text.set('bar').then(() => {
+        text.set('bar');
+        
+        tick().then(() => {
             expect(div.outerHTML).to.equal('<div>bar</div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
 
-            text.set('baz').then(() => {
+            text.set('baz');
+        
+            tick().then(() => {
                 expect(div.outerHTML).to.equal('<div>baz</div>');
                 expect(span.outerHTML).to.equal('<span>baz</span>');
 
@@ -727,10 +857,14 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        text.set(`<span id="foo"></span>`).then(() => {
+        text.set(`<span id="foo"></span>`);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>&lt;span id="foo"&gt;&lt;/span&gt;</div>');
             
-            text.set(`<em class="bar">this & that</em>`).then(() => {
+            text.set(`<em class="bar">this & that</em>`);
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>&lt;em class="bar"&gt;this &amp; that&lt;/em&gt;</div>');
 
                 done();
@@ -747,7 +881,9 @@ describe('interpolation-store', () => {
 
         text.set('bar');
         text.set('baz');
-        text.set('qux').then(() => {
+        text.set('qux');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>qux</div>');
 
             done();
@@ -763,16 +899,24 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div class="foo bar"><section><h1>foo</h1></section></div>');
 
-        title.set('bar').then(() => {
+        title.set('bar');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div class="foo bar"><section><h1>bar</h1></section></div>');
 
-            className.set('baz').then(() => {
+            className.set('baz');
+        
+            tick().then(() => {
                 expect(el.outerHTML).to.equal('<div class="foo baz"><section><h1>bar</h1></section></div>');
 
-                title.set('baz').then(() => {
+                title.set('baz');
+        
+                tick().then(() => {
                     expect(el.outerHTML).to.equal('<div class="foo baz"><section><h1>baz</h1></section></div>');
                     
-                    className.set('qux').then(() => {
+                    className.set('qux');
+        
+                    tick().then(() => {
                         expect(el.outerHTML).to.equal('<div class="foo qux"><section><h1>baz</h1></section></div>');
 
                         done();
@@ -815,11 +959,13 @@ describe('interpolation-store', () => {
         expect(span.outerHTML).to.equal('<span>foo</span>');
 
         value('bar');
+
         tick().then(() => {
             expect(div.outerHTML).to.equal('<div id="bar"></div>');
             expect(span.outerHTML).to.equal('<span>bar</span>');
 
             value('baz');
+
             tick().then(() => {
                 expect(div.outerHTML).to.equal('<div id="baz"></div>');
                 expect(span.outerHTML).to.equal('<span>baz</span>');
@@ -835,7 +981,9 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        child.set(() => () => () => 'foo').then(() => {
+        child.set(() => () => () => 'foo');
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
 
             done();
@@ -852,7 +1000,9 @@ describe('interpolation-store', () => {
         const fn2 = sinon.spy(fn1);
         const fn3 = sinon.spy(fn2);
 
-        attr.set(fn3).then(() => {
+        attr.set(fn3);
+        
+        tick().then(() => {
             expect(el.outerHTML).to.equal('<div foo="bar"></div>');
             expect(fn1.callCount).to.equal(1);
             expect(fn1.args[0][0]).to.equal(el);
