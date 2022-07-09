@@ -1,6 +1,18 @@
 import { html, val, each, tick } from '../../src/reflex';
 
 describe('each', () => {
+    it('should not render an undefined list', () => {
+        const list = val();
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => html`<li>${item}</li>`)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('');
+    });
+
     it('should render a list', () => {
         const array = [1, 2, 3];
         const list = val(array);
@@ -28,18 +40,6 @@ describe('each', () => {
         expect(callback.args[2][0]).to.equal(3);
         expect(callback.args[2][1]).to.equal(2);
         expect(callback.args[2][2]).to.equal(array);
-    });
-
-    it('should not render an undefined list', () => {
-        const list = val();
-
-        const el = html`
-            <ul>
-                ${each(list, (item) => html`<li>${item}</li>`)}
-            </ul>
-        `;
-
-        expect(el.innerHTML).to.equal('');
     });
 
     it('should append nodes', (done) => {
@@ -605,8 +605,20 @@ describe('each', () => {
         expect(callback.args[3][1]).to.equal(3);
         expect(callback.args[3][2]).to.equal(set);
 
-        const string = 'abc';
-        list.set(string);
+        function makeIterator() {
+            let i = 0;
+            const chars = ['a', 'b', 'c'];
+            return {
+                [Symbol.iterator]() {
+                    return {
+                        next: () => i < chars.length ? {value: chars[i++], done: false} : {done: true}
+                    };
+                }
+            };
+        }
+
+        const iterator = makeIterator();
+        list.set(iterator);
         
         tick().then(() => {
             expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
@@ -615,17 +627,269 @@ describe('each', () => {
 
             expect(callback.args[4][0]).to.equal('a');
             expect(callback.args[4][1]).to.equal(0);
-            expect(callback.args[4][2]).to.equal(string);
+            expect(callback.args[4][2]).to.equal(iterator);
 
             expect(callback.args[5][0]).to.equal('b');
             expect(callback.args[5][1]).to.equal(1);
-            expect(callback.args[5][2]).to.equal(string);
+            expect(callback.args[5][2]).to.equal(iterator);
 
             expect(callback.args[6][0]).to.equal('c');
             expect(callback.args[6][1]).to.equal(2);
-            expect(callback.args[6][2]).to.equal(string);
+            expect(callback.args[6][2]).to.equal(iterator);
 
             done();
+        });
+    });
+    
+    it('should not render strings', () => {
+        const list = val('foo');
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => html`<li>${item}</li>`)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('');
+    });
+
+    it('should replace a list with nothing', (done) => {
+        const list = val([1, 2, 3]);
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => html`<li>${item}</li>`)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+
+        list.set(null);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('');
+            done();
+        });
+    });
+
+    it('should render the empty content when the iterable is empty', () => {
+        const array = [];
+        const list = val(array);
+
+        const callback = sinon.spy();
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal(array);
+    });
+
+    it('should render the empty content if the store value is not iterable', () => {
+        const list = val(123);
+
+        const callback = sinon.spy();
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal(123);
+    });
+
+    it('should render the empty content if the store value is a string', () => {
+        const list = val('foo');
+
+        const callback = sinon.spy();
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal('foo');
+    });
+
+    it('should replace the empty content with a list', (done) => {
+        const array = [];
+        const list = val(array);
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal(array);
+
+        list.set([1, 2, 3]);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+            expect(callback.callCount).to.equal(3);
+            expect(onEmpty.callCount).to.equal(1);
+
+            done();
+        });
+    });
+
+    it('should replace a list with empty content', (done) => {
+        const list = val([1, 2, 3, 4]);
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li>');
+        expect(callback.callCount).to.equal(4);
+        expect(onEmpty.callCount).to.equal(0);
+
+        list.set('foo');
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>Empty</li>');
+            expect(callback.callCount).to.equal(4);
+            expect(onEmpty.callCount).to.equal(1);
+            expect(onEmpty.args[0][0]).to.equal('foo');
+
+            done();
+        });
+    });
+
+    it('should not replace empty content with the same empty content', (done) => {
+        const array = [];
+        const list = val(array);
+
+        const callback = sinon.spy();
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal(array);
+
+        const li = el.firstChild;
+
+        list.set(null);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>Empty</li>');
+            expect(el.firstChild).to.equal(li);
+            expect(callback.callCount).to.equal(0);
+            expect(onEmpty.callCount).to.equal(1);
+
+            done();
+        });
+    });
+
+    it('should replace a list with empty content and then replace empty content with a list', (done) => {
+        const list = val([1, 2, 3, 4]);
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li>');
+        expect(callback.callCount).to.equal(4);
+        expect(onEmpty.callCount).to.equal(0);
+
+        list.set('foo');
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>Empty</li>');
+            expect(callback.callCount).to.equal(4);
+            expect(onEmpty.callCount).to.equal(1);
+            expect(onEmpty.args[0][0]).to.equal('foo');
+
+            list.set(['a', 'b', 'c']);
+        
+            tick().then(() => {
+                expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
+                expect(callback.callCount).to.equal(7);
+                expect(onEmpty.callCount).to.equal(1);
+
+                done();
+            });
+        });
+    });
+
+    it('should replace empty content with a list and then replace the list with empty content', (done) => {
+        const list = val();
+
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+        const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal(undefined);
+
+        list.set([1, 2]);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>1</li><li>2</li>');
+            expect(callback.callCount).to.equal(2);
+            expect(onEmpty.callCount).to.equal(1);
+
+            const array = [];
+            list.set(array);
+        
+            tick().then(() => {
+                expect(el.innerHTML).to.equal('<li>Empty</li>');
+                expect(callback.callCount).to.equal(2);
+                expect(onEmpty.callCount).to.equal(2);
+                expect(onEmpty.args[1][0]).to.equal(array);
+
+                done();
+            });
         });
     });
 });

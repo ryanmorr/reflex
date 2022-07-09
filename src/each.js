@@ -1,6 +1,6 @@
 import { render } from './scheduler';
 import { cleanup, dispose } from './disposal';
-import { uuid } from './util';
+import { uuid, isIterable } from './util';
 
 // Adapted from https://github.com/Freak613/stage0/blob/master/reconcile.js
 
@@ -42,13 +42,7 @@ function findGreatestIndexLEQ(seq, n) {
     return lo;
 }
 
-function removeNode(parent, node) {
-    parent.removeChild(node);
-    dispose(node);
-}
-
-function reconcile(parent, renderedValues, source, createFn, beforeNode, afterNode) {
-    const data = Array.from(source);
+function reconcile(parent, renderedValues, data, source, createFn, beforeNode, afterNode) {
     if (data.length === 0) {
         if (beforeNode !== undefined || afterNode !== undefined) {
             let node = beforeNode !== undefined ? beforeNode.nextSibling : parent.firstChild, tmp;
@@ -231,24 +225,63 @@ function reconcile(parent, renderedValues, source, createFn, beforeNode, afterNo
     }
 }
 
-export function each(store, callback) {
+function removeNode(parent, node) {
+    parent.removeChild(node);
+    dispose(node);
+}
+
+function removeNodeRange(parent, firstElement, lastElement) {
+    let node = firstElement.nextSibling;
+    while (node !== lastElement) {
+        removeNode(parent, node);
+        node = firstElement.nextSibling;
+    }
+}
+
+export function each(store, factory, onEmpty) {
     let initialized = false;
+    let isEmpty = false;
+    let prevItems = [];
     const key = uuid();
     const frag = document.createDocumentFragment();
     const beforeNode = document.createTextNode('');
     const afterNode = document.createTextNode('');
     frag.appendChild(beforeNode);
     frag.appendChild(afterNode);
-    const unsubscribe = store.subscribe((nextItems, prevItems) => {
-        if (nextItems == null) {
-            nextItems = [];
-        }
-        prevItems = (prevItems == null) ? [] : Array.from(prevItems);
+    const unsubscribe = store.subscribe((value) => {
         const parent = beforeNode.parentNode;
-        if (initialized) {
-            render(key, () => reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode));
+        const nextItems = isIterable(value) ? Array.from(value) : [];
+        if (onEmpty && nextItems.length === 0) {
+            if (isEmpty) {
+                return;
+            }
+            if (initialized) {
+                render(key, () => {
+                    removeNodeRange(parent, beforeNode, afterNode);
+                    parent.insertBefore(onEmpty(value), afterNode);
+                    isEmpty = true;
+                    prevItems = [];
+                });
+            } else {
+                parent.insertBefore(onEmpty(value), afterNode);
+                isEmpty = true;
+                prevItems = [];
+            }
         } else {
-            reconcile(parent, prevItems, nextItems, callback, beforeNode, afterNode);
+            if (initialized) {
+                render(key, () => {
+                    if (isEmpty) {
+                        removeNodeRange(parent, beforeNode, afterNode);
+                    }
+                    reconcile(parent, prevItems, nextItems, value, factory, beforeNode, afterNode);
+                    isEmpty = false;
+                    prevItems = nextItems;
+                });
+            } else {
+                reconcile(parent, prevItems, nextItems, value, factory, beforeNode, afterNode);
+                isEmpty = false;
+                prevItems = nextItems;
+            }
         }
     });
     cleanup(beforeNode, unsubscribe);

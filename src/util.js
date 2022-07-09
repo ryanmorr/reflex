@@ -9,3 +9,7 @@ export function isStore(obj) {
 export function isPromise(obj) {
     return Promise.resolve(obj) === obj;
 }
+
+export function isIterable(obj) {
+    return obj != null && typeof obj !== 'string' && typeof obj[Symbol.iterator] === 'function';
+}

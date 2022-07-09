@@ -230,4 +230,57 @@ describe('disposal-each', () => {
             done();
         });
     });
+
+    it('should dispose the each functionality if an ancestor element is disposed', (done) => {
+        const list = val([1, 2, 3]);
+        const callback = sinon.spy((item) => html`<li>${item}</li>`);
+
+        const el = html`
+            <ul>
+                ${each(list, callback)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+        expect(callback.callCount).to.equal(3);
+        
+        dispose(el);
+
+        list.set([4, 5]);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+            expect(callback.callCount).to.equal(3);
+
+            done();
+        });
+    });
+
+    it('should dispose the empty content', (done) => {
+        const list = val();
+        const spy = sinon.spy();
+
+        const onEmpty = () => {
+            const li = html`<li>Empty</li>`;
+            cleanup(li, spy);
+            return li;
+        };
+
+        const el = html`
+            <ul>
+                ${each(list, (item) => html`<li>${item}</li>`, onEmpty)}
+            </ul>
+        `;
+
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(spy.callCount).to.equal(0);
+
+        list.set([1, 2, 3]);
+        
+        tick().then(() => {
+            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+            expect(spy.callCount).to.equal(1);
+            done();
+        });
+    });
 });
