@@ -9,7 +9,7 @@ describe('val', () => {
         expect(bar.get()).to.equal(123);
     });
 
-    it('should set the internal value and return a promise', () => {
+    it('should set the internal value and return the new value', () => {
         const value = val('foo');
         
         expect(value.get()).to.equal('foo');
@@ -21,7 +21,7 @@ describe('val', () => {
         expect(value.get()).to.equal('baz');
     });
 
-    it('should update the internal value with a callback function and return a promise', () => {
+    it('should update the internal value with a callback function and return the new value', () => {
         const value = val(1);
         
         expect(value.get()).to.equal(1);
