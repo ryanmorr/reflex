@@ -1,7 +1,7 @@
 {
   "name": "@ryanmorr/reflex",
   "description": "Reactive DOM",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "Unlicense",
   "author": "Ryan Morr",
   "homepage": "https://github.com/ryanmorr/reflex",
