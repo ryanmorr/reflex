@@ -36,6 +36,7 @@ describe('disposal-each', () => {
                     expect(li1.textContent).to.equal('1 bar');
                     expect(li2.textContent).to.equal('2 bar');
                     expect(li3.textContent).to.equal('3 bar');
+
                     done();
                 });
             });
@@ -80,6 +81,7 @@ describe('disposal-each', () => {
                     expect(li2.textContent).to.equal('2 bar');
                     expect(li3.textContent).to.equal('3 baz');
                     expect(li4.textContent).to.equal('4 baz');
+
                     done();
                 });
             });
@@ -124,6 +126,7 @@ describe('disposal-each', () => {
                     expect(li2.textContent).to.equal('2 baz');
                     expect(li3.textContent).to.equal('3 baz');
                     expect(li4.textContent).to.equal('4 bar');
+
                     done();
                 });
             });
@@ -168,6 +171,7 @@ describe('disposal-each', () => {
                     expect(li2.textContent).to.equal('2 baz');
                     expect(li3.textContent).to.equal('3 bar');
                     expect(li4.textContent).to.equal('4 bar');
+
                     done();
                 });
             });
@@ -280,6 +284,7 @@ describe('disposal-each', () => {
         tick().then(() => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
             expect(spy.callCount).to.equal(1);
+            
             done();
         });
     });

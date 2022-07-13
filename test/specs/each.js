@@ -62,6 +62,7 @@ describe('each', () => {
             expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
+
             done();
         });
     });
@@ -88,6 +89,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li1);
             expect(el.children[3]).to.equal(li2);
             expect(el.children[4]).to.equal(li3);
+
             done();
         });
     });
@@ -114,6 +116,7 @@ describe('each', () => {
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
             expect(el.children[4]).to.equal(li3);
+
             done();
         });
     });
@@ -140,6 +143,7 @@ describe('each', () => {
             expect(el.children[1]).to.equal(li1);
             expect(el.children[2]).to.equal(li2);
             expect(el.children[3]).to.equal(li3);
+
             done();
         });
     });
@@ -159,6 +163,7 @@ describe('each', () => {
         
         tick().then(() => {
             expect(el.innerHTML).to.equal('');
+
             done();
         });
     });
@@ -185,6 +190,7 @@ describe('each', () => {
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
             expect(el.children[2]).to.equal(li3);
+
             done();
         });
     });
@@ -211,6 +217,7 @@ describe('each', () => {
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
             expect(el.children[2]).to.equal(li3);
+
             done();
         });
     });
@@ -235,6 +242,7 @@ describe('each', () => {
             expect(el.innerHTML).to.equal('<li>3</li><li>4</li>');
             expect(el.children[0]).to.equal(li1);
             expect(el.children[1]).to.equal(li2);
+
             done();
         });
     });
@@ -265,6 +273,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li4);
             expect(el.children[3]).to.equal(li1);
             expect(el.children[4]).to.equal(li5);
+
             done();
         });
     });
@@ -295,6 +304,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li4);
             expect(el.children[3]).to.equal(li5);
             expect(el.children[4]).to.equal(li1);
+
             done();
         });
     });
@@ -325,6 +335,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li4);
             expect(el.children[3]).to.equal(li2);
             expect(el.children[4]).to.equal(li3);
+
             done();
         });
     });
@@ -355,6 +366,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li2);
             expect(el.children[3]).to.equal(li3);
             expect(el.children[4]).to.equal(li4);
+
             done();
         });
     });
@@ -385,6 +397,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li3);
             expect(el.children[3]).to.equal(li4);
             expect(el.children[4]).to.equal(li1);
+
             done();
         });
     });
@@ -415,6 +428,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li3);
             expect(el.children[3]).to.equal(li2);
             expect(el.children[4]).to.equal(li1);
+
             done();
         });
     });
@@ -445,6 +459,7 @@ describe('each', () => {
             expect(el.children[2]).to.equal(li1);
             expect(el.children[3]).to.equal(li5);
             expect(el.children[4]).to.equal(li2);
+
             done();
         });
     });
@@ -491,6 +506,7 @@ describe('each', () => {
             expect(el.children[1]).to.equal(li6);
             expect(el.children[2]).to.equal(li2);
             expect(el.children[3]).to.equal(li1);
+
             done();
         });
     });
@@ -517,6 +533,7 @@ describe('each', () => {
             expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
             expect(el.children[1]).to.equal(div1);
             expect(el.children[3]).to.equal(div3);
+
             done();
         });
     });
@@ -543,6 +560,7 @@ describe('each', () => {
             expect(el.childNodes[1]).to.equal(text3);
             expect(el.childNodes[2]).to.equal(text1);
             expect(el.childNodes[4]).to.equal(text2);
+
             done();
         });
     });
@@ -569,6 +587,7 @@ describe('each', () => {
             expect(el.childNodes[3]).to.equal(span1);
             expect(el.childNodes[5]).to.equal(text2);
             expect(el.childNodes[7]).to.equal(span2);
+
             done();
         });
     });
@@ -668,6 +687,7 @@ describe('each', () => {
         
         tick().then(() => {
             expect(el.innerHTML).to.equal('');
+            
             done();
         });
     });

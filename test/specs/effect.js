@@ -7,6 +7,7 @@ describe('effect', () => {
         const spy = sinon.spy((value) => {
             expect(value).to.equal('foo');
             expect(el.outerHTML).to.equal('<div>foo</div>');
+
             done();
         });
 
@@ -43,6 +44,7 @@ describe('effect', () => {
                 expect(barVal).to.equal('y');
                 expect(bazVal).to.equal('z');
                 expect(el.outerHTML).to.equal('<div id="x">y z</div>');
+
                 done();
             }
         });
@@ -64,6 +66,7 @@ describe('effect', () => {
             expect(spy.callCount).to.equal(1);
             expect(value).to.equal('qux');
             expect(el.outerHTML).to.equal('<div>qux</div>');
+
             done();
         });
 
@@ -87,6 +90,7 @@ describe('effect', () => {
         const spy = sinon.spy((value) => {
             expect(value).to.equal('bar');
             expect(el.outerHTML).to.equal('<div>bar</div>');
+
             done();
         });
 
@@ -131,6 +135,7 @@ describe('effect', () => {
                 expect(fooVal).to.equal('baz');
                 expect(barVal).to.equal('qux');
                 expect(el.outerHTML).to.equal('<div>baz qux</div>');
+                
                 done();
             }
         });

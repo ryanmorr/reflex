@@ -18,6 +18,7 @@ describe('disposal-store', () => {
         
             tick().then(() => {
                 expect(el.outerHTML).to.equal('<div>bar</div>');
+
                 done();
             });
         });
@@ -40,6 +41,7 @@ describe('disposal-store', () => {
         
             tick().then(() => {
                 expect(el.outerHTML).to.equal('<div id="bar"></div>');
+
                 done();
             });
         });
@@ -65,6 +67,7 @@ describe('disposal-store', () => {
         
             tick().then(() => {
                 expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
+
                 done();
             });
         });
@@ -87,6 +90,7 @@ describe('disposal-store', () => {
         
             tick().then(() => {
                 expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
+
                 done();
             });
         });
@@ -112,6 +116,7 @@ describe('disposal-store', () => {
             tick().then(() => {
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
+
                 done();
             });
         });
@@ -144,6 +149,7 @@ describe('disposal-store', () => {
         
                 tick().then(() => {
                     expect(el.outerHTML).to.equal('<div id="qux"><span>baz</span></div>');
+
                     done();
                 });
             });
@@ -177,6 +183,7 @@ describe('disposal-store', () => {
                 expect(div.outerHTML).to.equal('<div>baz</div>');
                 expect(span.outerHTML).to.equal('<span>bar</span>');
                 expect(em.outerHTML).to.equal('<em>baz</em>');
+
                 done();
             });
         });

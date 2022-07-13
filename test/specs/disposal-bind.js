@@ -21,6 +21,7 @@ describe('disposal-bind', () => {
                 
                 input.addEventListener('input', () => {
                     expect(value.get()).to.equal('baz');
+
                     done();
                 });
                 
@@ -50,6 +51,7 @@ describe('disposal-bind', () => {
                 
                 input.addEventListener('input', () => {
                     expect(value.get()).to.equal(5);
+
                     done();
                 });
                 
@@ -79,6 +81,7 @@ describe('disposal-bind', () => {
                 
                 input.addEventListener('change', () => {
                     expect(checked.get()).to.equal(true);
+
                     done();
                 });
                 
@@ -108,6 +111,7 @@ describe('disposal-bind', () => {
                 
                 input.addEventListener('change', () => {
                     expect(checked.get()).to.equal(true);
+
                     done();
                 });
                 
@@ -137,6 +141,7 @@ describe('disposal-bind', () => {
                 
                 textarea.addEventListener('input', () => {
                     expect(value.get()).to.equal('baz');
+
                     done();
                 });
                 
@@ -175,6 +180,7 @@ describe('disposal-bind', () => {
                 
                 select.addEventListener('input', () => {
                     expect(value.get()).to.equal('baz');
+
                     done();
                 });
                 
@@ -211,6 +217,7 @@ describe('disposal-bind', () => {
                 
                 select.addEventListener('input', () => {
                     expect(value.get()).to.deep.equal(['bar']);
+                    
                     done();
                 });
                 

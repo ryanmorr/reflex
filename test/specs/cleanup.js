@@ -82,6 +82,7 @@ describe('cleanup', () => {
         tick().then(() => {
             expect(spy.callCount).to.equal(1);
             expect(spy.args[0][0]).to.equal(li3);
+            
             done();
         });
     });

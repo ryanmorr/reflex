@@ -14,6 +14,7 @@ describe('bind', () => {
 
             el.addEventListener('input', () => {
                 expect(value.get()).to.equal('baz');
+
                 done();
             });
             
@@ -35,6 +36,7 @@ describe('bind', () => {
 
             el.addEventListener('input', () => {
                 expect(value.get()).to.equal(5);
+
                 done();
             });
             
@@ -56,6 +58,7 @@ describe('bind', () => {
 
             el.addEventListener('input', () => {
                 expect(value.get()).to.equal(5);
+
                 done();
             });
             
@@ -77,6 +80,7 @@ describe('bind', () => {
 
             el.addEventListener('change', () => {
                 expect(checked.get()).to.equal(true);
+
                 done();
             });
             
@@ -98,6 +102,7 @@ describe('bind', () => {
 
             el.addEventListener('change', () => {
                 expect(checked.get()).to.equal(true);
+
                 done();
             });
             
@@ -119,6 +124,7 @@ describe('bind', () => {
 
             el.addEventListener('input', () => {
                 expect(value.get()).to.equal('baz');
+
                 done();
             });
             
@@ -154,6 +160,7 @@ describe('bind', () => {
                 expect(el.value).to.equal('baz');
                 expect(el.selectedIndex).to.equal(2);
                 expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[2]]);
+
                 done();
             });
             
@@ -186,6 +193,7 @@ describe('bind', () => {
             el.addEventListener('input', () => {
                 expect(value.get()).to.deep.equal(['bar', 'qux']);
                 expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1], el.options[3]]);
+
                 done();
             });
             
@@ -244,6 +252,7 @@ describe('bind', () => {
                 barInput.remove();
                 bazInput.remove();
                 quxInput.remove();
+
                 done();
             });
             
@@ -297,6 +306,7 @@ describe('bind', () => {
                 fooInput.remove();
                 barInput.remove();
                 bazInput.remove();
+
                 done();
             });
             
@@ -414,6 +424,7 @@ describe('bind', () => {
                     expect(value.get()).to.equal('baz');
                     expect(input1.value).to.equal('baz');
                     expect(input2.value).to.equal('baz');
+                    
                     done();
                 });
             });

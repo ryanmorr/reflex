@@ -26,6 +26,7 @@ describe('tick', () => {
         
         tick().then(() => {
             expect(el.outerHTML).to.equal('<div>foo</div>');
+
             done();
         });
     });
@@ -51,6 +52,7 @@ describe('tick', () => {
             expect(div.outerHTML).to.equal('<div>foo</div>');
             expect(span.outerHTML).to.equal('<span class="bar"></span>');
             expect(ul.outerHTML).to.equal('<ul><li>1</li><li>2</li><li>3</li></ul>');
+            
             done();
         });
     });
