@@ -1,4 +1,4 @@
-import { patchNode } from './dom';
+import { patchNode } from './html';
 import { render } from './scheduler';
 import { cleanup, dispose } from './disposal';
 import { uuid, isStore, isPromise } from './util';

@@ -1,6 +1,6 @@
-export { html } from './dom';
 export { val } from './val';
 export { derived } from './derived';
+export { html } from './html';
 export { effect } from './effect';
 export { bind } from './bind';
 export { each } from './each';
