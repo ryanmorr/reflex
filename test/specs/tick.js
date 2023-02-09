@@ -1,22 +1,22 @@
 import { html, tick, val, each } from '../../src/reflex';
 
 describe('tick', () => {
-    it('should return a promise', (done) => {
+    it('should return a promise', async () => {
         const promise = tick();
         expect(promise).to.be.a('promise');
         
-        promise.then(done);
+        return promise;
     });
 
-    it('should return the same promise instance from multiple calls', (done) => {
+    it('should return the same promise instance from multiple calls', async () => {
         const promise = tick();
         expect(promise).to.equal(tick());
         expect(promise).to.equal(tick());
         
-        promise.then(done);
+        return promise;
     });
 
-    it('should resolve after a previously queued update has been rendered', (done) => {
+    it('should resolve after a previously queued update has been rendered', async () => {
         const text = val();
         const el = html`<div>${text}</div>`;
 
@@ -24,14 +24,11 @@ describe('tick', () => {
 
         text.set('foo');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-
-            done();
-        });
+        await tick();
+        expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
-    it('should resolve after multiple previously queued updates have been rendered', (done) => {
+    it('should resolve after multiple previously queued updates have been rendered', async () => {
         const text = val();
         const attr = val();
         const list = val();
@@ -48,12 +45,9 @@ describe('tick', () => {
         attr.set('bar');
         list.set([1, 2, 3]);
 
-        tick().then(() => {
-            expect(div.outerHTML).to.equal('<div>foo</div>');
-            expect(span.outerHTML).to.equal('<span class="bar"></span>');
-            expect(ul.outerHTML).to.equal('<ul><li>1</li><li>2</li><li>3</li></ul>');
-            
-            done();
-        });
+        await tick();
+        expect(div.outerHTML).to.equal('<div>foo</div>');
+        expect(span.outerHTML).to.equal('<span class="bar"></span>');
+        expect(ul.outerHTML).to.equal('<ul><li>1</li><li>2</li><li>3</li></ul>');
     });
 });

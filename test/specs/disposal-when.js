@@ -2,7 +2,7 @@ import { html, val, when, dispose, cleanup } from '../../src/reflex';
 import { createPromise, wait } from '../util';
 
 describe('disposal-when', () => {
-    it('should dispose the pending state for promises', (done) => {
+    it('should dispose the pending state for promises', async () => {
         const promise = createPromise();
         const spy = sinon.spy();
 
@@ -21,20 +21,16 @@ describe('disposal-when', () => {
             </div>
         `;
         
-        wait().then(() => {
-            expect(spy.callCount).to.equal(0);
-            expect(element.innerHTML).to.equal('<span>loading</span>');
+        await wait();
+        expect(spy.callCount).to.equal(0);
+        expect(element.innerHTML).to.equal('<span>loading</span>');
 
-            wait(promise).then(() => {
-                expect(spy.callCount).to.equal(1);
-                expect(element.innerHTML).to.equal('<span>done</span>');
-                
-                done();
-            });
-        });
+        await wait(promise);
+        expect(spy.callCount).to.equal(1);
+        expect(element.innerHTML).to.equal('<span>done</span>');
     });
 
-    it('should dispose the pending state if the parent node is disposed for promises', (done) => {
+    it('should dispose the pending state if the parent node is disposed for promises', async () => {
         const promise = createPromise();
         const spy = sinon.spy();
 
@@ -50,18 +46,16 @@ describe('disposal-when', () => {
             </div>
         `;
         
-        wait().then(() => {
-            expect(spy.callCount).to.equal(0);
+        await wait();
 
-            dispose(element);
+        expect(spy.callCount).to.equal(0);
 
-            expect(spy.callCount).to.equal(1);
+        dispose(element);
 
-            done();
-        });
+        expect(spy.callCount).to.equal(1);
     }); 
     
-    it('should dispose the fulfilled state if the parent node is disposed for promises', (done) => {
+    it('should dispose the fulfilled state if the parent node is disposed for promises', async () => {
         const promise = createPromise();
         const spy = sinon.spy();
 
@@ -77,18 +71,16 @@ describe('disposal-when', () => {
             </div>
         `;
 
-        wait(promise).then(() => {
-            expect(spy.callCount).to.equal(0);
-            
-            dispose(element);
+        await wait(promise);
 
-            expect(spy.callCount).to.equal(1);
+        expect(spy.callCount).to.equal(0);
+        
+        dispose(element);
 
-            done();
-        });
+        expect(spy.callCount).to.equal(1);
     }); 
     
-    it('should dispose the rejected state if the parent node is disposed for promises', (done) => {
+    it('should dispose the rejected state if the parent node is disposed for promises', async () => {
         const promise = createPromise((resolve, reject) => reject('error'));
         const spy = sinon.spy();
 
@@ -103,19 +95,19 @@ describe('disposal-when', () => {
                 })}
             </div>
         `;
-
-        wait(promise).catch(() => {
+        
+        try {
+            await wait(promise);
+        } catch {
             expect(spy.callCount).to.equal(0);
             
             dispose(element);
 
             expect(spy.callCount).to.equal(1);
-
-            done();
-        });
+        }
     });
 
-    it('should dispose the idle state for stores that contain promises', (done) => {
+    it('should dispose the idle state for stores that contain promises', async () => {
         const store = val();
         const spy = sinon.spy();
 
@@ -138,15 +130,12 @@ describe('disposal-when', () => {
         
         store.set(createPromise());
 
-        wait(store).then(() => {
-            expect(spy.callCount).to.equal(1);
-            expect(element.innerHTML).to.equal('<span>done</span>');
-            
-            done();
-        });
+        await wait(store);
+        expect(spy.callCount).to.equal(1);
+        expect(element.innerHTML).to.equal('<span>done</span>');
     });
 
-    it('should dispose the pending state for stores that contain promises', (done) => {
+    it('should dispose the pending state for stores that contain promises', async () => {
         const store = val(createPromise());
         const spy = sinon.spy();
 
@@ -165,20 +154,16 @@ describe('disposal-when', () => {
             </div>
         `;
         
-        wait().then(() => {
-            expect(spy.callCount).to.equal(0);
-            expect(element.innerHTML).to.equal('<span>loading</span>');
+        await wait();
+        expect(spy.callCount).to.equal(0);
+        expect(element.innerHTML).to.equal('<span>loading</span>');
 
-            wait(store).then(() => {
-                expect(spy.callCount).to.equal(1);
-                expect(element.innerHTML).to.equal('<span>done</span>');
-                
-                done();
-            });
-        });
+        await wait(store);
+        expect(spy.callCount).to.equal(1);
+        expect(element.innerHTML).to.equal('<span>done</span>');
     });
 
-    it('should dispose the fulfilled state for stores that contain promises', (done) => {
+    it('should dispose the fulfilled state for stores that contain promises', async () => {
         const store = val(createPromise());
         const spy = sinon.spy();
 
@@ -194,22 +179,18 @@ describe('disposal-when', () => {
             </div>
         `;
 
-        wait(store).then(() => {
-            expect(spy.callCount).to.equal(0);
-            expect(element.innerHTML).to.equal('<span>done</span>');
-            
-            store.set(createPromise());
-            
-            wait(store).then(() => {
-                expect(spy.callCount).to.equal(1);
-                expect(element.innerHTML).to.equal('<span>done</span>');
-                
-                done();
-            });
-        });
+        await wait(store);
+        expect(spy.callCount).to.equal(0);
+        expect(element.innerHTML).to.equal('<span>done</span>');
+
+        store.set(createPromise());
+
+        await wait(store);
+        expect(spy.callCount).to.equal(1);
+        expect(element.innerHTML).to.equal('<span>done</span>');
     });
 
-    it('should dispose the rejected state for stores that contain promises', (done) => {
+    it('should dispose the rejected state for stores that contain promises', async () => {
         const store = val(createPromise((resolve, reject) => reject('error')));
         const spy = sinon.spy();
 
@@ -225,19 +206,21 @@ describe('disposal-when', () => {
             </div>
         `;
 
-        wait(store).catch(() => {
+        try {
+            await wait(store);
+        } catch {
             expect(spy.callCount).to.equal(0);
             expect(element.innerHTML).to.equal('<span>error</span>');
             
             store.set(createPromise((resolve, reject) => reject('error')));
-            
-            wait(store).catch(() => {
+
+            try {
+                await wait(store);
+            } catch {
                 expect(spy.callCount).to.equal(1);
                 expect(element.innerHTML).to.equal('<span>error</span>');
-                
-                done();
-            });
-        });
+            }
+        }
     }); 
 
     it('should dispose the idle state if the parent node is disposed for stores that contain promises', () => {
@@ -263,7 +246,7 @@ describe('disposal-when', () => {
         expect(spy.callCount).to.equal(1);
     }); 
 
-    it('should dispose the pending state if the parent node is disposed for stores that contain promises', (done) => {
+    it('should dispose the pending state if the parent node is disposed for stores that contain promises', async () => {
         const store = val(createPromise());
         const spy = sinon.spy();
 
@@ -279,18 +262,16 @@ describe('disposal-when', () => {
             </div>
         `;
         
-        wait().then(() => {
-            expect(spy.callCount).to.equal(0);
+        await wait();
 
-            dispose(element);
+        expect(spy.callCount).to.equal(0);
 
-            expect(spy.callCount).to.equal(1);
+        dispose(element);
 
-            done();
-        });
+        expect(spy.callCount).to.equal(1);
     }); 
     
-    it('should dispose the fulfilled state if the parent node is disposed for stores that contain promises', (done) => {
+    it('should dispose the fulfilled state if the parent node is disposed for stores that contain promises', async () => {
         const store = val(createPromise());
         const spy = sinon.spy();
 
@@ -306,18 +287,16 @@ describe('disposal-when', () => {
             </div>
         `;
 
-        wait(store).then(() => {
-            expect(spy.callCount).to.equal(0);
-            
-            dispose(element);
+        await wait(store);
 
-            expect(spy.callCount).to.equal(1);
+        expect(spy.callCount).to.equal(0);
+        
+        dispose(element);
 
-            done();
-        });
+        expect(spy.callCount).to.equal(1);
     }); 
     
-    it('should dispose the rejected state if the parent node is disposed for stores that contain promises', (done) => {
+    it('should dispose the rejected state if the parent node is disposed for stores that contain promises', async () => {
         const store = val(createPromise((resolve, reject) => reject('error')));
         const spy = sinon.spy();
 
@@ -333,14 +312,14 @@ describe('disposal-when', () => {
             </div>
         `;
 
-        wait(store).catch(() => {
+        try {
+            await wait(store);
+        } catch {
             expect(spy.callCount).to.equal(0);
             
             dispose(element);
 
             expect(spy.callCount).to.equal(1);
-
-            done();
-        });
+        }
     });
 });

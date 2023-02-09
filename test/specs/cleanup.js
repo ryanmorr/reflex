@@ -59,7 +59,7 @@ describe('cleanup', () => {
         expect(spy.args[0][0]).to.equal(textNode);
     });
 
-    it('should call a cleanup callback when an element is diffed out after an each reconciliation', (done) => {
+    it('should call a cleanup callback when an element is diffed out after an each reconciliation', async () => {
         const list = val([1, 2, 3]);
         const spy = sinon.spy();
 
@@ -79,12 +79,10 @@ describe('cleanup', () => {
 
         list.set([1, 2]);
         
-        tick().then(() => {
-            expect(spy.callCount).to.equal(1);
-            expect(spy.args[0][0]).to.equal(li3);
-            
-            done();
-        });
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(li3);
     });
 
     it('should support an array of elements', () => {

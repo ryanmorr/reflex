@@ -98,37 +98,33 @@ describe('interpolation-function', () => {
         expect(fn.args[0][0]).to.equal(el);
     });
 
-    it('should render a text node for a function that returns a promise', (done) => {
+    it('should render a text node for a function that returns a promise', async () => {
         const promise = Promise.resolve('qux');
         const fn = () => promise;
         const el = html`<div>${fn}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        promise.then(tick).then(() => {
-            expect(el.outerHTML).to.equal('<div>qux</div>');
-            
-            done();
-        });
+        await promise;
+        await tick();
+        expect(el.outerHTML).to.equal('<div>qux</div>');
     });
 
-    it('should render an attribute for a function that returns a promise', (done) => {
+    it('should render an attribute for a function that returns a promise', async () => {
         const promise = Promise.resolve('bar');
         const fn = sinon.spy(() => promise);
         const el = html`<div id=${fn}></div>`;
 
         expect(el.id).to.equal('');
 
-        promise.then(tick).then(() => {
-            expect(el.id).to.equal('bar');
-            expect(fn.callCount).to.equal(1);
-            expect(fn.args[0][0]).to.equal(el);
-
-            done();
-        });
+        await promise;
+        await tick();
+        expect(el.id).to.equal('bar');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
 
-    it('should update an element with a function that returns a store', (done) => {
+    it('should update an element with a function that returns a store', async () => {
         const child = val('foo');
         const fn = () => child;
         const el = html`<div>${fn}</div>`;
@@ -137,20 +133,16 @@ describe('interpolation-function', () => {
 
         child.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div>bar</div>');
+        await tick();
+        expect(el.outerHTML).to.equal('<div>bar</div>');
             
-            child.set('baz');
+        child.set('baz');
         
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div>baz</div>');
-
-                done();
-            });
-        });
+        await tick();
+        expect(el.outerHTML).to.equal('<div>baz</div>');
     });
 
-    it('should update an attribute with a function that returns a store', (done) => {
+    it('should update an attribute with a function that returns a store', async () => {
         const child = val('foo');
         const fn = () => child;
         const el = html`<div class=${fn}></div>`;
@@ -159,17 +151,13 @@ describe('interpolation-function', () => {
 
         child.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div class="bar"></div>');
+        await tick();
+        expect(el.outerHTML).to.equal('<div class="bar"></div>');
             
-            child.set('baz');
+        child.set('baz');
         
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div class="baz"></div>');
-
-                done();
-            });
-        });
+        await tick();
+        expect(el.outerHTML).to.equal('<div class="baz"></div>');
     });
 
     it('should not render a node for a function that returns null or undefined', () => {
@@ -184,31 +172,27 @@ describe('interpolation-function', () => {
         expect(el.outerHTML).to.equal('<div></div>');
     });
 
-    it('should not render a text node for a function that returns a promise that resolves with null or undefined', (done) => {
+    it('should not render a text node for a function that returns a promise that resolves with null or undefined', async () => {
         const nullPromise = Promise.resolve(null);
         const undefinedPromise = Promise.resolve(undefined);
 
         const el = html`<div>${() => nullPromise}${() => undefinedPromise}</div>`;
 
-        Promise.all([nullPromise, undefinedPromise]).then(tick).then(() => {
-            expect(el.outerHTML).to.equal('<div></div>');
-
-            done();
-        });
+        await Promise.all([nullPromise, undefinedPromise]);
+        await tick();
+        expect(el.outerHTML).to.equal('<div></div>');
     });
 
-    it('should not render an attribute for a function that returns a promise that resolves with null, undefined, or false', (done) => {
+    it('should not render an attribute for a function that returns a promise that resolves with null, undefined, or false', async () => {
         const nullPromise = Promise.resolve(null);
         const undefinedPromise = Promise.resolve(undefined);
         const falsePromise = Promise.resolve(false);
 
         const el = html`<div foo=${() => nullPromise} bar=${() => undefinedPromise} baz=${() => falsePromise}></div>`;
 
-        Promise.all([nullPromise, undefinedPromise, falsePromise]).then(tick).then(() => {
-            expect(el.outerHTML).to.equal('<div></div>');
-
-            done();
-        });
+        await Promise.all([nullPromise, undefinedPromise, falsePromise]);
+        await tick();
+        expect(el.outerHTML).to.equal('<div></div>');
     });
 
     it('should render nested functions as a text node', () => {

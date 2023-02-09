@@ -88,7 +88,7 @@ describe('ref', () => {
         expect(foo.get()).to.have.lengthOf(0);
     });
     
-    it('should remove an element from a ref store after an each reconciliation', (done) => {
+    it('should remove an element from a ref store after an each reconciliation', async () => {
         const foo = val();
         const spy = sinon.spy();
         foo.subscribe(spy);
@@ -124,30 +124,28 @@ describe('ref', () => {
             
         list.set([3, 4, 5]);
         
-        tick().then(() => {
-            const li4 = el.children[1];
-            const li5 = el.children[2];
+        await tick();
 
-            expect(foo.get()).to.deep.equal([li3, li5, li4]);
-            expect(spy.callCount).to.equal(8);
+        const li4 = el.children[1];
+        const li5 = el.children[2];
 
-            expect(spy.args[4][0]).to.deep.equal([li2, li3]);
-            expect(spy.args[4][1]).to.deep.equal([li1, li2, li3]);
-            expect(spy.args[4][0]).to.not.equal(spy.args[4][1]);
+        expect(foo.get()).to.deep.equal([li3, li5, li4]);
+        expect(spy.callCount).to.equal(8);
 
-            expect(spy.args[5][0]).to.deep.equal([li3]);
-            expect(spy.args[5][1]).to.deep.equal([li2, li3]);
-            expect(spy.args[5][0]).to.not.equal(spy.args[5][1]);
+        expect(spy.args[4][0]).to.deep.equal([li2, li3]);
+        expect(spy.args[4][1]).to.deep.equal([li1, li2, li3]);
+        expect(spy.args[4][0]).to.not.equal(spy.args[4][1]);
 
-            expect(spy.args[6][0]).to.deep.equal([li3, li5]);
-            expect(spy.args[6][1]).to.deep.equal([li3]);
-            expect(spy.args[6][0]).to.not.equal(spy.args[6][1]);
+        expect(spy.args[5][0]).to.deep.equal([li3]);
+        expect(spy.args[5][1]).to.deep.equal([li2, li3]);
+        expect(spy.args[5][0]).to.not.equal(spy.args[5][1]);
 
-            expect(spy.args[7][0]).to.deep.equal([li3, li5, li4]);
-            expect(spy.args[7][1]).to.deep.equal([li3, li5]);
-            expect(spy.args[7][0]).to.not.equal(spy.args[7][1]);
+        expect(spy.args[6][0]).to.deep.equal([li3, li5]);
+        expect(spy.args[6][1]).to.deep.equal([li3]);
+        expect(spy.args[6][0]).to.not.equal(spy.args[6][1]);
 
-            done();
-        });
+        expect(spy.args[7][0]).to.deep.equal([li3, li5, li4]);
+        expect(spy.args[7][1]).to.deep.equal([li3, li5]);
+        expect(spy.args[7][0]).to.not.equal(spy.args[7][1]);
     });
 });

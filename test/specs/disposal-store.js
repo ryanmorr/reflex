@@ -1,7 +1,7 @@
 import { html, val, dispose, tick } from '../../src/reflex';
 
 describe('disposal-store', () => {
-    it('should dispose a node binding', (done) => {
+    it('should dispose a node binding', async () => {
         const text = val('foo');
         const el = html`<div>${text}</div>`;
         
@@ -9,22 +9,18 @@ describe('disposal-store', () => {
 
         text.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div>bar</div>');
-            
-            dispose(el);
+        await tick();
+        expect(el.outerHTML).to.equal('<div>bar</div>');
 
-            text.set('baz');
-        
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div>bar</div>');
+        dispose(el);
 
-                done();
-            });
-        });
+        text.set('baz');
+
+        await tick();
+        expect(el.outerHTML).to.equal('<div>bar</div>');
     });
 
-    it('should dispose an attribute binding', (done) => {
+    it('should dispose an attribute binding', async () => {
         const attr = val('foo');
         const el = html`<div id=${attr}></div>`;
         
@@ -32,22 +28,18 @@ describe('disposal-store', () => {
 
         attr.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div id="bar"></div>');
-            
-            dispose(el);
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="bar"></div>');
 
-            attr.set('baz');
-        
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div id="bar"></div>');
+        dispose(el);
 
-                done();
-            });
-        });
+        attr.set('baz');
+
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="bar"></div>');
     });
 
-    it('should dispose all node bindings', (done) => {
+    it('should dispose all node bindings', async () => {
         const attr = val('foo');
         const text = val('bar');
         const el = html`<div id=${attr}>${text}</div>`;
@@ -57,23 +49,19 @@ describe('disposal-store', () => {
         attr.set('baz');
         text.set('qux');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
-            
-            dispose(el);
-            
-            attr.set('abc');
-            text.set('xyz');
-        
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
 
-                done();
-            });
-        });
+        dispose(el);
+
+        attr.set('abc');
+        text.set('xyz');
+
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="baz">qux</div>');
     });
 
-    it('should dispose child bindings', (done) => {
+    it('should dispose child bindings', async () => {
         const text = val('foo');
         const el = html`<div><section><span>${text}</span><em>${text}</em></section></div>`;
         
@@ -81,22 +69,18 @@ describe('disposal-store', () => {
 
         text.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
-            
-            dispose(el);
+        await tick();
+        expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
 
-            text.set('baz');
-        
-            tick().then(() => {
-                expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
+        dispose(el);
 
-                done();
-            });
-        });
+        text.set('baz');
+
+        await tick();
+        expect(el.outerHTML).to.equal('<div><section><span>bar</span><em>bar</em></section></div>');
     });
 
-    it('should dispose nested store bindings', (done) => {
+    it('should dispose nested store bindings', async () => {
         const text = val('foo');
         const span = html`<span>${text}</span>`;
         const content = val(span);
@@ -106,23 +90,19 @@ describe('disposal-store', () => {
 
         text.set('bar');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
-            
-            dispose(el);
-                
-            text.set('baz');
-        
-            tick().then(() => {
-                expect(span.outerHTML).to.equal('<span>bar</span>');
-                expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
+        await tick();
+        expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
 
-                done();
-            });
-        });
+        dispose(el);
+
+        text.set('baz');
+
+        await tick();
+        expect(span.outerHTML).to.equal('<span>bar</span>');
+        expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
     });
 
-    it('should not dispose parent bindings', (done) => {
+    it('should not dispose parent bindings', async () => {
         const text = val('foo');
         const span = html`<span>${text}</span>`;
         const content = val(span);
@@ -134,29 +114,24 @@ describe('disposal-store', () => {
 
         text.set('baz');
         
-        tick().then(() => {
-            expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
-            
-            dispose(span);
-                
-            text.set('qux');
-        
-            tick().then(() => {
-                expect(span.outerHTML).to.equal('<span>baz</span>');
-                expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
-                
-                attr.set('qux');
-        
-                tick().then(() => {
-                    expect(el.outerHTML).to.equal('<div id="qux"><span>baz</span></div>');
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
 
-                    done();
-                });
-            });
-        });
+        dispose(span);
+
+        text.set('qux');
+
+        await tick();
+        expect(span.outerHTML).to.equal('<span>baz</span>');
+        expect(el.outerHTML).to.equal('<div id="bar"><span>baz</span></div>');
+
+        attr.set('qux');
+
+        await tick();
+        expect(el.outerHTML).to.equal('<div id="qux"><span>baz</span></div>');
     });
 
-    it('should not dispose sibling bindings', (done) => {
+    it('should not dispose sibling bindings', async () => {
         const text = val('foo');
         const frag = html`<div>${text}</div><span>${text}</span><em>${text}</em>`;
 
@@ -170,22 +145,18 @@ describe('disposal-store', () => {
 
         text.set('bar');
         
-        tick().then(() => {
-            expect(div.outerHTML).to.equal('<div>bar</div>');
-            expect(span.outerHTML).to.equal('<span>bar</span>');
-            expect(em.outerHTML).to.equal('<em>bar</em>');
-            
-            dispose(span);
-                
-            text.set('baz');
-        
-            tick().then(() => {
-                expect(div.outerHTML).to.equal('<div>baz</div>');
-                expect(span.outerHTML).to.equal('<span>bar</span>');
-                expect(em.outerHTML).to.equal('<em>baz</em>');
+        await tick();
+        expect(div.outerHTML).to.equal('<div>bar</div>');
+        expect(span.outerHTML).to.equal('<span>bar</span>');
+        expect(em.outerHTML).to.equal('<em>bar</em>');
 
-                done();
-            });
-        });
+        dispose(span);
+
+        text.set('baz');
+
+        await tick();
+        expect(div.outerHTML).to.equal('<div>baz</div>');
+        expect(span.outerHTML).to.equal('<span>bar</span>');
+        expect(em.outerHTML).to.equal('<em>baz</em>');
     });
 });

@@ -42,7 +42,7 @@ describe('each', () => {
         expect(callback.args[2][2]).to.equal(array);
     });
 
-    it('should append nodes', (done) => {
+    it('should append nodes', async () => {
         const list = val([1, 2]);
 
         const el = html`
@@ -58,16 +58,13 @@ describe('each', () => {
 
         list.set([1, 2, 3, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li2);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li2);
     });
 
-    it('should prepend nodes', (done) => {
+    it('should prepend nodes', async () => {
         const list = val([3, 4, 5]);
 
         const el = html`
@@ -84,17 +81,14 @@ describe('each', () => {
 
         list.set([1, 2, 3, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
-            expect(el.children[2]).to.equal(li1);
-            expect(el.children[3]).to.equal(li2);
-            expect(el.children[4]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
+        expect(el.children[2]).to.equal(li1);
+        expect(el.children[3]).to.equal(li2);
+        expect(el.children[4]).to.equal(li3);
     });
 
-    it('should add nodes in the middle', (done) => {
+    it('should add nodes in the middle', async () => {
         const list = val([1, 2, 5]);
 
         const el = html`
@@ -111,17 +105,14 @@ describe('each', () => {
 
         list.set([1, 2, 3, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li2);
-            expect(el.children[4]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li2);
+        expect(el.children[4]).to.equal(li3);
     });
 
-    it('should add nodes at both ends', (done) => {
+    it('should add nodes at both ends', async () => {
         const list = val([2, 3, 4]);
 
         const el = html`
@@ -138,17 +129,14 @@ describe('each', () => {
 
         list.set([1, 2, 3, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
-            expect(el.children[1]).to.equal(li1);
-            expect(el.children[2]).to.equal(li2);
-            expect(el.children[3]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>');
+        expect(el.children[1]).to.equal(li1);
+        expect(el.children[2]).to.equal(li2);
+        expect(el.children[3]).to.equal(li3);
     });
 
-    it('should remove nodes', (done) => {
+    it('should remove nodes', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -161,14 +149,11 @@ describe('each', () => {
 
         list.set([]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('');
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('');
     });
 
-    it('should remove nodes from the beginning', (done) => {
+    it('should remove nodes from the beginning', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -185,17 +170,14 @@ describe('each', () => {
 
         list.set([3, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>3</li><li>4</li><li>5</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li2);
-            expect(el.children[2]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>3</li><li>4</li><li>5</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li2);
+        expect(el.children[2]).to.equal(li3);
     });
 
-    it('should remove nodes from the middle', (done) => {
+    it('should remove nodes from the middle', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -212,17 +194,14 @@ describe('each', () => {
 
         list.set([1, 4, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>4</li><li>5</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li2);
-            expect(el.children[2]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>4</li><li>5</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li2);
+        expect(el.children[2]).to.equal(li3);
     });
 
-    it('should remove nodes at both ends', (done) => {
+    it('should remove nodes at both ends', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -238,16 +217,13 @@ describe('each', () => {
 
         list.set([3, 4]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>3</li><li>4</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li2);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>3</li><li>4</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li2);
     });
 
-    it('should move nodes forward', (done) => {
+    it('should move nodes forward', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -266,19 +242,16 @@ describe('each', () => {
 
         list.set([2, 3, 4, 1, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>1</li><li>5</li>');
-            expect(el.children[0]).to.equal(li2);
-            expect(el.children[1]).to.equal(li3);
-            expect(el.children[2]).to.equal(li4);
-            expect(el.children[3]).to.equal(li1);
-            expect(el.children[4]).to.equal(li5);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>1</li><li>5</li>');
+        expect(el.children[0]).to.equal(li2);
+        expect(el.children[1]).to.equal(li3);
+        expect(el.children[2]).to.equal(li4);
+        expect(el.children[3]).to.equal(li1);
+        expect(el.children[4]).to.equal(li5);
     });
 
-    it('should move nodes to the end', (done) => {
+    it('should move nodes to the end', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -297,19 +270,16 @@ describe('each', () => {
 
         list.set([2, 3, 4, 5, 1]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>5</li><li>1</li>');
-            expect(el.children[0]).to.equal(li2);
-            expect(el.children[1]).to.equal(li3);
-            expect(el.children[2]).to.equal(li4);
-            expect(el.children[3]).to.equal(li5);
-            expect(el.children[4]).to.equal(li1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>2</li><li>3</li><li>4</li><li>5</li><li>1</li>');
+        expect(el.children[0]).to.equal(li2);
+        expect(el.children[1]).to.equal(li3);
+        expect(el.children[2]).to.equal(li4);
+        expect(el.children[3]).to.equal(li5);
+        expect(el.children[4]).to.equal(li1);
     });
 
-    it('should move nodes backwards', (done) => {
+    it('should move nodes backwards', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -328,19 +298,16 @@ describe('each', () => {
 
         list.set([1, 5, 4, 2, 3]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>5</li><li>4</li><li>2</li><li>3</li>');
-            expect(el.children[0]).to.equal(li1);
-            expect(el.children[1]).to.equal(li5);
-            expect(el.children[2]).to.equal(li4);
-            expect(el.children[3]).to.equal(li2);
-            expect(el.children[4]).to.equal(li3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>5</li><li>4</li><li>2</li><li>3</li>');
+        expect(el.children[0]).to.equal(li1);
+        expect(el.children[1]).to.equal(li5);
+        expect(el.children[2]).to.equal(li4);
+        expect(el.children[3]).to.equal(li2);
+        expect(el.children[4]).to.equal(li3);
     });
 
-    it('should move nodes to the beginning', (done) => {
+    it('should move nodes to the beginning', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -359,19 +326,16 @@ describe('each', () => {
 
         list.set([5, 1, 2, 3, 4]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>5</li><li>1</li><li>2</li><li>3</li><li>4</li>');
-            expect(el.children[0]).to.equal(li5);
-            expect(el.children[1]).to.equal(li1);
-            expect(el.children[2]).to.equal(li2);
-            expect(el.children[3]).to.equal(li3);
-            expect(el.children[4]).to.equal(li4);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>5</li><li>1</li><li>2</li><li>3</li><li>4</li>');
+        expect(el.children[0]).to.equal(li5);
+        expect(el.children[1]).to.equal(li1);
+        expect(el.children[2]).to.equal(li2);
+        expect(el.children[3]).to.equal(li3);
+        expect(el.children[4]).to.equal(li4);
     });
 
-    it('should swap the first and last nodes', (done) => {
+    it('should swap the first and last nodes', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -390,19 +354,16 @@ describe('each', () => {
 
         list.set([5, 2, 3, 4, 1]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>5</li><li>2</li><li>3</li><li>4</li><li>1</li>');
-            expect(el.children[0]).to.equal(li5);
-            expect(el.children[1]).to.equal(li2);
-            expect(el.children[2]).to.equal(li3);
-            expect(el.children[3]).to.equal(li4);
-            expect(el.children[4]).to.equal(li1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>5</li><li>2</li><li>3</li><li>4</li><li>1</li>');
+        expect(el.children[0]).to.equal(li5);
+        expect(el.children[1]).to.equal(li2);
+        expect(el.children[2]).to.equal(li3);
+        expect(el.children[3]).to.equal(li4);
+        expect(el.children[4]).to.equal(li1);
     });
 
-    it('should reverse the order of nodes', (done) => {
+    it('should reverse the order of nodes', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`
@@ -421,19 +382,16 @@ describe('each', () => {
 
         list.set([5, 4, 3, 2, 1]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>5</li><li>4</li><li>3</li><li>2</li><li>1</li>');
-            expect(el.children[0]).to.equal(li5);
-            expect(el.children[1]).to.equal(li4);
-            expect(el.children[2]).to.equal(li3);
-            expect(el.children[3]).to.equal(li2);
-            expect(el.children[4]).to.equal(li1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>5</li><li>4</li><li>3</li><li>2</li><li>1</li>');
+        expect(el.children[0]).to.equal(li5);
+        expect(el.children[1]).to.equal(li4);
+        expect(el.children[2]).to.equal(li3);
+        expect(el.children[3]).to.equal(li2);
+        expect(el.children[4]).to.equal(li1);
     });
 
-    it('should reorder, add, and remove nodes', (done) => {
+    it('should reorder, add, and remove nodes', async () => {
         const list = val([1, 2, 3, 4, 5, 6, 7]);
 
         const el = html`
@@ -452,19 +410,16 @@ describe('each', () => {
 
         list.set([3, 5, 1, 7, 2, 9, 8]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>3</li><li>5</li><li>1</li><li>7</li><li>2</li><li>9</li><li>8</li>');
-            expect(el.children[0]).to.equal(li3);
-            expect(el.children[1]).to.equal(li4);
-            expect(el.children[2]).to.equal(li1);
-            expect(el.children[3]).to.equal(li5);
-            expect(el.children[4]).to.equal(li2);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>3</li><li>5</li><li>1</li><li>7</li><li>2</li><li>9</li><li>8</li>');
+        expect(el.children[0]).to.equal(li3);
+        expect(el.children[1]).to.equal(li4);
+        expect(el.children[2]).to.equal(li1);
+        expect(el.children[3]).to.equal(li5);
+        expect(el.children[4]).to.equal(li2);
     });
 
-    it('should reorder, add, and remove components', (done) => {
+    it('should reorder, add, and remove components', async () => {
         const list = val([
             {name: 'a', num: 1},
             {name: 'b', num: 2},
@@ -500,18 +455,15 @@ describe('each', () => {
             ];
         });
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>d 4</li><li>f 6</li><li>b 2</li><li>a 1</li>');
-            expect(el.children[0]).to.equal(li4);
-            expect(el.children[1]).to.equal(li6);
-            expect(el.children[2]).to.equal(li2);
-            expect(el.children[3]).to.equal(li1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>d 4</li><li>f 6</li><li>b 2</li><li>a 1</li>');
+        expect(el.children[0]).to.equal(li4);
+        expect(el.children[1]).to.equal(li6);
+        expect(el.children[2]).to.equal(li2);
+        expect(el.children[3]).to.equal(li1);
     });
 
-    it('should render a list between sibling nodes', (done) => {
+    it('should render a list between sibling nodes', async () => {
         const list = val([1, 2, 3]);
 
         const el = html`
@@ -529,16 +481,13 @@ describe('each', () => {
 
         list.set([1, 4, 3, 5]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
-            expect(el.children[1]).to.equal(div1);
-            expect(el.children[3]).to.equal(div3);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<span></span><div>1</div><div>4</div><div>3</div><div>5</div>foo');
+        expect(el.children[1]).to.equal(div1);
+        expect(el.children[3]).to.equal(div3);
     });
 
-    it('should render a list of text nodes', (done) => {
+    it('should render a list of text nodes', async () => {
         const list = val([1, 2, 3]);
 
         const el = html`<div>${each(list, (item) => html`${item}`)}</div>`;
@@ -555,17 +504,14 @@ describe('each', () => {
 
         list.set([3, 1, 5, 2, 4]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('31524');
-            expect(el.childNodes[1]).to.equal(text3);
-            expect(el.childNodes[2]).to.equal(text1);
-            expect(el.childNodes[4]).to.equal(text2);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('31524');
+        expect(el.childNodes[1]).to.equal(text3);
+        expect(el.childNodes[2]).to.equal(text1);
+        expect(el.childNodes[4]).to.equal(text2);
     });
 
-    it('should render a list of mixed text and element nodes', (done) => {
+    it('should render a list of mixed text and element nodes', async () => {
         const list = val([1, 2, 3, 4, 5]);
 
         const el = html`<div>${each(list, (n) => n % 2 === 0 ? html`<span>${n}</span>` : html`${n}`)}</div>`;
@@ -580,19 +526,16 @@ describe('each', () => {
 
         list.set([1, 5, 2, 6, 3, 7, 4]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('15<span>2</span><span>6</span>37<span>4</span>');
-            expect(el.childNodes[1]).to.equal(text1);
-            expect(el.childNodes[2]).to.equal(text3);
-            expect(el.childNodes[3]).to.equal(span1);
-            expect(el.childNodes[5]).to.equal(text2);
-            expect(el.childNodes[7]).to.equal(span2);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('15<span>2</span><span>6</span>37<span>4</span>');
+        expect(el.childNodes[1]).to.equal(text1);
+        expect(el.childNodes[2]).to.equal(text3);
+        expect(el.childNodes[3]).to.equal(span1);
+        expect(el.childNodes[5]).to.equal(text2);
+        expect(el.childNodes[7]).to.equal(span2);
     });
 
-    it('should support iterable collections', (done) => {
+    it('should support iterable collections', async () => {
         const set = new Set([1, 2, 3, 4]);
         const list = val(set);
 
@@ -639,25 +582,23 @@ describe('each', () => {
         const iterator = makeIterator();
         list.set(iterator);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
-        
-            expect(callback.callCount).to.equal(7);
+        await tick();
 
-            expect(callback.args[4][0]).to.equal('a');
-            expect(callback.args[4][1]).to.equal(0);
-            expect(callback.args[4][2]).to.equal(iterator);
+        expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
+    
+        expect(callback.callCount).to.equal(7);
 
-            expect(callback.args[5][0]).to.equal('b');
-            expect(callback.args[5][1]).to.equal(1);
-            expect(callback.args[5][2]).to.equal(iterator);
+        expect(callback.args[4][0]).to.equal('a');
+        expect(callback.args[4][1]).to.equal(0);
+        expect(callback.args[4][2]).to.equal(iterator);
 
-            expect(callback.args[6][0]).to.equal('c');
-            expect(callback.args[6][1]).to.equal(2);
-            expect(callback.args[6][2]).to.equal(iterator);
+        expect(callback.args[5][0]).to.equal('b');
+        expect(callback.args[5][1]).to.equal(1);
+        expect(callback.args[5][2]).to.equal(iterator);
 
-            done();
-        });
+        expect(callback.args[6][0]).to.equal('c');
+        expect(callback.args[6][1]).to.equal(2);
+        expect(callback.args[6][2]).to.equal(iterator);
     });
     
     it('should not render strings', () => {
@@ -672,7 +613,7 @@ describe('each', () => {
         expect(el.innerHTML).to.equal('');
     });
 
-    it('should replace a list with nothing', (done) => {
+    it('should replace a list with nothing', async () => {
         const list = val([1, 2, 3]);
 
         const el = html`
@@ -685,11 +626,8 @@ describe('each', () => {
 
         list.set(null);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('');
-            
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('');
     });
 
     it('should render the empty content when the iterable is empty', () => {
@@ -750,7 +688,7 @@ describe('each', () => {
         expect(onEmpty.args[0][0]).to.equal('foo');
     });
 
-    it('should replace the empty content with a list', (done) => {
+    it('should replace the empty content with a list', async () => {
         const array = [];
         const list = val(array);
 
@@ -770,16 +708,13 @@ describe('each', () => {
 
         list.set([1, 2, 3]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
-            expect(callback.callCount).to.equal(3);
-            expect(onEmpty.callCount).to.equal(1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li><li>3</li>');
+        expect(callback.callCount).to.equal(3);
+        expect(onEmpty.callCount).to.equal(1);
     });
 
-    it('should replace a list with empty content', (done) => {
+    it('should replace a list with empty content', async () => {
         const list = val([1, 2, 3, 4]);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
@@ -797,17 +732,14 @@ describe('each', () => {
 
         list.set('foo');
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>Empty</li>');
-            expect(callback.callCount).to.equal(4);
-            expect(onEmpty.callCount).to.equal(1);
-            expect(onEmpty.args[0][0]).to.equal('foo');
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(4);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal('foo');
     });
 
-    it('should not replace empty content with the same empty content', (done) => {
+    it('should not replace empty content with the same empty content', async () => {
         const array = [];
         const list = val(array);
 
@@ -829,17 +761,14 @@ describe('each', () => {
 
         list.set(null);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>Empty</li>');
-            expect(el.firstChild).to.equal(li);
-            expect(callback.callCount).to.equal(0);
-            expect(onEmpty.callCount).to.equal(1);
-
-            done();
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(el.firstChild).to.equal(li);
+        expect(callback.callCount).to.equal(0);
+        expect(onEmpty.callCount).to.equal(1);
     });
 
-    it('should replace a list with empty content and then replace empty content with a list', (done) => {
+    it('should replace a list with empty content and then replace empty content with a list', async () => {
         const list = val([1, 2, 3, 4]);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
@@ -857,25 +786,21 @@ describe('each', () => {
 
         list.set('foo');
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>Empty</li>');
-            expect(callback.callCount).to.equal(4);
-            expect(onEmpty.callCount).to.equal(1);
-            expect(onEmpty.args[0][0]).to.equal('foo');
+        await tick();
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(4);
+        expect(onEmpty.callCount).to.equal(1);
+        expect(onEmpty.args[0][0]).to.equal('foo');
 
-            list.set(['a', 'b', 'c']);
-        
-            tick().then(() => {
-                expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
-                expect(callback.callCount).to.equal(7);
-                expect(onEmpty.callCount).to.equal(1);
+        list.set(['a', 'b', 'c']);
 
-                done();
-            });
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>a</li><li>b</li><li>c</li>');
+        expect(callback.callCount).to.equal(7);
+        expect(onEmpty.callCount).to.equal(1);
     });
 
-    it('should replace empty content with a list and then replace the list with empty content', (done) => {
+    it('should replace empty content with a list and then replace the list with empty content', async () => {
         const list = val();
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
@@ -894,22 +819,18 @@ describe('each', () => {
 
         list.set([1, 2]);
         
-        tick().then(() => {
-            expect(el.innerHTML).to.equal('<li>1</li><li>2</li>');
-            expect(callback.callCount).to.equal(2);
-            expect(onEmpty.callCount).to.equal(1);
+        await tick();
+        expect(el.innerHTML).to.equal('<li>1</li><li>2</li>');
+        expect(callback.callCount).to.equal(2);
+        expect(onEmpty.callCount).to.equal(1);
 
-            const array = [];
-            list.set(array);
-        
-            tick().then(() => {
-                expect(el.innerHTML).to.equal('<li>Empty</li>');
-                expect(callback.callCount).to.equal(2);
-                expect(onEmpty.callCount).to.equal(2);
-                expect(onEmpty.args[1][0]).to.equal(array);
+        const array = [];
+        list.set(array);
 
-                done();
-            });
-        });
+        await tick();
+        expect(el.innerHTML).to.equal('<li>Empty</li>');
+        expect(callback.callCount).to.equal(2);
+        expect(onEmpty.callCount).to.equal(2);
+        expect(onEmpty.args[1][0]).to.equal(array);
     });
 });
