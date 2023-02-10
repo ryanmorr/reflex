@@ -5,8 +5,13 @@ const tasks = new Map();
 const effects = new Map();
 const resolvedPromise = Promise.resolve();
 
-export function addEffect(key, callback) {
+export function addSideEffect(key, callback) {
+    effects.set(key, () => effects.delete(key) && callback());
+}
+
+export function addPersistentSideEffect(key, callback) {
     effects.set(key, callback);
+    return () => effects.delete(key);
 }
 
 export function render(key, callback) {
@@ -17,7 +22,7 @@ export function render(key, callback) {
             if (tasks.size === 0) {
                 currentTask = null;
                 if (effects.size > 0) {
-                    effects.forEach((callback, key) => effects.delete(key) && render(key, callback));
+                    effects.forEach((callback) => resolvedPromise.then(callback));
                 }
             }
         });

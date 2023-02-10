@@ -1,16 +1,9 @@
-import { html, val, effect } from '../../src/reflex';
+import { html, val, effect, tick } from '../../src/reflex';
 
 describe('effect', () => {
-    it('should run effects after a store is changed and the DOM is updated', (done) => {
+    it('should execute a side effect after a store dependency has changed and the DOM is updated', async () => {
         const store = val();
-
-        const spy = sinon.spy((value) => {
-            expect(value).to.equal('foo');
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-
-            done();
-        });
-
+        const spy = sinon.spy();
         effect(store, spy);
 
         const el = html`<div>${store}</div>`;
@@ -19,36 +12,19 @@ describe('effect', () => {
         expect(el.outerHTML).to.equal('<div></div>');
 
         store.set('foo');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('foo');
+        expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
-    it('should run effects after multiple stores are changed and the DOM is updated', (done) => {
-         const foo = val('a');
+    it('should execute a side effect after multiple store dependencies have changed and the DOM is updated', async () => {
+        const foo = val('a');
         const bar = val('b');
         const baz = val('c');
-
-        const spy = sinon.spy((fooVal, barVal, bazVal) => {
-            if (spy.callCount === 1) {
-                expect(fooVal).to.equal('x');
-                expect(barVal).to.equal('b');
-                expect(bazVal).to.equal('c');
-                expect(el.outerHTML).to.equal('<div id="x">b c</div>');
-                bar.set('y');
-            } else if (spy.callCount === 2) {
-                expect(fooVal).to.equal('x');
-                expect(barVal).to.equal('y');
-                expect(bazVal).to.equal('c');
-                expect(el.outerHTML).to.equal('<div id="x">y c</div>');
-                baz.set('z');
-            } else if (spy.callCount === 3) {
-                expect(fooVal).to.equal('x');
-                expect(barVal).to.equal('y');
-                expect(bazVal).to.equal('z');
-                expect(el.outerHTML).to.equal('<div id="x">y z</div>');
-
-                done();
-            }
-        });
-
+        const spy = sinon.spy();
         effect(foo, bar, baz, spy);
 
         const el = html`<div id=${foo}>${bar} ${baz}</div>`;
@@ -57,19 +33,39 @@ describe('effect', () => {
         expect(el.outerHTML).to.equal('<div id="a">b c</div>');
 
         foo.set('x');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('x');
+        expect(spy.args[0][1]).to.equal('b');
+        expect(spy.args[0][2]).to.equal('c');
+        expect(el.outerHTML).to.equal('<div id="x">b c</div>');
+
+        bar.set('y');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(2);
+        expect(spy.args[1][0]).to.equal('x');
+        expect(spy.args[1][1]).to.equal('y');
+        expect(spy.args[1][2]).to.equal('c');
+        expect(el.outerHTML).to.equal('<div id="x">y c</div>');
+
+        baz.set('z');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(3);
+        expect(spy.args[2][0]).to.equal('x');
+        expect(spy.args[2][1]).to.equal('y');
+        expect(spy.args[2][2]).to.equal('z');
+        expect(el.outerHTML).to.equal('<div id="x">y z</div>');
     });
 
-    it('should not call an effect more than once per cycle', (done) => {
+    it('should not call a side effect more than once per cycle', async () => {
         const store = val('foo');
-
-        const spy = sinon.spy((value) => {
-            expect(spy.callCount).to.equal(1);
-            expect(value).to.equal('qux');
-            expect(el.outerHTML).to.equal('<div>qux</div>');
-
-            done();
-        });
-
+        const spy = sinon.spy();
         effect(store, spy);
 
         const el = html`<div>${store}</div>`;
@@ -80,66 +76,57 @@ describe('effect', () => {
         store.set('bar');
         store.set('baz');
         store.set('qux');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('qux');
+        expect(el.outerHTML).to.equal('<div>qux</div>');
     });
 
-    it('should support effects defined after a store-html interpolation', (done) => {
+    it('should support a side effect defined after a html-store interpolation', async () => {
         const store = val('foo');
-
         const el = html`<div>${store}</div>`;
-
-        const spy = sinon.spy((value) => {
-            expect(value).to.equal('bar');
-            expect(el.outerHTML).to.equal('<div>bar</div>');
-
-            done();
-        });
-
+        const spy = sinon.spy();
         effect(store, spy);
 
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
         store.set('bar');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('bar');
+        expect(el.outerHTML).to.equal('<div>bar</div>');
     });
 
-    it('should run effects after a store\'s promise is resolved', (done) => {
+    it('should execute a side effect after the store\'s promise is resolved', async () => {
         const foo = val();
-
-        const spy = sinon.spy((value) => {
-            expect(value).to.equal('foo');
-            expect(el.outerHTML).to.equal('<div>foo</div>');
-
-            done();
-        });
-    
+        const spy = sinon.spy();
         effect(foo, spy);
     
         const el = html`<div>${foo}</div>`;
     
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div></div>');
-    
-        foo.set(new Promise((resolve) => setTimeout(() => resolve('foo'), 10)));
+        
+        const promise = Promise.resolve('foo');
+        foo.set(promise);
+
+        await promise;
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('foo');
+        expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
-    it('should run effects after multiple store\'s promises have been resolved', (done) => {
+    it('should execute a side effect after multiple store\'s promises have been resolved', async () => {
         const foo = val('foo');
         const bar = val('bar');
-
-        const spy = sinon.spy((fooVal, barVal) => {
-            if (spy.callCount === 1) {
-                expect(fooVal).to.equal('baz');
-                expect(barVal).to.equal('bar');
-                expect(el.outerHTML).to.equal('<div>baz bar</div>');
-            } else if (spy.callCount === 2) {
-                expect(fooVal).to.equal('baz');
-                expect(barVal).to.equal('qux');
-                expect(el.outerHTML).to.equal('<div>baz qux</div>');
-                
-                done();
-            }
-        });
-    
+        const spy = sinon.spy();
         effect(foo, bar, spy);
     
         const el = html`<div>${foo} ${bar}</div>`;
@@ -147,11 +134,29 @@ describe('effect', () => {
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div>foo bar</div>');
         
-        foo.set(new Promise((resolve) => setTimeout(() => resolve('baz'), 10)));
-        bar.set(new Promise((resolve) => setTimeout(() => resolve('qux'), 20)));
+        const promise1 = new Promise((resolve) => setTimeout(() => resolve('baz'), 10));
+        const promise2 = new Promise((resolve) => setTimeout(() => resolve('qux'), 20));
+        foo.set(promise1);
+        bar.set(promise2);
+
+        await promise1;
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('baz');
+        expect(spy.args[0][1]).to.equal('bar');
+        expect(el.outerHTML).to.equal('<div>baz bar</div>');
+
+        await promise2;
+        await tick();
+
+        expect(spy.callCount).to.equal(2);
+        expect(spy.args[1][0]).to.equal('baz');
+        expect(spy.args[1][1]).to.equal('qux');
+        expect(el.outerHTML).to.equal('<div>baz qux</div>');
     });
 
-    it('should not run effects if a store\'s promise is rejected', (done) => {
+    it('should not execute a side effect if the store\'s promise is rejected', async () => {
         const foo = val();
         const spy = sinon.spy();
     
@@ -162,11 +167,59 @@ describe('effect', () => {
         const promise = Promise.reject();
         foo.set(promise);
 
-        promise.catch(() => requestAnimationFrame(() => {
+        try {
+            await promise;
+        } catch {
+            await tick();
+
             expect(spy.callCount).to.equal(0);
             expect(el.outerHTML).to.equal('<div></div>');
+        }
+    });
+    
+    
+    it('should execute a side effect without dependencies for all DOM updates', async () => {
+        const spy = sinon.spy();
+        effect(spy);
 
-            done();
-        }));
+        const foo = val();
+        const fooEl = html`<div>${foo}</div>`;
+        const bar = val();
+        const barEl = html`<div>${bar}</div>`;
+        const baz = val();
+        const bazEl = html`<div>${baz}</div>`;
+
+        expect(spy.callCount).to.equal(0);
+        expect(fooEl.outerHTML).to.equal('<div></div>');
+        expect(barEl.outerHTML).to.equal('<div></div>');
+        expect(bazEl.outerHTML).to.equal('<div></div>');
+
+        foo.set('a');
+        bar.set('b');
+        baz.set('c');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(fooEl.outerHTML).to.equal('<div>a</div>');
+        expect(barEl.outerHTML).to.equal('<div>b</div>');
+        expect(bazEl.outerHTML).to.equal('<div>c</div>');
+
+        bar.set('y');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(2);
+        expect(fooEl.outerHTML).to.equal('<div>a</div>');
+        expect(barEl.outerHTML).to.equal('<div>y</div>');
+        expect(bazEl.outerHTML).to.equal('<div>c</div>');
+        
+        baz.set('z');
+
+        await tick();
+
+        expect(fooEl.outerHTML).to.equal('<div>a</div>');
+        expect(barEl.outerHTML).to.equal('<div>y</div>');
+        expect(bazEl.outerHTML).to.equal('<div>z</div>');
     });
 });
