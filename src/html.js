@@ -321,7 +321,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
         return;
     }
     if (nextType === 'function') {
-        return defineProperty(element, name, nextVal(element), isSvg);
+        return defineProperty(element, name, nextVal(element, name), isSvg);
     }
     if (name === 'class' && !isSvg) {
 		name = 'className';

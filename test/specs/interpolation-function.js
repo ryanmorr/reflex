@@ -15,6 +15,8 @@ describe('interpolation-function', () => {
 
         expect(el.outerHTML).to.equal('<div class="foo"></div>');
         expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('class');
     });
 
     it('should render a function that returns a text node', () => {
@@ -60,6 +62,7 @@ describe('interpolation-function', () => {
         expect(el.className).to.equal('foo bar baz qux');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('class');
     });
 
     it('should set the class attribute with a function that returns an object', () => {  
@@ -69,6 +72,7 @@ describe('interpolation-function', () => {
         expect(el.className).to.equal('foo baz');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('class');
     });
 
     it('should set CSS styles with a function that returns a key/value map', () => {
@@ -78,6 +82,7 @@ describe('interpolation-function', () => {
         expect(el.outerHTML).to.equal('<div style="width: 60px; height: 60px;"></div>');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('style');
     });
 
     it('should set CSS styles with a function that returns a string', () => {
@@ -87,6 +92,7 @@ describe('interpolation-function', () => {
         expect(el.outerHTML).to.equal('<div style="color: rgb(90, 20, 70); position: relative;"></div>');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('style');
     });
 
     it('should set a DOM property with a function', () => {
@@ -96,6 +102,7 @@ describe('interpolation-function', () => {
         expect(el.value).to.equal('foo');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('value');
     });
 
     it('should render a text node for a function that returns a promise', async () => {
@@ -122,6 +129,7 @@ describe('interpolation-function', () => {
         expect(el.id).to.equal('bar');
         expect(fn.callCount).to.equal(1);
         expect(fn.args[0][0]).to.equal(el);
+        expect(fn.args[0][1]).to.equal('id');
     });
 
     it('should update an element with a function that returns a store', async () => {
@@ -212,10 +220,13 @@ describe('interpolation-function', () => {
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
         expect(fn1.callCount).to.equal(1);
         expect(fn1.args[0][0]).to.equal(el);
+        expect(fn1.args[0][1]).to.equal('foo');
         expect(fn2.callCount).to.equal(1);
         expect(fn2.args[0][0]).to.equal(el);
+        expect(fn2.args[0][1]).to.equal('foo');
         expect(fn3.callCount).to.equal(1);
         expect(fn3.args[0][0]).to.equal(el);
+        expect(fn3.args[0][1]).to.equal('foo');
     });
 
     it('should support multiple interpolations of the same function', () => {
