@@ -7,7 +7,7 @@ export function effect(...deps) {
     if (deps.length > 0) {
         let initialized = false;
         const values = [];
-        deps.map((dep, i) => dep.subscribe((value) => {
+        const unsubscribes = deps.map((dep, i) => dep.subscribe((value) => {
             if (isPromise(value)) {
                 value.then((v) => {
                     values[i] = v;
@@ -23,6 +23,7 @@ export function effect(...deps) {
             }
         }));
         initialized = true;
+        return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
     }
-    addPersistentSideEffect(key, callback);
+    return addPersistentSideEffect(key, callback);
 }

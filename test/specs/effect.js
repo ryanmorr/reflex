@@ -177,7 +177,59 @@ describe('effect', () => {
         }
     });
     
-    
+    it('should not execute a side effect for a single dependency if it\'s stopped', async () => {
+        const store = val();
+        const spy = sinon.spy();
+        const stop = effect(store, spy);
+
+        const el = html`<div>${store}</div>`;
+
+        store.set('foo');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div>foo</div>');
+        expect(stop).to.be.a('function');
+
+        stop();
+
+        store.set('bar');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div>bar</div>');
+    });
+
+    it('should not execute a side effect for multiple dependencies if it\'s stopped', async () => {
+        const foo = val();
+        const bar = val();
+        const spy = sinon.spy();
+        const stop = effect(foo, bar, spy);
+
+        const el = html`<div class=${foo}>${bar}</div>`;
+
+        foo.set('a');
+        bar.set('b');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="a">b</div>');
+        expect(stop).to.be.a('function');
+
+        stop();
+
+        foo.set('x');
+        bar.set('y');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="x">y</div>');
+    });
+
     it('should execute a side effect without dependencies for all DOM updates', async () => {
         const spy = sinon.spy();
         effect(spy);
@@ -221,5 +273,93 @@ describe('effect', () => {
         expect(fooEl.outerHTML).to.equal('<div>a</div>');
         expect(barEl.outerHTML).to.equal('<div>y</div>');
         expect(bazEl.outerHTML).to.equal('<div>z</div>');
+    });
+
+    it('should not execute a side effect with no dependencies if it\'s stopped', async () => {
+        const foo = val();
+        const bar = val();
+        const spy = sinon.spy();
+        const stop = effect(spy);
+
+        const el = html`<div class=${foo}>${bar}</div>`;
+
+        foo.set('a');
+        bar.set('b');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="a">b</div>');
+        expect(stop).to.be.a('function');
+
+        stop();
+
+        foo.set('x');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="x">b</div>');
+
+        bar.set('y');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="x">y</div>');
+    });
+
+    it('should support updates within a side effect', async () => {
+        const foo = val();
+        const bar = val();
+
+        const spy = sinon.spy(() => {
+            expect(el.outerHTML).to.equal('<div class="a"></div>');
+            bar.set('b');
+        });
+        effect(foo, spy);
+
+        const el = html`<div class=${foo}>${bar}</div>`;
+
+        foo.set('a');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="a"></div>');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="a">b</div>');
+    });
+
+    it('should support triggering a side effect within another side effect', async () => {
+        const foo = val();
+        const bar = val();
+
+        const fooSpy = sinon.spy(() => bar.set('b'));
+        effect(foo, fooSpy);
+
+        const barSpy = sinon.spy(() => {
+            expect(el.outerHTML).to.equal('<div class="a">b</div>');
+        });
+        effect(bar, barSpy);
+
+        const el = html`<div class=${foo}>${bar}</div>`;
+
+        foo.set('a');
+
+        await tick();
+
+        expect(fooSpy.callCount).to.equal(1);
+        expect(barSpy.callCount).to.equal(0);
+        expect(el.outerHTML).to.equal('<div class="a"></div>');
+
+        await tick();
+
+        expect(fooSpy.callCount).to.equal(1);
+        expect(barSpy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div class="a">b</div>');
     });
 });
