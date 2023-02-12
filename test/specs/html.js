@@ -302,6 +302,16 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div foo="abc" bar="123"><span>baz</span></div>');
     });
 
+    it('should always define the children property for functional components', () => {
+        const Component = sinon.spy(() => html`<div></div>`);
+
+        html`<${Component} />`;
+
+        expect(Component.callCount).to.equal(1);
+        expect(Component.args[0][0].children).to.exist;
+        expect(Component.args[0][0].children).to.deep.equal([]);
+    });
+
     it('should not cache elements with identical markup', () => {
         const text = () => html`foo`;
         const element = () => html`<div></div>`;
