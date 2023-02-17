@@ -63,7 +63,7 @@ describe('effect', () => {
         expect(el.outerHTML).to.equal('<div id="x">y z</div>');
     });
 
-    it('should not call a side effect more than once per cycle', async () => {
+    it('should not execute a side effect more than once per cycle', async () => {
         const store = val('foo');
         const spy = sinon.spy();
         effect(store, spy);
@@ -82,6 +82,33 @@ describe('effect', () => {
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal('qux');
         expect(el.outerHTML).to.equal('<div>qux</div>');
+    });
+
+    it('should not execute a side effect if a non-dependency is updated', async () => {
+        const foo = val('a');
+        const bar = val('b');
+        const spy = sinon.spy();
+        effect(foo, spy);
+
+        const el = html`<div>${foo}</div>`;
+
+        expect(spy.callCount).to.equal(0);
+        expect(el.outerHTML).to.equal('<div>a</div>');
+
+        foo.set('b');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal('b');
+        expect(el.outerHTML).to.equal('<div>b</div>');
+
+        bar.set('x');
+
+        await tick();
+
+        expect(spy.callCount).to.equal(1);
+        expect(el.outerHTML).to.equal('<div>b</div>');
     });
 
     it('should support a side effect defined after a html-store interpolation', async () => {
