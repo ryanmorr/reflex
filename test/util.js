@@ -10,7 +10,7 @@ export function wait(promise) {
     return new Promise((resolve, reject) => {
         if (promise) {
             if (promise.subscribe) {
-                promise = promise.get();
+                promise = promise.value();
             }
             promise.then(() => setTimeout(resolve, 50));
             promise.catch(() => setTimeout(reject, 50));

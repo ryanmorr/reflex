@@ -1,9 +1,9 @@
-import { html, val, each, dispose, cleanup, tick } from '../../src/reflex';
+import { html, store, each, dispose, cleanup, tick } from '../../src/reflex';
 
 describe('disposal-each', () => {
     it('should dispose bindings from nodes removed after an each reconciliation', async () => {
-        const value = val('foo');
-        const list = val([1, 2, 3]);
+        const value = store('foo');
+        const list = store([1, 2, 3]);
 
         const el = html`
             <ul>
@@ -39,8 +39,8 @@ describe('disposal-each', () => {
     });
 
     it('should dispose bindings from nodes removed from the beginning after an each reconciliation', async () => {
-        const value = val('foo');
-        const list = val([1, 2, 3, 4]);
+        const value = store('foo');
+        const list = store([1, 2, 3, 4]);
 
         const el = html`
             <ul>
@@ -79,8 +79,8 @@ describe('disposal-each', () => {
     });
 
     it('should dispose bindings from nodes removed from the middle after an each reconciliation', async () => {
-        const value = val('foo');
-        const list = val([1, 2, 3, 4]);
+        const value = store('foo');
+        const list = store([1, 2, 3, 4]);
 
         const el = html`
             <ul>
@@ -119,8 +119,8 @@ describe('disposal-each', () => {
     });
 
     it('should dispose bindings from nodes removed from the end after an each reconciliation', async () => {
-        const value = val('foo');
-        const list = val([1, 2, 3, 4]);
+        const value = store('foo');
+        const list = store([1, 2, 3, 4]);
 
         const el = html`
             <ul>
@@ -160,7 +160,7 @@ describe('disposal-each', () => {
 
     it('should dispose a list if the parent node is disposed', () => {
         const array = [1, 2, 3];
-        const list = val(array);
+        const list = store(array);
         const spy = sinon.spy();
 
         const el = html`
@@ -182,7 +182,7 @@ describe('disposal-each', () => {
 
     it('should not dispose a list item if it was not removed after an each reconciliation', async () => {
         const array = [1, 2, 3];
-        const list = val(array);
+        const list = store(array);
 
         const spies = [
             sinon.spy(),
@@ -213,7 +213,7 @@ describe('disposal-each', () => {
     });
 
     it('should dispose the each functionality if an ancestor element is disposed', async () => {
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
 
         const el = html`
@@ -235,7 +235,7 @@ describe('disposal-each', () => {
     });
 
     it('should dispose the empty content', async () => {
-        const list = val();
+        const list = store();
         const spy = sinon.spy();
 
         const onEmpty = () => {

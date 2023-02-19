@@ -1,8 +1,8 @@
-import { html, val, bind, tick } from '../../src/reflex';
+import { html, store, bind, tick } from '../../src/reflex';
 
 describe('bind', () => {
     it('should support two-way binding for a text input', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const el = html`<input type="text" value=${bind(value)} />`;
 
         expect(el.value).to.equal('foo');
@@ -13,7 +13,7 @@ describe('bind', () => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
-                expect(value.get()).to.equal('baz');
+                expect(value.value()).to.equal('baz');
 
                 done();
             });
@@ -24,7 +24,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a numeric input', (done) => {
-        const value = val(2);
+        const value = store(2);
         const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
 
         expect(el.value).to.equal('2');
@@ -35,7 +35,7 @@ describe('bind', () => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
-                expect(value.get()).to.equal(5);
+                expect(value.value()).to.equal(5);
 
                 done();
             });
@@ -46,7 +46,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a range input', (done) => {
-        const value = val(2);
+        const value = store(2);
         const el = html`<input type="range" min="0" max="10" value=${bind(value)} />`;
 
         expect(el.value).to.equal('2');
@@ -57,7 +57,7 @@ describe('bind', () => {
             expect(el.value).to.equal('8');
 
             el.addEventListener('input', () => {
-                expect(value.get()).to.equal(5);
+                expect(value.value()).to.equal(5);
 
                 done();
             });
@@ -68,7 +68,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a checkbox', (done) => {
-        const checked = val(true);
+        const checked = store(true);
         const el = html`<input type="checkbox" checked=${bind(checked)} />`;
 
         expect(el.checked).to.equal(true);
@@ -79,7 +79,7 @@ describe('bind', () => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
-                expect(checked.get()).to.equal(true);
+                expect(checked.value()).to.equal(true);
 
                 done();
             });
@@ -90,7 +90,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a radio button', (done) => {
-        const checked = val(true);
+        const checked = store(true);
         const el = html`<input type="radio" checked=${bind(checked)} />`;
 
         expect(el.checked).to.equal(true);
@@ -101,7 +101,7 @@ describe('bind', () => {
             expect(el.checked).to.equal(false);
 
             el.addEventListener('change', () => {
-                expect(checked.get()).to.equal(true);
+                expect(checked.value()).to.equal(true);
 
                 done();
             });
@@ -112,7 +112,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a textarea', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const el = html`<textarea value=${bind(value)}></textarea>`;
 
         expect(el.value).to.equal('foo');
@@ -123,7 +123,7 @@ describe('bind', () => {
             expect(el.value).to.equal('bar');
 
             el.addEventListener('input', () => {
-                expect(value.get()).to.equal('baz');
+                expect(value.value()).to.equal('baz');
 
                 done();
             });
@@ -134,7 +134,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a select', (done) => {
-        const value = val('foo');
+        const value = store('foo');
     
         const el = html`
             <select value=${bind(value)}>
@@ -156,7 +156,7 @@ describe('bind', () => {
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1]]);
         
             el.addEventListener('input', () => {
-                expect(value.get()).to.equal('baz');
+                expect(value.value()).to.equal('baz');
                 expect(el.value).to.equal('baz');
                 expect(el.selectedIndex).to.equal(2);
                 expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[2]]);
@@ -170,7 +170,7 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for a select multiple', (done) => {
-        const value = val(['foo']);
+        const value = store(['foo']);
     
         const el = html`
             <select multiple value=${bind(value)}>
@@ -191,7 +191,7 @@ describe('bind', () => {
             expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0], el.options[2]]);
         
             el.addEventListener('input', () => {
-                expect(value.get()).to.deep.equal(['bar', 'qux']);
+                expect(value.value()).to.deep.equal(['bar', 'qux']);
                 expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[1], el.options[3]]);
 
                 done();
@@ -206,10 +206,10 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for checkbox groups', (done) => {
-        const foo = val(true);
-        const bar = val(false);
-        const baz = val(false);
-        const qux = val(false);
+        const foo = store(true);
+        const bar = store(false);
+        const baz = store(false);
+        const qux = store(false);
     
         const el = html`
             <input type="checkbox" name="example" value="foo" checked=${bind(foo)} />
@@ -239,10 +239,10 @@ describe('bind', () => {
             expect(quxInput.checked).to.equal(false);
         
             quxInput.addEventListener('change', () => {
-                expect(foo.get()).to.deep.equal(false);
-                expect(bar.get()).to.deep.equal(true);
-                expect(baz.get()).to.deep.equal(false);
-                expect(qux.get()).to.deep.equal(true);
+                expect(foo.value()).to.deep.equal(false);
+                expect(bar.value()).to.deep.equal(true);
+                expect(baz.value()).to.deep.equal(false);
+                expect(qux.value()).to.deep.equal(true);
                 expect(fooInput.checked).to.equal(false);
                 expect(barInput.checked).to.equal(true);
                 expect(bazInput.checked).to.equal(false);
@@ -268,9 +268,9 @@ describe('bind', () => {
     });
 
     it('should support two-way binding for radio button groups', (done) => {
-        const foo = val(false);
-        const bar = val(true);
-        const baz = val(false);
+        const foo = store(false);
+        const bar = store(true);
+        const baz = store(false);
     
         const el = html`
             <input type="radio" name="example" value="foo" checked=${bind(foo)} />
@@ -296,9 +296,9 @@ describe('bind', () => {
             expect(bazInput.checked).to.equal(false);
         
             bazInput.addEventListener('change', () => {
-                expect(foo.get()).to.equal(false);
-                expect(bar.get()).to.equal(false);
-                expect(baz.get()).to.equal(true);
+                expect(foo.value()).to.equal(false);
+                expect(bar.value()).to.equal(false);
+                expect(baz.value()).to.equal(true);
                 expect(fooInput.checked).to.equal(false);
                 expect(barInput.checked).to.equal(false);
                 expect(bazInput.checked).to.equal(true);
@@ -318,55 +318,55 @@ describe('bind', () => {
     });
 
     it('should handle an initial value of undefined for text inputs', () => {
-        const value = val();
+        const value = store();
         const el = html`<input type="text" value=${bind(value)} />`;
 
-        expect(value.get()).to.equal('');
+        expect(value.value()).to.equal('');
         expect(el.value).to.equal('');
     });
 
     it('should handle an initial value of undefined for a numeric input', () => {
-        const value = val();
+        const value = store();
         const el = html`<input type="number" min="0" max="10" value=${bind(value)} />`;
 
-        expect(value.get()).to.equal(0);
+        expect(value.value()).to.equal(0);
         expect(el.value).to.equal('0');
     });
 
     it('should handle an initial value of undefined for a range input', () => {
-        const value = val();
+        const value = store();
         const el = html`<input type="range" min="0" max="10" value=${bind(value)} />`;
 
-        expect(value.get()).to.equal(0);
+        expect(value.value()).to.equal(0);
         expect(el.value).to.equal('0');
     });
 
     it('should handle an initial value of undefined for a checkbox', () => {
-        const checked = val();
+        const checked = store();
         const el = html`<input type="checkbox" checked=${bind(checked)} />`;
 
-        expect(checked.get()).to.equal(false);
+        expect(checked.value()).to.equal(false);
         expect(el.checked).to.equal(false);
     });
 
     it('should handle an initial value of undefined for a radio button', () => {
-        const checked = val();
+        const checked = store();
         const el = html`<input type="radio" checked=${bind(checked)} />`;
 
-        expect(checked.get()).to.equal(false);
+        expect(checked.value()).to.equal(false);
         expect(el.checked).to.equal(false);
     });
 
     it('should handle an initial value of undefined for a textarea', () => {
-        const value = val();
+        const value = store();
         const el = html`<textarea value=${bind(value)}></textarea>`;
 
-        expect(value.get()).to.equal('');
+        expect(value.value()).to.equal('');
         expect(el.value).to.equal('');
     });
 
     it('should handle an initial value of undefined for a select', () => {
-        const value = val();
+        const value = store();
     
         const el = html`
             <select value=${bind(value)}>
@@ -376,14 +376,14 @@ describe('bind', () => {
             </select>
         `;
         
-        expect(value.get()).to.equal('foo');
+        expect(value.value()).to.equal('foo');
         expect(el.value).to.equal('foo');
         expect(el.selectedIndex).to.equal(0);
         expect(Array.from(el.selectedOptions)).to.deep.equal([el.options[0]]);
     });
 
     it('should handle an initial value of undefined for a select multiple', () => {
-        const value = val();
+        const value = store();
     
         const el = html`
             <select multiple value=${bind(value)}>
@@ -394,14 +394,14 @@ describe('bind', () => {
             </select>
         `;
         
-        expect(value.get()).to.deep.equal([]);
+        expect(value.value()).to.deep.equal([]);
         expect(el.value).to.deep.equal('');
         expect(el.selectedIndex).to.equal(-1);
         expect(Array.from(el.selectedOptions)).to.deep.equal([]);
     });
 
     it('should support binding a store multiple times', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const el = html`
             <input type="text" value=${bind(value)} />
             <input type="text" value=${bind(value)} />
@@ -421,7 +421,7 @@ describe('bind', () => {
 
             input1.addEventListener('input', () => {
                 tick().then(() => {
-                    expect(value.get()).to.equal('baz');
+                    expect(value.value()).to.equal('baz');
                     expect(input1.value).to.equal('baz');
                     expect(input2.value).to.equal('baz');
                     
@@ -435,7 +435,7 @@ describe('bind', () => {
     });
 
     it('should support binding a store to an event listener', (done) => {
-        const clicked = val();
+        const clicked = store();
         const el = html`<div onclick=${bind(clicked)} />`;
 
         const spy1 = sinon.spy();
@@ -454,7 +454,7 @@ describe('bind', () => {
             expect(spy2.callCount).to.equal(2);
             expect(spy1.args[1][0]).to.equal(event);
             expect(spy2.args[1][0]).to.equal(event);
-            expect(clicked.get()).to.equal(event);
+            expect(clicked.value()).to.equal(event);
 
             done();
         });

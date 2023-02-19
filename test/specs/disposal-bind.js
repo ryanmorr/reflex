@@ -1,8 +1,8 @@
-import { html, val, bind, dispose, tick } from '../../src/reflex';
+import { html, store, bind, dispose, tick } from '../../src/reflex';
 
 describe('disposal-bind', () => {
     it('should dispose a two-way input binding', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const input = html`<input type="text" value=${bind(value)} />`;
 
         expect(input.value).to.equal('foo');
@@ -20,7 +20,7 @@ describe('disposal-bind', () => {
                 expect(input.value).to.equal('bar');
                 
                 input.addEventListener('input', () => {
-                    expect(value.get()).to.equal('baz');
+                    expect(value.value()).to.equal('baz');
 
                     done();
                 });
@@ -32,7 +32,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way numeric input binding', (done) => {
-        const value = val();
+        const value = store();
         const input = html`<input type="number" value=${bind(value)} />`;
 
         expect(input.value).to.equal('0');
@@ -50,7 +50,7 @@ describe('disposal-bind', () => {
                 expect(input.value).to.equal('3');
                 
                 input.addEventListener('input', () => {
-                    expect(value.get()).to.equal(5);
+                    expect(value.value()).to.equal(5);
 
                     done();
                 });
@@ -62,7 +62,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way checkbox binding', (done) => {
-        const checked = val(true);
+        const checked = store(true);
         const input = html`<input type="checkbox" checked=${bind(checked)} />`;
 
         expect(input.checked).to.equal(true);
@@ -80,7 +80,7 @@ describe('disposal-bind', () => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
-                    expect(checked.get()).to.equal(true);
+                    expect(checked.value()).to.equal(true);
 
                     done();
                 });
@@ -92,7 +92,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way radio button binding', (done) => {
-        const checked = val(true);
+        const checked = store(true);
         const input = html`<input type="radio" checked=${bind(checked)} />`;
 
         expect(input.checked).to.equal(true);
@@ -110,7 +110,7 @@ describe('disposal-bind', () => {
                 expect(input.checked).to.equal(false);
                 
                 input.addEventListener('change', () => {
-                    expect(checked.get()).to.equal(true);
+                    expect(checked.value()).to.equal(true);
 
                     done();
                 });
@@ -122,7 +122,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way textarea binding', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const textarea = html`<textarea value=${bind(value)}></textarea>`;
 
         expect(textarea.value).to.equal('foo');
@@ -140,7 +140,7 @@ describe('disposal-bind', () => {
                 expect(textarea.value).to.equal('bar');
                 
                 textarea.addEventListener('input', () => {
-                    expect(value.get()).to.equal('baz');
+                    expect(value.value()).to.equal('baz');
 
                     done();
                 });
@@ -152,7 +152,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way select binding', (done) => {
-        const value = val('foo');
+        const value = store('foo');
         const select = html`
             <select value=${bind(value)}>
                 <option value="foo">foo</option>
@@ -179,7 +179,7 @@ describe('disposal-bind', () => {
                 expect(select.selectedIndex).to.equal(1);
                 
                 select.addEventListener('input', () => {
-                    expect(value.get()).to.equal('baz');
+                    expect(value.value()).to.equal('baz');
 
                     done();
                 });
@@ -191,7 +191,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose a two-way select multiple binding', (done) => {
-        const value = val(['foo']);
+        const value = store(['foo']);
         const select = html`
             <select multiple value=${bind(value)}>
                 <option value="foo">foo</option>
@@ -216,7 +216,7 @@ describe('disposal-bind', () => {
                 expect(Array.from(select.selectedOptions)).to.deep.equal([select.options[0], select.options[2]]);
                 
                 select.addEventListener('input', () => {
-                    expect(value.get()).to.deep.equal(['bar']);
+                    expect(value.value()).to.deep.equal(['bar']);
                     
                     done();
                 });
@@ -230,7 +230,7 @@ describe('disposal-bind', () => {
     });
 
     it('should dispose an event listener binding', (done) => {
-        const clicked = val();
+        const clicked = store();
         const el = html`<div onclick=${bind(clicked)} />`;
 
         const spy = sinon.spy();
@@ -243,7 +243,7 @@ describe('disposal-bind', () => {
 
         tick().then(() => {
             expect(spy.callCount).to.equal(2);
-            expect(clicked.get()).to.equal(event);
+            expect(clicked.value()).to.equal(event);
 
             const removeEventSpy = sinon.spy(el, 'removeEventListener');
 
@@ -257,7 +257,7 @@ describe('disposal-bind', () => {
 
             tick().then(() => {
                 expect(spy.callCount).to.equal(2);
-                expect(clicked.get()).to.equal(event);
+                expect(clicked.value()).to.equal(event);
     
                 done();
             });

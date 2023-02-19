@@ -5,7 +5,7 @@ import { uuid } from './util';
 const BINDING = Symbol('binding');
 
 function bindInput(element, store) {
-    let prevVal = store.get();
+    let prevVal = store.value();
     if (prevVal == null) {
         prevVal = '';
         store.set(prevVal);
@@ -31,7 +31,7 @@ function bindInput(element, store) {
 }
 
 function bindNumericInput(element, store) {
-    let prevVal = store.get();
+    let prevVal = store.value();
     if (prevVal == null) {
         prevVal = 0;
         store.set(prevVal);
@@ -57,7 +57,7 @@ function bindNumericInput(element, store) {
 }
 
 function bindCheckboxAndRadio(element, store) {
-    let prevVal = store.get();
+    let prevVal = store.value();
     if (prevVal == null) {
         prevVal = false;
         store.set(prevVal);
@@ -83,7 +83,7 @@ function bindCheckboxAndRadio(element, store) {
 }
 
 function bindSelect(element, store) {
-    let prevVal = store.get();
+    let prevVal = store.value();
     if (prevVal == null) {
         const option = element.options[element.selectedIndex];
         prevVal = option ? option.value : '';
@@ -122,7 +122,7 @@ function bindSelect(element, store) {
 
 function bindSelectMultiple(element, store) {
     let initialized = false;
-    let prevVal = store.get();
+    let prevVal = store.value();
     if (prevVal == null) {
         prevVal = [];
         store.set(prevVal);

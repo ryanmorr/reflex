@@ -1,4 +1,4 @@
-import { html, val, tick } from '../../src/reflex';
+import { html, store, tick } from '../../src/reflex';
 
 describe('interpolation-function', () => {
     it('should render a function as a text node', () => {
@@ -133,7 +133,7 @@ describe('interpolation-function', () => {
     });
 
     it('should update an element with a function that returns a store', async () => {
-        const child = val('foo');
+        const child = store('foo');
         const fn = () => child;
         const el = html`<div>${fn}</div>`;
 
@@ -151,7 +151,7 @@ describe('interpolation-function', () => {
     });
 
     it('should update an attribute with a function that returns a store', async () => {
-        const child = val('foo');
+        const child = store('foo');
         const fn = () => child;
         const el = html`<div class=${fn}></div>`;
 

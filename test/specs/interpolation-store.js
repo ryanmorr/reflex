@@ -1,36 +1,36 @@
-import { html, val, derived, tick } from '../../src/reflex';
+import { html, store, derived, tick } from '../../src/reflex';
 
 describe('interpolation-store', () => {
     it('should render a store that as a text node', () => {
-        const text = val('foo');
+        const text = store('foo');
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
     it('should render a store as an attribute', () => {
-        const attr = val('foo');
+        const attr = store('foo');
         const el = html`<div id=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
     });
 
     it('should render a store that contains a text node', () => {
-        const text = val(document.createTextNode('foo'));
+        const text = store(document.createTextNode('foo'));
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
     it('should render a store that contains an element', () => {
-        const span = val(document.createElement('span'));
+        const span = store(document.createElement('span'));
         const el = html`<div>${span}</div>`;
 
         expect(el.outerHTML).to.equal('<div><span></span></div>');
     });
 
     it('should render a store that contains a document fragment', () => {
-        const frag = val(html`<i></i><em></em>`);
+        const frag = store(html`<i></i><em></em>`);
 
         const el = html`<div>${frag}</div>`;
 
@@ -38,7 +38,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node', async () => {
-        const text = val();
+        const text = store();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -61,7 +61,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update an element', async () => {
-        const child = val();
+        const child = store();
         const el = html`<div>${child}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -78,7 +78,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node with a function', async () => {
-        const child = val(() => 'foo');
+        const child = store(() => 'foo');
         const el = html`<div>${child}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -95,7 +95,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update multiple nodes', async () => {
-        const nodes = val();
+        const nodes = store();
         const el = html`<div>${nodes}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -112,7 +112,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update multiple nodes with a function', async () => {
-        const nodes = val();
+        const nodes = store();
         const el = html`<div>${nodes}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -129,7 +129,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove nodes by providing null or undefined', async () => {
-        const node = val('foo');
+        const node = store('foo');
         const el = html`<div>${node}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -161,7 +161,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove nodes if a function returns null or undefined', async () => {
-        const node = val('foo');
+        const node = store('foo');
         const el = html`<div>${node}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -193,7 +193,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update an attribute', async () => {
-        const attr = val();
+        const attr = store();
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -205,7 +205,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update an attribute with a function', async () => {
-        const attr = val();
+        const attr = store();
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -221,7 +221,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove attributes by providing null, undefined, or false', async () => {
-        const attr = val('bar');
+        const attr = store('bar');
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
@@ -253,7 +253,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove attributes if a function returns null, undefined, or false', async () => {
-        const attr = val('bar');
+        const attr = store('bar');
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
@@ -295,7 +295,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update the class attribute with an array', async () => {
-        const className = val(['foo', 'bar']);
+        const className = store(['foo', 'bar']);
         const el = html`<div class=${className}></div>`;
         
         expect(el.className).to.equal('foo bar');
@@ -307,7 +307,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update the class attribute with an object', async () => {    
-        const className = val({foo: true, bar: true, baz: true});
+        const className = store({foo: true, bar: true, baz: true});
         const el = html`<div class=${className}></div>`;
         
         expect(el.className).to.equal('foo bar baz');
@@ -319,7 +319,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update the class attribute with a function', async () => {
-        const className = val();
+        const className = store();
         const el = html`<div class=${className}></div>`;
         
         expect(el.className).to.equal('');
@@ -344,7 +344,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update CSS styles with a string', async () => {
-        const style = val('width: 100px; height: 200px');
+        const style = store('width: 100px; height: 200px');
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="width: 100px; height: 200px;"></div>');
@@ -356,7 +356,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update CSS styles with a key/value map', async () => {
-        const style = val({'padding-bottom': '10px', paddingTop: '5px'});
+        const style = store({'padding-bottom': '10px', paddingTop: '5px'});
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="padding-bottom: 10px; padding-top: 5px;"></div>');
@@ -368,7 +368,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update CSS styles with a function', async () => {
-        const style = val();
+        const style = store();
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -393,7 +393,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove a CSS style', async () => {
-        const style = val({width: '100px'});
+        const style = store({width: '100px'});
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="width: 100px;"></div>');
@@ -405,7 +405,7 @@ describe('interpolation-store', () => {
     });
 
     it('should remove a CSS style with a function', async () => {
-        const style = val({width: '100px'});
+        const style = store({width: '100px'});
         const el = html`<div style=${style}></div>`;
 
         expect(el.outerHTML).to.equal('<div style="width: 100px;"></div>');
@@ -421,7 +421,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update CSS variables', async () => {
-        const style = val({color: 'var(--color)', '--color': 'red'});
+        const style = store({color: 'var(--color)', '--color': 'red'});
         const el = html`<div style=${style}></div>`;
 
         document.body.appendChild(el);
@@ -441,7 +441,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a boolean attribute', async () => {
-        const checked = val(true);
+        const checked = store(true);
         const el = html`<input type="radio" checked=${checked} />`;
 
         expect(el.outerHTML).to.equal('<input type="radio">');
@@ -459,7 +459,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a boolean attribute with a function', async () => {
-        const checked = val(true);
+        const checked = store(true);
         const el = html`<input type="radio" checked=${checked} />`;
 
         expect(el.checked).to.equal(true);
@@ -475,7 +475,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a DOM property', async () => {
-        const value = val('foo');
+        const value = store('foo');
         const el = html`<input type="text" value=${value} />`;
 
         expect(el.outerHTML).to.equal('<input type="text">');
@@ -493,7 +493,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a DOM property with a function', async () => {
-        const value = val();
+        const value = store();
         const el = html`<input type="text" value=${value} />`;
 
         expect(el.value).to.equal('');
@@ -509,7 +509,7 @@ describe('interpolation-store', () => {
     });
 
     it('should add an event listener', async () => {
-        const clickHandler = val();
+        const clickHandler = store();
         const el = html`<div onclick=${clickHandler} />`;
 
         const addEventSpy = sinon.spy(el, 'addEventListener');
@@ -525,7 +525,7 @@ describe('interpolation-store', () => {
 
     it('should remove an event listener', async () => {
         const fn = sinon.spy();
-        const clickHandler = val(fn);
+        const clickHandler = store(fn);
         const el = html`<div onclick=${clickHandler} />`;
 
         const removeEventSpy = sinon.spy(el, 'removeEventListener');
@@ -539,7 +539,7 @@ describe('interpolation-store', () => {
     });
 
     it('should add and remove event listeners', async () => {
-        const clickHandler = val();
+        const clickHandler = store();
         const el = html`<div onclick=${clickHandler} />`;
 
         const event1 = new CustomEvent('click');
@@ -583,7 +583,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update around sibling nodes without inference', async () => {
-        const child = val('abc');
+        const child = store('abc');
         const el = html`<div>foo<span />${child}baz<em /><p /></div>`;
         const foo = el.childNodes[0];
         const span = el.childNodes[1];
@@ -620,7 +620,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node around sibling text nodes', async () => {
-        const text = val('abc');
+        const text = store('abc');
         const el = html`<div>foo${text}bar</div>`;
         const foo = el.childNodes[0];
         const baz = el.childNodes[2];
@@ -636,7 +636,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node of an SVG element', async () => {
-        const text = val();
+        const text = store();
         const el = html`<svg><circle cx="50" cy="50" r="40">${text}</circle></svg>`;
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="40"></circle></svg>');
@@ -653,7 +653,7 @@ describe('interpolation-store', () => {
     });
     
     it('should update an SVG element', async () => {
-        const child = val();
+        const child = store();
         const el = html`<svg>${child}</svg>`;
     
         expect(el.outerHTML).to.equal('<svg></svg>');
@@ -670,7 +670,7 @@ describe('interpolation-store', () => {
     });
     
     it('should update an attribute of an SVG element', async () => {
-        const radius = val(50);
+        const radius = store(50);
         const el = html`<svg><circle cx="50" cy="50" r=${radius}></circle></svg>`;
     
         expect(el.outerHTML).to.equal('<svg><circle cx="50" cy="50" r="50"></circle></svg>');
@@ -682,7 +682,7 @@ describe('interpolation-store', () => {
     });
     
     it('should not update a property of an SVG element', async () => {
-        const textContent = val('foo');
+        const textContent = store('foo');
         const el = html`<svg><circle cx="50" cy="50" r="40" fill="red" textContent=${textContent}></circle></svg>`;
         const circle = el.querySelector('circle');
     
@@ -699,7 +699,7 @@ describe('interpolation-store', () => {
     });
 
     it('should support a store interpolated into multiple elements', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const div = html`<div>${text}</div>`;
         const span = html`<span>${text}</span>`;
 
@@ -721,7 +721,7 @@ describe('interpolation-store', () => {
 
     it('should escape HTML strings', async () => {
         /* eslint-disable quotes */
-        const text = val();
+        const text = store();
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -739,7 +739,7 @@ describe('interpolation-store', () => {
     });
 
     it('should defer updates to use the latest value', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const el = html`<div>${text}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -753,8 +753,8 @@ describe('interpolation-store', () => {
     });
 
     it('should support derived stores', async () => {
-        const title = val('foo');
-        const className = val('bar');
+        const title = store('foo');
+        const className = store('bar');
         const h1 = derived(title, (title) => html`<h1>${title}</h1>`);
         const section = derived(h1, (h1) => html`<section>${h1}</section>`);
         const el = html`<div class=${derived(className, (cls) => `foo ${cls}`)}>${section}</div>`;
@@ -828,7 +828,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node with nested functions', async () => {
-        const child = val();
+        const child = store();
         const el = html`<div>${child}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -840,7 +840,7 @@ describe('interpolation-store', () => {
     });
 
     it('should update an attribute with nested functions', async () => {
-        const attr = val();
+        const attr = store();
         const el = html`<div foo=${attr}></div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
@@ -863,8 +863,8 @@ describe('interpolation-store', () => {
 
     it('should render a text node for a store that contains a promise', async () => {
         const promise = Promise.resolve('foo');
-        const store = val(promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(promise);
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
@@ -875,8 +875,8 @@ describe('interpolation-store', () => {
 
     it('should render an element for a store that contains a promise', async () => {
         const promise = Promise.resolve(html`<i />`);
-        const store = val(promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(promise);
+        const el = html`<div>${foo}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
@@ -887,8 +887,8 @@ describe('interpolation-store', () => {
 
     it('should render a document fragment for a store that contains a promise', async () => {
         const promise = Promise.resolve(html`foo<span />bar<em />`);
-        const store = val(promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(promise);
+        const el = html`<div>${foo}</div>`;
 
         expect(el.outerHTML).to.equal('<div></div>');
 
@@ -899,8 +899,8 @@ describe('interpolation-store', () => {
 
     it('should render an attribute for a store that contains a promise', async () => {
         const promise = Promise.resolve('foo');
-        const store = val(promise);
-        const el = html`<div id=${store}></div>`;
+        const foo = store(promise);
+        const el = html`<div id=${foo}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
@@ -910,31 +910,31 @@ describe('interpolation-store', () => {
     });
 
     it('should update an element for a store that contains a promise', async () => {
-        const store = val(Promise.resolve('foo'));
-        const el = html`<div>${store}</div>`;
+        const foo = store(Promise.resolve('foo'));
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
-        await store.get();
+        await foo.value();
         await tick();
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        store.set(Promise.resolve(html`<span />bar<em />`));
+        foo.set(Promise.resolve(html`<span />bar<em />`));
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        await store.get();
+        await foo.value();
         await tick();
         expect(el.outerHTML).to.equal('<div><span></span>bar<em></em></div>');
     });
 
     it('should update an attribute for a store that contains a promise', async () => {
-        const className = val(Promise.resolve('foo'));
+        const className = store(Promise.resolve('foo'));
         const el = html`<div class=${className}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
-        await className.get();
+        await className.value();
         await tick();
         expect(el.outerHTML).to.equal('<div class="foo"></div>');
 
@@ -942,18 +942,18 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div class="foo"></div>');
 
-        await className.get();
+        await className.value();
         await tick();
         expect(el.outerHTML).to.equal('<div class="bar"></div>');
     });
 
     it('should update multiple interpolations of the same store that contains a promise', async () => {
-        const value = val(Promise.resolve('foo'));
+        const value = store(Promise.resolve('foo'));
         const el = html`<div id=${value}>${value}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
-        await value.get();
+        await value.value();
         await tick();
         expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
 
@@ -961,15 +961,15 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
 
-        await value.get();
+        await value.value();
         await tick();
         expect(el.outerHTML).to.equal('<div id="bar">bar</div>');
     });
 
     it('should not render an element if a store contains a rejected promise', async () => {
         const promise = Promise.reject();
-        const store = val(promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(promise);
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
         
@@ -983,7 +983,7 @@ describe('interpolation-store', () => {
 
     it('should not set an attribute if a store contains a rejected promise', async () => {
         const promise = Promise.reject();
-        const id = val(promise);
+        const id = store(promise);
         const el = html`<div id=${id}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -999,8 +999,8 @@ describe('interpolation-store', () => {
     it('should not render an element if a store that contains a promise that resolves with a value of null or undefined', async () => {
         const nullPromise = Promise.resolve(null);
         const undefinedPromise = Promise.resolve(undefined);
-        const nullStore = val(nullPromise);
-        const undefinedStore = val(undefinedPromise);
+        const nullStore = store(nullPromise);
+        const undefinedStore = store(undefinedPromise);
         const el = html`<div>${nullStore}${undefinedStore}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -1014,9 +1014,9 @@ describe('interpolation-store', () => {
         const nullPromise = Promise.resolve(null);
         const undefinedPromise = Promise.resolve(undefined);
         const falsePromise = Promise.resolve(false);
-        const foo = val(nullPromise);
-        const bar = val(undefinedPromise);
-        const baz = val(falsePromise);
+        const foo = store(nullPromise);
+        const bar = store(undefinedPromise);
+        const baz = store(falsePromise);
         const el = html`<div foo=${foo} bar=${bar} baz=${baz}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
@@ -1027,25 +1027,25 @@ describe('interpolation-store', () => {
     });
 
     it('should remove nodes if a store that contains a promise that resolves with a value of null or undefined', async () => {
-        const store = val('foo');
-        const el = html`<div>${store}</div>`;
+        const foo = store('foo');
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
         const nullPromise = Promise.resolve(null);
-        store.set(nullPromise);
+        foo.set(nullPromise);
     
         await nullPromise;
         await tick();
         expect(el.outerHTML).to.equal('<div></div>');
 
-        store.set('bar');
+        foo.set('bar');
 
         await tick();
         expect(el.outerHTML).to.equal('<div>bar</div>');
 
         const undefinedPromise = Promise.resolve(undefined);
-        store.set(undefinedPromise);
+        foo.set(undefinedPromise);
 
         expect(el.outerHTML).to.equal('<div>bar</div>');
 
@@ -1055,27 +1055,27 @@ describe('interpolation-store', () => {
     });
 
     it('should remove an attribute if a store that contains a promise that resolves with a value of null, undefined, or false', async () => {
-        const store = val('bar');
-        const el = html`<div foo=${store}></div>`;
+        const foo = store('bar');
+        const el = html`<div foo=${foo}></div>`;
     
         expect(el.hasAttribute('foo')).to.equal(true);
         expect(el.getAttribute('foo')).to.equal('bar');
 
         const nullPromise = Promise.resolve(null);
-        store.set(nullPromise);
+        foo.set(nullPromise);
     
         await nullPromise;
         await tick();
         expect(el.hasAttribute('foo')).to.equal(false);
 
-        store.set('baz');
+        foo.set('baz');
 
         await tick();
         expect(el.hasAttribute('foo')).to.equal(true);
         expect(el.getAttribute('foo')).to.equal('baz');
 
         const undefinedPromise = Promise.resolve(undefined);
-        store.set(undefinedPromise);
+        foo.set(undefinedPromise);
 
         expect(el.hasAttribute('foo')).to.equal(true);
         expect(el.getAttribute('foo')).to.equal('baz');
@@ -1084,14 +1084,14 @@ describe('interpolation-store', () => {
         await tick();
         expect(el.hasAttribute('foo')).to.equal(false);
 
-        store.set('qux');
+        foo.set('qux');
 
         await tick();
         expect(el.hasAttribute('foo')).to.equal(true);
         expect(el.getAttribute('foo')).to.equal('qux');
 
         const falsePromise = Promise.resolve(false);
-        store.set(falsePromise);
+        foo.set(falsePromise);
 
         expect(el.hasAttribute('foo')).to.equal(true);
         expect(el.getAttribute('foo')).to.equal('qux');
@@ -1103,8 +1103,8 @@ describe('interpolation-store', () => {
 
     it('should render a text node for a store that contains a function that returns a promise', async () => {
         const promise = Promise.resolve('foo');
-        const store = val(() => promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(() => promise);
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
@@ -1115,8 +1115,8 @@ describe('interpolation-store', () => {
     
     it('should set an attribute for store that contains a function that returns a promise', async () => {
         const promise = Promise.resolve('foo');
-        const store = val(() => promise);
-        const el = html`<div id=${store}></div>`;
+        const foo = store(() => promise);
+        const el = html`<div id=${foo}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
@@ -1127,8 +1127,8 @@ describe('interpolation-store', () => {
 
     it('should render a text node for a store that contains a promise that resolves with a function', async () => {
         const promise = Promise.resolve(() => 'foo');
-        const store = val(promise);
-        const el = html`<div>${store}</div>`;
+        const foo = store(promise);
+        const el = html`<div>${foo}</div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     
@@ -1139,8 +1139,8 @@ describe('interpolation-store', () => {
 
     it('should set an attribute for a store that contains a promise that resolves with a function', async () => {
         const promise = Promise.resolve(() => 'foo');
-        const store = val(promise);
-        const el = html`<div id=${store}></div>`;
+        const foo = store(promise);
+        const el = html`<div id=${foo}></div>`;
     
         expect(el.outerHTML).to.equal('<div></div>');
     

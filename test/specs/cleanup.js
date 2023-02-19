@@ -1,4 +1,4 @@
-import { html, val, cleanup, dispose, each, tick } from '../../src/reflex';
+import { html, store, cleanup, dispose, each, tick } from '../../src/reflex';
 
 describe('cleanup', () => {
     it('should call a cleanup callback when an element is disposed', () => {
@@ -60,7 +60,7 @@ describe('cleanup', () => {
     });
 
     it('should call a cleanup callback when an element is diffed out after an each reconciliation', async () => {
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
         const spy = sinon.spy();
 
         const el = html`

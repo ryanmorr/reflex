@@ -1,17 +1,17 @@
-import { html, val, effect, tick } from '../../src/reflex';
+import { html, store, effect, tick } from '../../src/reflex';
 
 describe('effect', () => {
     it('should execute a side effect after a store dependency has changed and the DOM is updated', async () => {
-        const store = val();
+        const foo = store();
         const spy = sinon.spy();
-        effect(store, spy);
+        effect(foo, spy);
 
-        const el = html`<div>${store}</div>`;
+        const el = html`<div>${foo}</div>`;
 
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div></div>');
 
-        store.set('foo');
+        foo.set('foo');
 
         await tick();
 
@@ -21,9 +21,9 @@ describe('effect', () => {
     });
 
     it('should execute a side effect after multiple store dependencies have changed and the DOM is updated', async () => {
-        const foo = val('a');
-        const bar = val('b');
-        const baz = val('c');
+        const foo = store('a');
+        const bar = store('b');
+        const baz = store('c');
         const spy = sinon.spy();
         effect(foo, bar, baz, spy);
 
@@ -64,18 +64,18 @@ describe('effect', () => {
     });
 
     it('should not execute a side effect more than once per cycle', async () => {
-        const store = val('foo');
+        const foo = store('foo');
         const spy = sinon.spy();
-        effect(store, spy);
+        effect(foo, spy);
 
-        const el = html`<div>${store}</div>`;
+        const el = html`<div>${foo}</div>`;
 
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        store.set('bar');
-        store.set('baz');
-        store.set('qux');
+        foo.set('bar');
+        foo.set('baz');
+        foo.set('qux');
 
         await tick();
 
@@ -85,8 +85,8 @@ describe('effect', () => {
     });
 
     it('should not execute a side effect if a non-dependency is updated', async () => {
-        const foo = val('a');
-        const bar = val('b');
+        const foo = store('a');
+        const bar = store('b');
         const spy = sinon.spy();
         effect(foo, spy);
 
@@ -112,15 +112,15 @@ describe('effect', () => {
     });
 
     it('should support a side effect defined after a html-store interpolation', async () => {
-        const store = val('foo');
-        const el = html`<div>${store}</div>`;
+        const foo = store('foo');
+        const el = html`<div>${foo}</div>`;
         const spy = sinon.spy();
-        effect(store, spy);
+        effect(foo, spy);
 
         expect(spy.callCount).to.equal(0);
         expect(el.outerHTML).to.equal('<div>foo</div>');
 
-        store.set('bar');
+        foo.set('bar');
 
         await tick();
 
@@ -130,7 +130,7 @@ describe('effect', () => {
     });
 
     it('should execute a side effect after the store\'s promise is resolved', async () => {
-        const foo = val();
+        const foo = store();
         const spy = sinon.spy();
         effect(foo, spy);
     
@@ -151,8 +151,8 @@ describe('effect', () => {
     });
 
     it('should execute a side effect after multiple store\'s promises have been resolved', async () => {
-        const foo = val('foo');
-        const bar = val('bar');
+        const foo = store('foo');
+        const bar = store('bar');
         const spy = sinon.spy();
         effect(foo, bar, spy);
     
@@ -184,7 +184,7 @@ describe('effect', () => {
     });
 
     it('should not execute a side effect if the store\'s promise is rejected', async () => {
-        const foo = val();
+        const foo = store();
         const spy = sinon.spy();
     
         effect(foo, spy);
@@ -205,13 +205,13 @@ describe('effect', () => {
     });
     
     it('should not execute a side effect for a single dependency if it\'s stopped', async () => {
-        const store = val();
+        const foo = store();
         const spy = sinon.spy();
-        const stop = effect(store, spy);
+        const stop = effect(foo, spy);
 
-        const el = html`<div>${store}</div>`;
+        const el = html`<div>${foo}</div>`;
 
-        store.set('foo');
+        foo.set('foo');
 
         await tick();
 
@@ -221,7 +221,7 @@ describe('effect', () => {
 
         stop();
 
-        store.set('bar');
+        foo.set('bar');
 
         await tick();
 
@@ -230,8 +230,8 @@ describe('effect', () => {
     });
 
     it('should not execute a side effect for multiple dependencies if it\'s stopped', async () => {
-        const foo = val();
-        const bar = val();
+        const foo = store();
+        const bar = store();
         const spy = sinon.spy();
         const stop = effect(foo, bar, spy);
 
@@ -261,11 +261,11 @@ describe('effect', () => {
         const spy = sinon.spy();
         effect(spy);
 
-        const foo = val();
+        const foo = store();
         const fooEl = html`<div>${foo}</div>`;
-        const bar = val();
+        const bar = store();
         const barEl = html`<div>${bar}</div>`;
-        const baz = val();
+        const baz = store();
         const bazEl = html`<div>${baz}</div>`;
 
         expect(spy.callCount).to.equal(0);
@@ -303,8 +303,8 @@ describe('effect', () => {
     });
 
     it('should not execute a side effect with no dependencies if it\'s stopped', async () => {
-        const foo = val();
-        const bar = val();
+        const foo = store();
+        const bar = store();
         const spy = sinon.spy();
         const stop = effect(spy);
 
@@ -337,8 +337,8 @@ describe('effect', () => {
     });
 
     it('should support updates within a side effect', async () => {
-        const foo = val();
-        const bar = val();
+        const foo = store();
+        const bar = store();
 
         const spy = sinon.spy(() => {
             expect(el.outerHTML).to.equal('<div class="a"></div>');
@@ -362,8 +362,8 @@ describe('effect', () => {
     });
 
     it('should support triggering a side effect within another side effect', async () => {
-        const foo = val();
-        const bar = val();
+        const foo = store();
+        const bar = store();
 
         const fooSpy = sinon.spy(() => bar.set('b'));
         effect(foo, fooSpy);

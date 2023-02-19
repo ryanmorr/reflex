@@ -1,8 +1,8 @@
-import { html, val, each, tick } from '../../src/reflex';
+import { html, store, each, tick } from '../../src/reflex';
 
 describe('each', () => {
     it('should not render an undefined list', () => {
-        const list = val();
+        const list = store();
 
         const el = html`
             <ul>
@@ -15,7 +15,7 @@ describe('each', () => {
 
     it('should render a list', () => {
         const array = [1, 2, 3];
-        const list = val(array);
+        const list = store(array);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
 
@@ -43,7 +43,7 @@ describe('each', () => {
     });
 
     it('should append nodes', async () => {
-        const list = val([1, 2]);
+        const list = store([1, 2]);
 
         const el = html`
             <ul>
@@ -65,7 +65,7 @@ describe('each', () => {
     });
 
     it('should prepend nodes', async () => {
-        const list = val([3, 4, 5]);
+        const list = store([3, 4, 5]);
 
         const el = html`
             <ul>
@@ -89,7 +89,7 @@ describe('each', () => {
     });
 
     it('should add nodes in the middle', async () => {
-        const list = val([1, 2, 5]);
+        const list = store([1, 2, 5]);
 
         const el = html`
             <ul>
@@ -113,7 +113,7 @@ describe('each', () => {
     });
 
     it('should add nodes at both ends', async () => {
-        const list = val([2, 3, 4]);
+        const list = store([2, 3, 4]);
 
         const el = html`
             <ul>
@@ -137,7 +137,7 @@ describe('each', () => {
     });
 
     it('should remove nodes', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -154,7 +154,7 @@ describe('each', () => {
     });
 
     it('should remove nodes from the beginning', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -178,7 +178,7 @@ describe('each', () => {
     });
 
     it('should remove nodes from the middle', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -202,7 +202,7 @@ describe('each', () => {
     });
 
     it('should remove nodes at both ends', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -224,7 +224,7 @@ describe('each', () => {
     });
 
     it('should move nodes forward', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -252,7 +252,7 @@ describe('each', () => {
     });
 
     it('should move nodes to the end', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -280,7 +280,7 @@ describe('each', () => {
     });
 
     it('should move nodes backwards', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -308,7 +308,7 @@ describe('each', () => {
     });
 
     it('should move nodes to the beginning', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -336,7 +336,7 @@ describe('each', () => {
     });
 
     it('should swap the first and last nodes', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -364,7 +364,7 @@ describe('each', () => {
     });
 
     it('should reverse the order of nodes', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`
             <ul>
@@ -392,7 +392,7 @@ describe('each', () => {
     });
 
     it('should reorder, add, and remove nodes', async () => {
-        const list = val([1, 2, 3, 4, 5, 6, 7]);
+        const list = store([1, 2, 3, 4, 5, 6, 7]);
 
         const el = html`
             <ul>
@@ -420,7 +420,7 @@ describe('each', () => {
     });
 
     it('should reorder, add, and remove components', async () => {
-        const list = val([
+        const list = store([
             {name: 'a', num: 1},
             {name: 'b', num: 2},
             {name: 'c', num: 3},
@@ -464,7 +464,7 @@ describe('each', () => {
     });
 
     it('should render a list between sibling nodes', async () => {
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
 
         const el = html`
             <section>
@@ -488,7 +488,7 @@ describe('each', () => {
     });
 
     it('should render a list of text nodes', async () => {
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
 
         const el = html`<div>${each(list, (item) => html`${item}`)}</div>`;
 
@@ -512,7 +512,7 @@ describe('each', () => {
     });
 
     it('should render a list of mixed text and element nodes', async () => {
-        const list = val([1, 2, 3, 4, 5]);
+        const list = store([1, 2, 3, 4, 5]);
 
         const el = html`<div>${each(list, (n) => n % 2 === 0 ? html`<span>${n}</span>` : html`${n}`)}</div>`;
 
@@ -537,7 +537,7 @@ describe('each', () => {
 
     it('should support iterable collections', async () => {
         const set = new Set([1, 2, 3, 4]);
-        const list = val(set);
+        const list = store(set);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
 
@@ -602,7 +602,7 @@ describe('each', () => {
     });
     
     it('should not render strings', () => {
-        const list = val('foo');
+        const list = store('foo');
 
         const el = html`
             <ul>
@@ -614,7 +614,7 @@ describe('each', () => {
     });
 
     it('should replace a list with nothing', async () => {
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
 
         const el = html`
             <ul>
@@ -632,7 +632,7 @@ describe('each', () => {
 
     it('should render the empty content when the iterable is empty', () => {
         const array = [];
-        const list = val(array);
+        const list = store(array);
 
         const callback = sinon.spy();
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -651,7 +651,7 @@ describe('each', () => {
     });
 
     it('should render the empty content if the store value is not iterable', () => {
-        const list = val(123);
+        const list = store(123);
 
         const callback = sinon.spy();
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -670,7 +670,7 @@ describe('each', () => {
     });
 
     it('should render the empty content if the store value is a string', () => {
-        const list = val('foo');
+        const list = store('foo');
 
         const callback = sinon.spy();
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -690,7 +690,7 @@ describe('each', () => {
 
     it('should replace the empty content with a list', async () => {
         const array = [];
-        const list = val(array);
+        const list = store(array);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -715,7 +715,7 @@ describe('each', () => {
     });
 
     it('should replace a list with empty content', async () => {
-        const list = val([1, 2, 3, 4]);
+        const list = store([1, 2, 3, 4]);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -741,7 +741,7 @@ describe('each', () => {
 
     it('should not replace empty content with the same empty content', async () => {
         const array = [];
-        const list = val(array);
+        const list = store(array);
 
         const callback = sinon.spy();
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -769,7 +769,7 @@ describe('each', () => {
     });
 
     it('should replace a list with empty content and then replace empty content with a list', async () => {
-        const list = val([1, 2, 3, 4]);
+        const list = store([1, 2, 3, 4]);
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);
@@ -801,7 +801,7 @@ describe('each', () => {
     });
 
     it('should replace empty content with a list and then replace the list with empty content', async () => {
-        const list = val();
+        const list = store();
 
         const callback = sinon.spy((item) => html`<li>${item}</li>`);
         const onEmpty = sinon.spy(() => html`<li>Empty</li>`);

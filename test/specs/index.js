@@ -1,5 +1,5 @@
 import './html';
-import './val';
+import './store';
 import './derived';
 import './interpolation-store';
 import './interpolation-function';

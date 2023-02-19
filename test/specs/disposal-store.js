@@ -1,8 +1,8 @@
-import { html, val, dispose, tick } from '../../src/reflex';
+import { html, store, dispose, tick } from '../../src/reflex';
 
 describe('disposal-store', () => {
     it('should dispose a node binding', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const el = html`<div>${text}</div>`;
         
         expect(el.outerHTML).to.equal('<div>foo</div>');
@@ -21,7 +21,7 @@ describe('disposal-store', () => {
     });
 
     it('should dispose an attribute binding', async () => {
-        const attr = val('foo');
+        const attr = store('foo');
         const el = html`<div id=${attr}></div>`;
         
         expect(el.outerHTML).to.equal('<div id="foo"></div>');
@@ -40,8 +40,8 @@ describe('disposal-store', () => {
     });
 
     it('should dispose all node bindings', async () => {
-        const attr = val('foo');
-        const text = val('bar');
+        const attr = store('foo');
+        const text = store('bar');
         const el = html`<div id=${attr}>${text}</div>`;
         
         expect(el.outerHTML).to.equal('<div id="foo">bar</div>');
@@ -62,7 +62,7 @@ describe('disposal-store', () => {
     });
 
     it('should dispose child bindings', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const el = html`<div><section><span>${text}</span><em>${text}</em></section></div>`;
         
         expect(el.outerHTML).to.equal('<div><section><span>foo</span><em>foo</em></section></div>');
@@ -81,9 +81,9 @@ describe('disposal-store', () => {
     });
 
     it('should dispose nested store bindings', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const span = html`<span>${text}</span>`;
-        const content = val(span);
+        const content = store(span);
         const el = html`<div>${content}</div>`;
 
         expect(el.outerHTML).to.equal('<div><span>foo</span></div>');
@@ -103,11 +103,11 @@ describe('disposal-store', () => {
     });
 
     it('should not dispose parent bindings', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const span = html`<span>${text}</span>`;
-        const content = val(span);
+        const content = store(span);
 
-        const attr = val('bar');
+        const attr = store('bar');
         const el = html`<div id=${attr}>${content}</div>`;
 
         expect(el.outerHTML).to.equal('<div id="bar"><span>foo</span></div>');
@@ -132,7 +132,7 @@ describe('disposal-store', () => {
     });
 
     it('should not dispose sibling bindings', async () => {
-        const text = val('foo');
+        const text = store('foo');
         const frag = html`<div>${text}</div><span>${text}</span><em>${text}</em>`;
 
         const div = frag.children[0];

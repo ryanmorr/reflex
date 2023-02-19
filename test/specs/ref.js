@@ -1,19 +1,19 @@
-import { html, val, each, dispose, tick } from '../../src/reflex';
+import { html, store, each, dispose, tick } from '../../src/reflex';
 
 describe('ref', () => {
     it('should support adding elements to a store via the "ref" attribute', () => {
-        const store = val();
+        const foo = store();
 
         const spy = sinon.spy();
-        store.subscribe(spy);
+        foo.subscribe(spy);
 
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal(undefined);
         expect(spy.args[0][1]).to.equal(undefined);
 
-        const div = html`<div><span ref=${store} /><em ref=${store} /><i ref=${store} /></div>`;
+        const div = html`<div><span ref=${foo} /><em ref=${foo} /><i ref=${foo} /></div>`;
 
-        const elements = store.get();
+        const elements = foo.value();
         expect(elements).to.be.an('array');
         expect(elements).to.have.lengthOf(3);
 
@@ -56,13 +56,13 @@ describe('ref', () => {
     });
 
     it('should support functions that return a store', () => {
-        const store = val();
-        const spy = sinon.spy(() => store);
+        const foo = store();
+        const spy = sinon.spy(() => foo);
 
         const div = html`<div><span ref=${spy} /></div>`;
         const span = div.firstChild;
 
-        expect(store.get()[0]).to.equal(span);
+        expect(foo.value()[0]).to.equal(span);
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal(span);
     });
@@ -78,18 +78,18 @@ describe('ref', () => {
     });
 
     it('should remove an element from a ref store when the element is disposed', () => {
-        const foo = val();
+        const foo = store();
         const div = html`<div ref=${foo}></div>`;
 
-        expect(foo.get()).to.have.lengthOf(1);
+        expect(foo.value()).to.have.lengthOf(1);
         
         dispose(div);
 
-        expect(foo.get()).to.have.lengthOf(0);
+        expect(foo.value()).to.have.lengthOf(0);
     });
     
     it('should remove an element from a ref store after an each reconciliation', async () => {
-        const foo = val();
+        const foo = store();
         const spy = sinon.spy();
         foo.subscribe(spy);
 
@@ -98,7 +98,7 @@ describe('ref', () => {
         expect(spy.args[0][0]).to.deep.equal(undefined);
         expect(spy.args[0][1]).to.equal(undefined);
 
-        const list = val([1, 2, 3]);
+        const list = store([1, 2, 3]);
         const el = html`
             <ul>
                 ${each(list, (item) => html`<li ref="${foo}">${item}</li>`)}
@@ -129,7 +129,7 @@ describe('ref', () => {
         const li4 = el.children[1];
         const li5 = el.children[2];
 
-        expect(foo.get()).to.deep.equal([li3, li5, li4]);
+        expect(foo.value()).to.deep.equal([li3, li5, li4]);
         expect(spy.callCount).to.equal(8);
 
         expect(spy.args[4][0]).to.deep.equal([li2, li3]);
