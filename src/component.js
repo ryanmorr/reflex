@@ -8,16 +8,19 @@ const docElement = window.document.documentElement;
 function checkListeners(mutations) {
     mutations.forEach((mutation) => {
         if (mutation.addedNodes.length > 0) {
-            const elements = mutation.addedNodes;
-            for (let i = 0, len = elements.length; i < len; i++) {
-                const element = elements[i];
-                if (element.nodeType === 1 && listeners.has(element)) {
-                    const {root, callbacks} = listeners.get(element);
-                    callbacks.forEach((callback) => callback(root));
-                    listeners.delete(element);
-                    if (listeners.size === 0) {
-                        observer.disconnect();
-                        isListening = false;
+            const addedNodes = mutation.addedNodes;
+            for (let i = 0, len = addedNodes.length; i < len; i++) {
+                const node = addedNodes[i];
+                if (node.nodeType === 1) {
+                    for (const [element, {root, callbacks}] of listeners) {
+                        if (node === element || node.contains(element)) {
+                            callbacks.forEach((callback) => callback(root));
+                            listeners.delete(element);
+                            if (listeners.size === 0) {
+                                observer.disconnect();
+                                isListening = false;
+                            }
+                        }
                     }
                 }
             }
@@ -39,7 +42,7 @@ function mount(element, callback) {
         element = element.children[0];
     }
     let callbacks;
-    let data = listeners.get(element);
+    const data = listeners.get(element);
     if (data) {
         callbacks = data.callbacks;
         callbacks.push(callback);

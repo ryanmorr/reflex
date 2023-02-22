@@ -292,4 +292,65 @@ describe('component', () => {
         observeSpy.restore();
         disconnectSpy.restore();
     });
+
+    it('should call the mount callback function for nested components', async () => {
+        const fooSpy = sinon.spy();
+        const barSpy = sinon.spy();
+
+        const Foo = (props, mount) => {
+            mount(fooSpy);
+            return html`<section><${Bar} /></section>`;
+        };
+
+        const Bar = (props, mount) => {
+            mount(barSpy);
+            return html`<div></div>`;
+        };
+
+        const section = html`<${Foo} />`;
+        const div = section.querySelector('div');
+
+        expect(fooSpy.callCount).to.equal(0);
+        expect(barSpy.callCount).to.equal(0);
+
+        container.appendChild(section);
+
+        await wait();
+
+        expect(fooSpy.callCount).to.equal(1);
+        expect(fooSpy.args[0][0]).to.equal(section);
+        expect(barSpy.callCount).to.equal(1);
+        expect(barSpy.args[0][0]).to.equal(div);
+    });
+
+    it('should call the mount callback function for nested components inside a document fragment', async () => {
+        const fooSpy = sinon.spy();
+        const barSpy = sinon.spy();
+
+        const Foo = (props, mount) => {
+            mount(fooSpy);
+            return html`<section></section><div><${Bar} /></div>`;
+        };
+
+        const Bar = (props, mount) => {
+            mount(barSpy);
+            return html`<span></span>`;
+        };
+
+        const frag = html`<${Foo} />`;
+        const elements = Array.from(frag.childNodes);
+        const span = elements[1].querySelector('span');
+
+        expect(fooSpy.callCount).to.equal(0);
+        expect(barSpy.callCount).to.equal(0);
+
+        container.appendChild(frag);
+
+        await wait();
+
+        expect(fooSpy.callCount).to.equal(1);
+        expect(fooSpy.args[0][0]).to.deep.equal(elements);
+        expect(barSpy.callCount).to.equal(1);
+        expect(barSpy.args[0][0]).to.equal(span);
+    });
 });
