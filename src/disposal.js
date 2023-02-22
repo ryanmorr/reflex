@@ -1,4 +1,4 @@
-const nodeCleanupMap = new Map();
+const cleanups = new Map();
 
 export function cleanup(node, callback) {
     if (Array.isArray(node)) {
@@ -7,20 +7,20 @@ export function cleanup(node, callback) {
     if (node.nodeType === 11) {
         return Array.from(node.childNodes).forEach((n) => cleanup(n, callback));
     }
-    let callbacks = nodeCleanupMap.get(node);
+    let callbacks = cleanups.get(node);
     if (callbacks) {
         callbacks.push(callback);
     } else {
         callbacks = [callback];
     }
-    nodeCleanupMap.set(node, callbacks);
+    cleanups.set(node, callbacks);
 }
 
 export function dispose(node) {
-    const callbacks = nodeCleanupMap.get(node);
+    const callbacks = cleanups.get(node);
     if (callbacks) {
         callbacks.forEach((callback) => callback(node));
-        nodeCleanupMap.delete(node);
+        cleanups.delete(node);
     }
     if (node.hasChildNodes()) {
         Array.from(node.childNodes).forEach(dispose);

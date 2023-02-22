@@ -1,6 +1,7 @@
-import './html';
 import './store';
 import './derived';
+import './html';
+import './component';
 import './interpolation-store';
 import './interpolation-function';
 import './interpolation-promise';

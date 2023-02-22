@@ -1,4 +1,5 @@
 import htm from 'htm';
+import { createComponent } from './component';
 import { isBinding } from './bind';
 import { render } from './scheduler';
 import { cleanup } from './disposal';
@@ -157,8 +158,7 @@ function createElement(nodeName, attributes, ...children) {
     this[0] = 3; // Disable htm caching
     attributes = attributes || {};
     if (typeof nodeName === 'function') {
-        attributes.children = children;
-        return nodeName(attributes);
+        return createComponent(nodeName, attributes, children);
     }
     const isSvg = SVG_TAGS.includes(nodeName);
     const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
