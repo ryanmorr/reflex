@@ -223,6 +223,7 @@ function observeAttributeStore(element, store, name, isSvg) {
     let initialRender = true;
     let prevVal;
     const setValue = (nextVal) => {
+        prevVal = name === 'value' || name === 'selected' || name === 'checked' ? element[name] : prevVal;
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {
