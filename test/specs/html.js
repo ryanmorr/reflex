@@ -113,6 +113,12 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<div><div></div><span></span><em></em><i></i><section></section><p></p></div>');
     });
 
+    it('should not render null, undefined, true, or false', () => {
+        const el = html`<div>${null},${undefined},${true},${false},${0},${NaN}</div>`;
+    
+        expect(el.outerHTML).to.equal('<div>,,,,0,NaN</div>');
+    });
+
     it('should set the class attribute with an array', () => {
         const el = html`<div class=${['foo', 'bar', 'baz']}></div>`;
         

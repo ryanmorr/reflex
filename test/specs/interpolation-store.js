@@ -52,11 +52,6 @@ describe('interpolation-store', () => {
 
         await tick();
         expect(el.outerHTML).to.equal('<div>123</div>');
-                
-        text.set(false);
-
-        await tick();
-        expect(el.outerHTML).to.equal('<div>false</div>');
     });
 
     it('should update an element', async () => {

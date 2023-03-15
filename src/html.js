@@ -110,12 +110,7 @@ function createClass(obj) {
 }
 
 function arrayToFrag(nodes) {
-    return nodes.reduce((frag, node) => {
-        if (node != null) {
-            frag.appendChild(getNode(node));
-        }
-        return frag;
-    }, document.createDocumentFragment());
+    return nodes.reduce((frag, node) => frag.appendChild(getNode(node)) && frag, document.createDocumentFragment());
 }
 
 function getNodes(node) {
@@ -195,10 +190,7 @@ function createNode(value) {
     if (typeof value === 'function') {
         return createNode(value());
     }
-    if (value == null || isPromise(value)) {
-        return document.createTextNode('');
-    }
-    if (isPromise(value)) {
+    if (value == null || typeof value === 'boolean' || isPromise(value)) {
         return document.createTextNode('');
     }
     if (typeof value === 'number') {
