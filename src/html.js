@@ -7,6 +7,7 @@ import { uuid, isStore, isPromise } from './util';
 
 const buildHTML = htm.bind(createElement);
 
+const IS_NON_DIMENSIONAL = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
 const SVG_TAGS = [
     'svg',
     'altGlyph',
@@ -197,6 +198,9 @@ function createNode(value) {
     if (value == null || isPromise(value)) {
         return document.createTextNode('');
     }
+    if (isPromise(value)) {
+        return document.createTextNode('');
+    }
     if (typeof value === 'number') {
         value = String(value);
     }
@@ -308,10 +312,22 @@ function observeAttributePromise(element, promise, name, isSvg) {
     promise.then((nextVal) => render(uuid(), () => patchAttribute(element, name, null, nextVal, isSvg)));
 }
 
+function setStyle(element, name, value) {
+    if (name.startsWith('--')) {
+        element.style.setProperty(name, value == null ? '' : value);
+    } else if (value == null) {
+        element.style[name] = '';
+    } else if (typeof value !== 'number' || IS_NON_DIMENSIONAL.test(name)) {
+        element.style[name] = value;
+    } else {
+        element.style[name] = value + 'px';
+    }
+}
+
 function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     const nextType = typeof nextVal;
     if (name.startsWith('on') && (typeof prevVal === 'function' || nextType === 'function')) {
-        name = name.slice(2).toLowerCase();
+        name = (name.toLowerCase() in element) ? name.toLowerCase().slice(2) : name.slice(2);
         if (nextVal) {
             element.addEventListener(name, nextVal);
         }
@@ -323,32 +339,46 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     if (nextType === 'function') {
         return defineProperty(element, name, nextVal(element, name), isSvg);
     }
-    if (name === 'class' && !isSvg) {
-		name = 'className';
-    }
-    if (name === 'class' || name === 'className') {
-        nextVal = createClass(nextVal);
-    }
     if (name === 'style') {
         if (typeof nextVal === 'string') {
             element.style.cssText = nextVal;
         } else {
+            if (typeof prevVal === 'string') {
+				element.style.cssText = prevVal = '';
+			}
             for (const key in Object.assign({}, nextVal, prevVal)) {
-                const style = nextVal == null || nextVal[key] == null ? '' : nextVal[key];
-                if (key.includes('-')) {
-                    element.style.setProperty(key, style);
-                } else {
-                    element.style[key] = style;
-                }
+                setStyle(element, key, nextVal == null ? '' : nextVal[key]);
             }
         }
-    } else if (!isSvg && name !== 'list' && name !== 'form' && name in element) {
-        element[name] = nextVal == null ? '' : nextVal;
-    } else if (nextVal == null || nextVal === false) {
-        element.removeAttribute(name);
     } else {
-        element.setAttribute(name, nextVal);
-    }
+        if (!isSvg && name === 'class') {
+            name = 'className';
+        }
+        if (name === 'class' || name === 'className') {
+            nextVal = createClass(nextVal);
+        }
+        if (
+            !isSvg &&
+            name !== 'width' &&
+            name !== 'height' &&
+            name !== 'href' &&
+            name !== 'list' &&
+            name !== 'form' &&
+            name !== 'tabIndex' &&
+            name !== 'download' &&
+            name in element
+        ) {
+            try {
+                element[name] = nextVal == null ? '' : nextVal;
+                return;
+            } catch (e) {} // eslint-disable-line no-empty
+        }
+        if (nextVal != null && (nextVal !== false || name.indexOf('-') != -1)) {
+            element.setAttribute(name, nextVal);
+        } else {
+            element.removeAttribute(name);
+        }
+    } 
 }
 
 export function patchNode(prevNode, nextVal, marker) {

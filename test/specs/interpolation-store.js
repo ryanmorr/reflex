@@ -57,7 +57,6 @@ describe('interpolation-store', () => {
 
         await tick();
         expect(el.outerHTML).to.equal('<div>false</div>');
-
     });
 
     it('should update an element', async () => {
@@ -355,7 +354,7 @@ describe('interpolation-store', () => {
         expect(el.outerHTML).to.equal('<div style="width: 150px; background-color: rgb(20, 20, 20);"></div>');
     });
 
-    it('should update CSS styles with a key/value map', async () => {
+    it('should update CSS styles with an object', async () => {
         const style = store({'padding-bottom': '10px', paddingTop: '5px'});
         const el = html`<div style=${style}></div>`;
 
@@ -420,6 +419,57 @@ describe('interpolation-store', () => {
         expect(fn.args[0][0]).to.equal(el);
     });
 
+    it('should remove all CSS styles by providing null or undefined', async () => {
+        const style = store({width: '20px', height: '30px'});
+
+        const div = html`<div style=${style} />`;
+
+        expect(div.style.cssText).to.equal('width: 20px; height: 30px;');
+
+        style.set(null);
+
+        await tick();
+        expect(div.style.cssText).to.equal('');
+
+        style.set({width: '5px', height: '15px'});
+
+        await tick();
+        expect(div.style.cssText).to.equal('width: 5px; height: 15px;');
+
+        style.set(undefined);
+
+        await tick();
+        expect(div.style.cssText).to.equal('');
+    });
+
+    it('should properly switch from string styles to object styles and back', async () => {
+        const style = store('display: inline');
+
+		const div = html`<div style=${style}>test</div>`;
+
+		expect(div.style.cssText).to.equal('display: inline;');
+
+		style.set({color: 'red'});
+
+        await tick();
+		expect(div.style.cssText).to.equal('color: red;');
+
+        style.set('color: blue');
+
+        await tick();
+		expect(div.style.cssText).to.equal('color: blue;');
+
+        style.set({color: 'yellow'});
+
+        await tick();
+		expect(div.style.cssText).to.equal('color: yellow;');
+
+        style.set('display: block');
+
+        await tick();
+		expect(div.style.cssText).to.equal('display: block;');
+	});
+
     it('should update CSS variables', async () => {
         const style = store({color: 'var(--color)', '--color': 'red'});
         const el = html`<div style=${style}></div>`;
@@ -439,6 +489,32 @@ describe('interpolation-store', () => {
 
         document.body.removeChild(el);
     });
+
+    it('should support opacity 0', async () => {
+        const opacity = store({opacity: 1});
+
+        const div = html`<div style=${opacity} />`;
+
+        expect(div.style.opacity).to.equal('1');
+
+        opacity.set({opacity: 0});
+
+        await tick();
+        expect(div.style.opacity).to.equal('0');
+    });
+
+    it('should support animation-iteration-count as a number', async () => {
+        const iteration = store({animationIterationCount: 1});
+
+        const div = html`<div style=${iteration} />`;
+
+        expect(div.style.animationIterationCount).to.equal('1');
+
+        iteration.set({animationIterationCount: 2.5});
+
+        await tick();
+        expect(div.style.animationIterationCount).to.equal('2.5');
+	});
 
     it('should update a boolean attribute', async () => {
         const checked = store(true);

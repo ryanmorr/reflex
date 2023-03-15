@@ -36,17 +36,21 @@ describe('html', () => {
     });
 
     it('should render a string as a text node', () => {
-        const string = 'foo';
-        const el = html`<div>${string}</div>`;
+        const el = html`<div>${'foo'}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
     it('should render a number as a text node', () => {
-        const number = 100;
-        const el = html`<div>${number}</div>`;
+        const el = html`<div>${100}</div>`;
 
         expect(el.outerHTML).to.equal('<div>100</div>');
+    });
+
+    it('should render zero as a text node', () => {
+        const el = html`<div>${0}</div>`;
+
+        expect(el.outerHTML).to.equal('<div>0</div>');
     });
 
     it('should render a string as an attribute', () => {
@@ -134,10 +138,33 @@ describe('html', () => {
         expect(el.outerHTML).to.equal('<input disabled="">');
     });
 
-    it('should set CSS styles with a key/value map', () => {
-        const el = html`<div style=${{width: '100px', height: '100px'}}></div>`;
+    it('should not render falsy attributes', () => {
+        const el = html` 
+            <div
+                a=${null}
+                b=${undefined}
+                c=${false}
+                d=${NaN}
+                e=${0}
+			/>
+        `;
 
-        expect(el.outerHTML).to.equal('<div style="width: 100px; height: 100px;"></div>');
+        expect(el.outerHTML).to.equal('<div d="NaN" e="0"></div>');
+    });
+
+    it('should set CSS styles with an object', () => {
+        const styles = {
+            width: '2em',
+            gridRowStart: 1,
+            'padding-top': 5,
+            'padding-bottom': '0.7ex',
+            top: 100,
+            left: '100%'
+        };
+
+        const el = html`<div style=${styles}></div>`;
+
+        expect(el.style.cssText).to.equal('width: 2em; grid-row-start: 1; padding-top: 5px; padding-bottom: 0.7ex; top: 100px; left: 100%;');
     });
 
     it('should set CSS styles with a string', () => {
@@ -157,22 +184,19 @@ describe('html', () => {
         document.body.removeChild(el);
     });
 
+    it('should not add "px" suffix for custom properties', () => {
+        const el = html`<div style=${{'--foo': '100px', width: 'var(--foo)'}}>test</div>`;
+        document.body.appendChild(el);
+
+        expect(el.style.width).to.equal('var(--foo)');
+        expect(window.getComputedStyle(el).getPropertyValue('--foo')).to.equal('100px');
+        document.body.removeChild(el);
+    });
+
     it('should support DOM properties', () => {
         const el = html`<input type="text" value="foo" />`;
 
         expect(el.value).to.equal('foo');
-    });
-
-    it('should support the input list attribute', () => {
-        const el = html`<input list="foo" />`;
-
-        expect(el.outerHTML).to.equal('<input list="foo">');
-    });
-
-    it('should support the input form attribute', () => {
-        const el = html`<input form="foo" />`;
-
-        expect(el.outerHTML).to.equal('<input form="foo">');
     });
 
     it('should set an event listener', (done) => {
@@ -295,4 +319,149 @@ describe('html', () => {
         expect(element()).to.not.equal(element());
         expect(frag()).to.not.equal(frag());
     });
+
+    it('should support the form attribute', () => {
+		const el = html`
+			<div>
+				<form id="foo" />
+				<button form="foo">test</button>
+				<input form="foo" />
+			</div>
+        `;
+
+        document.body.appendChild(el);
+
+		const form = el.childNodes[0];
+		const button = el.childNodes[1];
+		const input = el.childNodes[2];
+
+		expect(button).to.have.property('form', form);
+		expect(input).to.have.property('form', form);
+
+        document.body.removeChild(el);
+	});
+
+    it('should set an enumerable boolean attribute', () => {
+		const el = html`<input spellcheck=${false} />`;
+
+		expect(el.spellcheck).to.equal(false);
+	});
+
+	it('should set the download attribute', () => {
+		const el1 = html`<a download=""></a>`;
+
+		expect(el1.getAttribute('download')).to.equal('');
+
+		const el2 = html`<a download=${null}></a>`;
+
+		expect(el2.getAttribute('download')).to.equal(null);
+	});
+
+    it('should support false string aria attributes', () => {
+		const el = html`<div aria-checked="false"></div>`;
+
+		expect(el.getAttribute('aria-checked')).to.equal('false');
+	});
+
+	it('should support false aria attributes', () => {
+		const el = html`<div aria-checked=${false}></div>`;
+
+		expect(el.getAttribute('aria-checked')).to.equal('false');
+	});
+
+	it('should support false data attributes', () => {
+		const el = html`<div data-checked=${false}></div>`;
+
+		expect(el.getAttribute('data-checked')).to.equal('false');
+	});
+
+	it('should set checked attribute on custom elements without checked property', () => {
+		const el = html`<o-checkbox checked />`;
+
+		expect(el.outerHTML).to.equal('<o-checkbox checked="true"></o-checkbox>');
+	});
+
+	it('should set value attribute on custom elements without value property', () => {
+		const el = html`<o-input value="test" />`;
+
+		expect(el.outerHTML).to.equal('<o-input value="test"></o-input>');
+	});
+
+	it('should mask value on password input elements', () => {
+		const el = html`<input value="xyz" type="password" />`;
+
+		expect(el.outerHTML).to.equal('<input type="password">');
+	});
+
+	it('should unset href if null or undefined', () => {
+		const el = html`
+			<div>
+				<a href="#">href="#"</a>
+				<a href=${undefined}>href="undefined"</a>
+				<a href=${null}>href="null"</a>
+				<a href=${''}>href="''"</a>
+			</div>
+        `;
+
+		const links = el.querySelectorAll('a');
+		expect(links[0].hasAttribute('href')).to.equal(true);
+		expect(links[1].hasAttribute('href')).to.equal(false);
+		expect(links[2].hasAttribute('href')).to.equal(false);
+		expect(links[3].hasAttribute('href')).to.equal(true);
+	});
+
+    it('should clear falsy input values', () => {
+		const el = html`
+			<div>
+				<input value=${0} />
+				<input value=${false} />
+				<input value=${null} />
+				<input value=${undefined} />
+			</div>
+		`;
+
+		expect(el.children[0]).to.have.property('value', '0');
+		expect(el.children[1]).to.have.property('value', 'false');
+		expect(el.children[2]).to.have.property('value', '');
+		expect(el.children[3]).to.have.property('value', '');
+	});
+
+    it('should support falsy DOM properties', () => {
+        const el1 = html`
+            <div>
+                <input value=${false} />
+                <table border=${false} />
+            </div>
+        `;
+
+        expect(el1.innerHTML).to.equal('<input><table border="false"></table>');
+
+        const el2 = html`
+            <div>
+                <input value=${null} />
+                <table border=${null} />
+            </div>
+        `;
+
+        expect(el2.innerHTML).to.equal('<input><table border=""></table>');
+
+        const el3 = html`
+            <div>
+                <input value=${undefined} />
+                <table border=${undefined} />
+            </div>
+        `;
+
+        expect(el3.innerHTML).to.equal('<input><table border=""></table>');
+    });
+
+    it('should not set tagName', () => {
+		expect(() => html`<input tagName="div" />`).not.to.throw();
+	});
+
+    it('should not throw when setting size to an invalid value', () => {
+		expect(() => html`<input size=${undefined} />`).to.not.throw();
+		expect(() => html`<input size=${null} />`).to.not.throw();
+		expect(() => html`<input size=${0} />`).to.not.throw();
+	});
 });
