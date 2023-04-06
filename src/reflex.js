@@ -1,5 +1,4 @@
-export { store } from './store';
-export { derived } from './derived';
+export { store, derived } from '@ryanmorr/isotope';
 export { html } from './html';
 export { effect } from './effect';
 export { bind } from './bind';

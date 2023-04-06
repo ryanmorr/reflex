@@ -1,5 +1,3 @@
-import './store';
-import './derived';
 import './html';
 import './component';
 import './interpolation-store';
