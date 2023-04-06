@@ -7,13 +7,26 @@
   "homepage": "https://github.com/ryanmorr/reflex",
   "repository": "github:ryanmorr/reflex",
   "bugs": "https://github.com/ryanmorr/reflex/issues",
-  "publishConfig": {
-    "access": "public"
-  },
+  "keywords": [
+    "javascript",
+    "ui",
+    "dom",
+    "reactive"
+  ],
   "type": "module",
-  "main": "dist/reflex.cjs.js",
-  "module": "dist/reflex.esm.js",
-  "browser": "dist/reflex.umd.js",
+  "main": "dist/cjs/reflex.js",
+  "module": "dist/esm/reflex.js",
+  "browser": "dist/umd/reflex.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/umd/reflex.js",
+      "import": "./dist/esm/reflex.js",
+      "require": "./dist/cjs/reflex.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint src/** test/specs/**",
     "test": "karma start karma.config.cjs",
@@ -34,6 +47,7 @@
     "karma-sinon": "^1.0.5",
     "mocha": "^10.2.0",
     "rollup": "^3.14.0",
+    "rollup-plugin-generate-package-json": "^3.2.0",
     "sinon": "^15.0.1",
     "terser": "^5.16.3"
   },
