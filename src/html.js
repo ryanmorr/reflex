@@ -264,14 +264,13 @@ function observeNodeStore(store) {
             render(key, () => {
                 prevNode = patchNode(prevNode, nextVal, marker);
                 prevVal = nextVal;
-                cleanup(prevNode, unsubscribe);
             });
         }
     };
     const onSubscribe = (nextVal) => {
         if (typeof nextVal === 'function') {
             onSubscribe(nextVal());
-        } else if (!initialRender) { 
+        } else if (!initialRender) {
             setValue(nextVal);
         } else {
             prevVal = nextVal;
@@ -284,7 +283,7 @@ function observeNodeStore(store) {
     const unsubscribe = store.subscribe(onSubscribe);
     const node = createNode(prevVal);
     prevNode = getNodes(node);
-    cleanup(prevNode, unsubscribe);
+    cleanup(marker, unsubscribe);
     const frag = document.createDocumentFragment();
     frag.appendChild(node);
     frag.appendChild(marker);
