@@ -52,7 +52,7 @@
     "terser": "^5.16.3"
   },
   "dependencies": {
-    "@ryanmorr/isotope": "^2.0.0",
+    "@ryanmorr/isotope": "^3.1.0",
     "@ryanmorr/schedule-render": "^3.0.1",
     "htm": "^3.0.4"
   }

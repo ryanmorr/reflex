@@ -545,34 +545,6 @@ describe('interpolation-store', () => {
         expect(fn.args[0][0]).to.equal(el);
     });
 
-    it('should always diff `checked` and `value` properties against the DOM', async () => {
-        const value = store('foo');
-        const checked = store(true);
-
-		const div = html` 
-            <div>
-                <input value=${value} />
-                <input type="checkbox" checked=${checked} />
-            </div>
-        `;
-        
-        const text = div.firstElementChild;
-        const checkbox = div.lastElementChild;
-
-		expect(text.value).to.equal('foo');
-		expect(checkbox.checked).to.equal(true);
-
-		text.value = 'bar';
-		checkbox.checked = false;
-
-        value.set('foo');
-        checked.set(true);
-
-        await tick();
-		expect(text.value).to.equal('foo');
-		expect(checkbox.checked).to.equal(true);
-	}); 
-
     it('should update a DOM property', async () => {
         const value = store('foo');
         const el = html`<input type="text" value=${value} />`;

@@ -226,7 +226,7 @@ function observeAttributeStore(element, store, name, isSvg) {
         prevVal = name === 'value' || name === 'selected' || name === 'checked' ? element[name] : prevVal;
         if (isPromise(nextVal)) {
             nextVal.then(setValue);
-        } else if (nextVal !== prevVal && !(prevVal == null && nextVal == null)) {
+        } else if (!(prevVal == null && nextVal == null)) {
             render(key, () => {
                 patchAttribute(element, name, prevVal, nextVal, isSvg);
                 prevVal = nextVal;
@@ -260,7 +260,7 @@ function observeNodeStore(store) {
             setValue(nextVal());
         } else if (isPromise(nextVal)) {
             nextVal.then(setValue);
-        } else if (nextVal !== prevVal) {
+        } else {
             render(key, () => {
                 prevNode = patchNode(prevNode, nextVal, marker);
                 prevVal = nextVal;
