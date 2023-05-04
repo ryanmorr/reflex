@@ -7,6 +7,7 @@ describe('interpolation-function', () => {
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
         expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
 
     it('should render a function as an attribute', () => {
@@ -20,25 +21,31 @@ describe('interpolation-function', () => {
     });
 
     it('should render a function that returns a text node', () => {
-        const fn = () => document.createTextNode('foo');
+        const fn = sinon.spy(() => document.createTextNode('foo'));
         const el = html`<div>${fn}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
     
     it('should render a function that returns an element', () => {
-        const fn = () => document.createElement('span');
+        const fn = sinon.spy(() => document.createElement('span'));
         const el = html`<div>${fn}</div>`;
 
         expect(el.outerHTML).to.equal('<div><span></span></div>');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
 
     it('should render a function that returns a document fragment', () => {
-        const fn = () => html`<i></i><em></em>`;
+        const fn = sinon.spy(() => html`<i></i><em></em>`);
 
         const el = html`<div>${fn}</div>`;
 
         expect(el.outerHTML).to.equal('<div><i></i><em></em></div>');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
 
     it('should render child nodes with a function that returns an array', () => {
@@ -53,6 +60,7 @@ describe('interpolation-function', () => {
         const el = html`<div>${fn}</div>`;
         expect(el.outerHTML).to.equal('<div><em></em>bar<span></span>50</div>');
         expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
     
     it('should set the class attribute with a function that returns an array', () => {
@@ -204,29 +212,25 @@ describe('interpolation-function', () => {
     });
 
     it('should render nested functions as a text node', () => {
-        const fn = () => () => () => 'foo';
+        const spy = sinon.spy(() => 'foo');
+        const fn = () => () => spy;
         const el = html`<div>${fn}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(el);
     });
 
     it('should render nested functions as an attribute', () => {
-        const fn1 = sinon.spy(() => 'bar');
-        const fn2 = sinon.spy(fn1);
-        const fn3 = sinon.spy(fn2);
+        const spy = sinon.spy(() => 'bar');
+        const fn = () => () => spy;
 
-        const el = html`<div foo=${fn3}></div>`;
+        const el = html`<div foo=${fn}></div>`;
 
         expect(el.outerHTML).to.equal('<div foo="bar"></div>');
-        expect(fn1.callCount).to.equal(1);
-        expect(fn1.args[0][0]).to.equal(el);
-        expect(fn1.args[0][1]).to.equal('foo');
-        expect(fn2.callCount).to.equal(1);
-        expect(fn2.args[0][0]).to.equal(el);
-        expect(fn2.args[0][1]).to.equal('foo');
-        expect(fn3.callCount).to.equal(1);
-        expect(fn3.args[0][0]).to.equal(el);
-        expect(fn3.args[0][1]).to.equal('foo');
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(el);
+        expect(spy.args[0][1]).to.equal('foo');
     });
 
     it('should support multiple interpolations of the same function', () => {

@@ -109,8 +109,8 @@ function createClass(obj) {
     return output;
 }
 
-function arrayToFrag(nodes) {
-    return nodes.reduce((frag, node) => frag.appendChild(getNode(node)) && frag, document.createDocumentFragment());
+function arrayToFrag(nodes, parent) {
+    return nodes.reduce((frag, node) => frag.appendChild(getNode(node, parent)) && frag, document.createDocumentFragment());
 }
 
 function getNodes(node) {
@@ -159,7 +159,7 @@ function createElement(nodeName, attributes, ...children) {
     const isSvg = SVG_TAGS.includes(nodeName);
     const element = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', nodeName) : document.createElement(nodeName);
     if (children) {
-        element.appendChild(arrayToFrag(children));
+        element.appendChild(arrayToFrag(children, element));
     }
     if (attributes) {
         Object.keys(attributes).forEach((name) => {
@@ -205,7 +205,7 @@ function createNode(value) {
     return value;
 }
 
-function getNode(node) {
+function getNode(node, parent) {
     if (isStore(node)) {
         return observeNodeStore(node);
     }
@@ -213,7 +213,7 @@ function getNode(node) {
         return observeNodePromise(node);
     }
     if (typeof node === 'function') {
-        return getNode(node());
+        return getNode(node(parent), parent);
     }
     return createNode(node);
 }
