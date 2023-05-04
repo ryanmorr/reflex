@@ -373,7 +373,7 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     } 
 }
 
-export function patchNode(prevNode, nextVal, marker) {
+function patchNode(prevNode, nextVal, marker) {
     if (typeof nextVal === 'number') {
         nextVal = String(nextVal);
     }
