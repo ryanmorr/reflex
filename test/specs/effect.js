@@ -131,7 +131,9 @@ describe('effect', () => {
 
     it('should execute a side effect after the store\'s promise is resolved', async () => {
         const foo = store();
-        const spy = sinon.spy();
+        const spy = sinon.spy(() => {
+            expect(el.outerHTML).to.equal('<div>foo</div>');
+        });
         effect(foo, spy);
     
         const el = html`<div>${foo}</div>`;
@@ -147,7 +149,6 @@ describe('effect', () => {
 
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.equal('foo');
-        expect(el.outerHTML).to.equal('<div>foo</div>');
     });
 
     it('should execute a side effect after multiple store\'s promises have been resolved', async () => {
