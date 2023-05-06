@@ -3,7 +3,7 @@ import { createComponent } from './component';
 import { isBinding } from './bind';
 import { render } from './scheduler';
 import { cleanup } from './disposal';
-import { uuid, isStore, isPromise } from './util';
+import { uuid, isStore, isPromise, isValidNodeValue } from './util';
 
 const buildHTML = htm.bind(createElement);
 
@@ -109,11 +109,7 @@ function createClass(obj) {
     return output;
 }
 
-function arrayToFrag(nodes, parent) {
-    return nodes.reduce((frag, node) => frag.appendChild(getNode(node, parent)) && frag, document.createDocumentFragment());
-}
-
-function getNodes(node) {
+function getNode(node) {
     if (node.nodeType === 11) {
         return Array.from(node.childNodes);
     }
@@ -186,12 +182,22 @@ function defineProperty(element, name, value, isSvg) {
     }
 }
 
-function createNode(value) {
+function arrayToFrag(nodes, parent) {
+    return nodes.reduce((frag, value) => {
+        const node = resolveNode(value, parent);
+        if (isValidNodeValue(node)) {
+            frag.appendChild(node);
+        }
+        return frag;
+    }, document.createDocumentFragment());
+}
+
+function createNode(value, parent) {
     if (typeof value === 'function') {
-        return createNode(value());
+        return createNode(value(parent), parent);
     }
-    if (value == null || typeof value === 'boolean' || isPromise(value)) {
-        return document.createTextNode('');
+    if (!isValidNodeValue(value)) {
+        return null;
     }
     if (typeof value === 'number') {
         value = String(value);
@@ -205,17 +211,17 @@ function createNode(value) {
     return value;
 }
 
-function getNode(node, parent) {
-    if (isStore(node)) {
-        return observeNodeStore(node);
+function resolveNode(value, parent) {
+    if (typeof value === 'function') {
+        return resolveNode(value(parent), parent);
     }
-    if (isPromise(node)) {
-        return observeNodePromise(node);
+    if (isStore(value)) {
+        return observeNodeStore(parent, value);
     }
-    if (typeof node === 'function') {
-        return getNode(node(parent), parent);
+    if (isPromise(value)) {
+        return observeNodePromise(parent, value);
     }
-    return createNode(node);
+    return createNode(value);
 }
 
 function observeAttributeStore(element, store, name, isSvg) {
@@ -249,7 +255,7 @@ function observeAttributeStore(element, store, name, isSvg) {
     cleanup(element, unsubscribe);
 }
 
-function observeNodeStore(store) {
+function observeNodeStore(parent, store) {
     const key = uuid();
     const marker = document.createTextNode('');
     let initialRender = true;
@@ -257,19 +263,22 @@ function observeNodeStore(store) {
     let prevNode;
     const setValue = (nextVal) => {
         if (typeof nextVal === 'function') {
-            setValue(nextVal());
+            setValue(nextVal(parent));
         } else if (isPromise(nextVal)) {
             nextVal.then(setValue);
         } else {
+            if (prevNode == null && !isValidNodeValue(nextVal)) {
+                return;
+            }
             render(key, () => {
-                prevNode = patchNode(prevNode, nextVal, marker);
+                prevNode = patchNode(parent, marker, prevNode, nextVal);
                 prevVal = nextVal;
             });
         }
     };
     const onSubscribe = (nextVal) => {
         if (typeof nextVal === 'function') {
-            onSubscribe(nextVal());
+            onSubscribe(nextVal(parent));
         } else if (!initialRender) {
             setValue(nextVal);
         } else {
@@ -281,23 +290,26 @@ function observeNodeStore(store) {
         }
     };
     const unsubscribe = store.subscribe(onSubscribe);
-    const node = createNode(prevVal);
-    prevNode = getNodes(node);
     cleanup(marker, unsubscribe);
-    const frag = document.createDocumentFragment();
-    frag.appendChild(node);
-    frag.appendChild(marker);
-    return frag;
+    if (isValidNodeValue(prevVal) && !isPromise(prevVal)) {
+        const node = createNode(prevVal);
+        prevNode = getNode(node);
+        const frag = document.createDocumentFragment();
+        frag.appendChild(node);
+        frag.appendChild(marker);
+        return frag;
+    }
+    return marker;
 }
 
-function observeNodePromise(promise) {
-    const node = document.createTextNode('');
+function observeNodePromise(parent, promise) {
     const marker = document.createTextNode('');
-    promise.then((nextVal) => render(uuid(), () => patchNode(node, nextVal, marker)));
-    const frag = document.createDocumentFragment();
-    frag.appendChild(node);
-    frag.appendChild(marker);
-    return frag;
+    promise.then((value) => {
+        if (isValidNodeValue(value)) {
+            render(uuid(), () => patchNode(parent, marker, null, value));
+        }
+    });
+    return marker;
 }
 
 function observeAttributePromise(element, promise, name, isSvg) {
@@ -373,21 +385,30 @@ function patchAttribute(element, name, prevVal, nextVal, isSvg = false) {
     } 
 }
 
-function patchNode(prevNode, nextVal, marker) {
+function patchNode(parent, marker, prevNode, nextVal) {
     if (typeof nextVal === 'number') {
         nextVal = String(nextVal);
     }
-    if (prevNode.nodeType === 3 && typeof nextVal === 'string') {
+    if (prevNode && prevNode.nodeType === 3 && typeof nextVal === 'string') {
         prevNode.data = nextVal;
         return prevNode;
     }
-    const parent = marker.parentNode;
-    const nextNode = createNode(nextVal);
-    const nodes = getNodes(nextNode);
+    if (!isValidNodeValue(nextVal)) {
+        if (Array.isArray(prevNode)) {
+            clearNodes(parent, prevNode);
+        } else {
+            parent.removeChild(prevNode);
+        }
+        return null;
+    }
+    const nextNode = createNode(nextVal, parent);
+    const node = getNode(nextNode);
+    if (prevNode == null) {
+        parent.insertBefore(nextNode, marker);
+        return node;
+    }
     if (Array.isArray(prevNode)) {
-        if (prevNode.length === 0) {
-            parent.insertBefore(nextNode, marker);
-        } else if (prevNode.length === 1) {
+        if (prevNode.length === 1) {
             parent.replaceChild(nextNode, prevNode[0]);
         } else {
             clearNodes(parent, prevNode);
@@ -396,10 +417,10 @@ function patchNode(prevNode, nextVal, marker) {
     } else {
         prevNode.replaceWith(nextNode);
     }
-    return nodes;
+    return node;
 }
 
 export function html(...args) {
     const result = buildHTML(...args);
-    return Array.isArray(result) ? arrayToFrag(result) : getNode(result);
+    return Array.isArray(result) ? arrayToFrag(result) : resolveNode(result);
 }

@@ -139,7 +139,7 @@ describe('interpolation-promise', () => {
     });
 
     it('should render a text node with a promise that resolves with a function', async () => {
-        const fn = () => 'baz';
+        const fn = sinon.spy(() => 'baz');
         const promise = Promise.resolve(fn);
         const el = html`<div>${promise}</div>`;
 
@@ -148,6 +148,8 @@ describe('interpolation-promise', () => {
         await promise;
         await tick();
         expect(el.outerHTML).to.equal('<div>baz</div>');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
     });
 
     it('should set an attribute with a promise that resolves with a function', async () => {

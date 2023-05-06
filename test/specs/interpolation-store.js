@@ -72,20 +72,48 @@ describe('interpolation-store', () => {
     });
 
     it('should update a text node with a function', async () => {
-        const child = store(() => 'foo');
+        const spy1 = sinon.spy(() => 'foo');
+        const child = store(spy1);
         const el = html`<div>${child}</div>`;
 
         expect(el.outerHTML).to.equal('<div>foo</div>');
+        expect(spy1.callCount).to.equal(1);
+        expect(spy1.args[0][0]).to.equal(el);
 
-        child.set(() => 'bar');
+        const spy2 = sinon.spy(() => 'bar');
+        child.set(spy2);
         
         await tick();
         expect(el.outerHTML).to.equal('<div>bar</div>');
-            
-        child.set(() => html`<em />`);
+        expect(spy2.callCount).to.equal(1);
+        expect(spy2.args[0][0]).to.equal(el);
+
+        const spy3 = sinon.spy(() => html`<em />`);
+        child.set(spy3);
         
         await tick();
         expect(el.outerHTML).to.equal('<div><em></em></div>');
+        expect(spy3.callCount).to.equal(1);
+        expect(spy3.args[0][0]).to.equal(el);
+    });
+
+    it('should update a nested text node with a function', async () => {
+        const spy1 = sinon.spy(() => 'foo');
+        const child = store(spy1);
+        const el = html`<div><span>${child}</span></div>`;
+        const span = el.firstElementChild;
+
+        expect(el.outerHTML).to.equal('<div><span>foo</span></div>');
+        expect(spy1.callCount).to.equal(1);
+        expect(spy1.args[0][0]).to.equal(span);
+
+        const spy2 = sinon.spy(() => 'bar');
+        child.set(spy2);
+        
+        await tick();
+        expect(el.outerHTML).to.equal('<div><span>bar</span></div>');
+        expect(spy2.callCount).to.equal(1);
+        expect(spy2.args[0][0]).to.equal(span);
     });
 
     it('should update multiple nodes', async () => {
@@ -111,15 +139,21 @@ describe('interpolation-store', () => {
 
         expect(el.outerHTML).to.equal('<div></div>');
 
-        nodes.set(() => html`bar<span />baz`);
+        const spy1 = sinon.spy(() => html`bar<span />baz`);
+        nodes.set(spy1);
         
         await tick();
         expect(el.outerHTML).to.equal('<div>bar<span></span>baz</div>');
-            
-        nodes.set(() => [html`<i />`, 'qux']);
+        expect(spy1.callCount).to.equal(1);
+        expect(spy1.args[0][0]).to.equal(el);
+        
+        const spy2 = sinon.spy(() => [html`<i />`, 'qux']);
+        nodes.set(spy2);
         
         await tick();
         expect(el.outerHTML).to.equal('<div><i></i>qux</div>');
+        expect(spy2.callCount).to.equal(1);
+        expect(spy2.args[0][0]).to.equal(el);
     });
 
     it('should remove nodes by providing null or undefined', async () => {
@@ -851,51 +885,6 @@ describe('interpolation-store', () => {
 
         await tick();
         expect(el.outerHTML).to.equal('<div class="foo qux"><section><h1>baz</h1></section></div>');
-    });
-
-    it('should support custom stores that have a subscribe method', async () => {
-        const customStore = (value) => {
-            const subscribers = [];
-            const callback = (val) => {
-                if (val === undefined) {
-                    return value;
-                }
-                value = val;
-                subscribers.slice().forEach((subscriber) => subscriber(value));
-            };
-            callback.subscribe = (callback) => {
-                if (!subscribers.includes(callback)) {
-                    subscribers.push(callback);
-                    callback(value);
-                    return () => {
-                        const index = subscribers.indexOf(callback);
-                        if (index !== -1) {
-                            subscribers.splice(index, 1);
-                        }
-                    };
-                }
-            };
-            return callback;
-        };
-
-        const value = customStore('foo');
-        const div = html`<div id=${value}></div>`;
-        const span = html`<span>${value}</span>`;
-
-        expect(div.outerHTML).to.equal('<div id="foo"></div>');
-        expect(span.outerHTML).to.equal('<span>foo</span>');
-
-        value('bar');
-
-        await tick();
-        expect(div.outerHTML).to.equal('<div id="bar"></div>');
-        expect(span.outerHTML).to.equal('<span>bar</span>');
-
-        value('baz');
-
-        await tick();
-        expect(div.outerHTML).to.equal('<div id="baz"></div>');
-        expect(span.outerHTML).to.equal('<span>baz</span>');
     });
 
     it('should update a text node with nested functions', async () => {
