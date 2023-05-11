@@ -60,17 +60,21 @@ describe('component', () => {
         expect(spy.args[0][0]).to.equal(element);
     });
 
-    it('should call the cleanup callback function when the component is disposed', () => {
+    it('should call the cleanup callback function when the component is disposed', async () => {
         const spy = sinon.spy();
 
-        const Component = (props, mount, cleanup) => {
-            cleanup(spy);
+        const Component = (props, mount) => {
+            mount(() => spy);
             return html`<div></div>`;
         };
 
         const element = html`<${Component} />`;
 
         expect(spy.callCount).to.equal(0);
+
+        container.appendChild(element);
+
+        await wait();
 
         dispose(element);
 
@@ -103,13 +107,13 @@ describe('component', () => {
         expect(spy2.args[0][0]).to.equal(element);
     });
 
-    it('should support multiple cleanup calls', () => {
+    it('should support multiple cleanup calls', async () => {
         const spy1 = sinon.spy();
         const spy2 = sinon.spy();
 
-        const Component = (props, mount, cleanup) => {
-            cleanup(spy1);
-            cleanup(spy2);
+        const Component = (props, mount) => {
+            mount(() => spy1);
+            mount(() => spy2);
             return html`<div></div>`;
         };
 
@@ -117,6 +121,10 @@ describe('component', () => {
 
         expect(spy1.callCount).to.equal(0);
         expect(spy2.callCount).to.equal(0);
+
+        container.appendChild(element);
+
+        await wait();
 
         dispose(element);
 
@@ -147,11 +155,11 @@ describe('component', () => {
         expect(spy.args[0][0]).to.deep.equal(elements);
     });
 
-    it('should support a cleanup callback function for document fragments', () => {
+    it('should support a cleanup callback function for document fragments', async () => {
         const spy = sinon.spy();
 
-        const Component = (props, mount, cleanup) => {
-            cleanup(spy);
+        const Component = (props, mount) => {
+            mount(() => spy);
             return html`<div></div><span></span>`;
         };
 
@@ -160,17 +168,22 @@ describe('component', () => {
 
         expect(spy.callCount).to.equal(0);
 
-        dispose(frag);
+        container.appendChild(frag);
+
+        await wait();
+
+        dispose(elements[0]);
+        dispose(elements[1]);
 
         expect(spy.callCount).to.equal(1);
         expect(spy.args[0][0]).to.deep.equal(elements);
     });
 
-    it('should call cleanup once for all nodes in a document fragment', () => {
+    it('should call cleanup once for all nodes in a document fragment', async () => {
         const spy = sinon.spy();
 
-        const Component = (props, mount, cleanup) => {
-            cleanup(spy);
+        const Component = (props, mount) => {
+            mount(() => spy);
             return html`<div></div><span></span>`;
         };
 
@@ -178,6 +191,10 @@ describe('component', () => {
         const elements1 = Array.from(frag1.childNodes);
 
         expect(spy.callCount).to.equal(0);
+
+        container.appendChild(frag1);
+
+        await wait();
 
         dispose(elements1[0]);
 
@@ -193,14 +210,41 @@ describe('component', () => {
 
         expect(spy.callCount).to.equal(1);
 
+        container.appendChild(frag2);
+
+        await wait();
+
         dispose(elements2[1]);
 
         expect(spy.callCount).to.equal(2);
-        expect(spy.args[0][0]).to.deep.equal(elements2);
+        expect(spy.args[1][0]).to.deep.equal(elements2);
 
         dispose(elements2[0]);
 
         expect(spy.callCount).to.equal(2);
+    });
+
+    it('should support multiple mount calls that do and do not return cleanup callback functions', async () => {
+        const spy = sinon.spy();
+
+        const Component = (props, mount) => {
+            mount(() => null);
+            mount(() => spy);
+            return html`<div></div>`;
+        };
+
+        const element = html`<${Component} />`;
+
+        expect(spy.callCount).to.equal(0);
+
+        container.appendChild(element);
+
+        await wait();
+
+        dispose(element);
+
+        expect(spy.callCount).to.equal(1);
+        expect(spy.args[0][0]).to.equal(element);
     });
 
     it('should disconnect the MutationObserver when there are no more mount listeners', async () => {
