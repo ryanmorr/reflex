@@ -240,4 +240,25 @@ describe('interpolation-function', () => {
         expect(el.outerHTML).to.equal('<div id="foo">foo</div>');
         expect(fn.callCount).to.equal(2);
     });
+
+    it('should render a function as a text node in a nested array', () => {
+        const fn = sinon.spy(() => 'foo');
+
+        const children = [
+            html`<span />`,
+            [
+                html`<em />`,
+                [
+                    fn,
+                ]
+            ],
+            html`<section />`,
+        ];
+
+        const el = html`<div>${children}</div>`;
+
+        expect(el.outerHTML).to.equal('<div><span></span><em></em>foo<section></section></div>');
+        expect(fn.callCount).to.equal(1);
+        expect(fn.args[0][0]).to.equal(el);
+    });
 });

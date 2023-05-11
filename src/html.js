@@ -206,7 +206,7 @@ function createNode(value, parent) {
         return document.createTextNode(value);
     }
     if (Array.isArray(value)) {
-        return arrayToFrag(value);
+        return arrayToFrag(value, parent);
     }
     return value;
 }
@@ -221,7 +221,7 @@ function resolveNode(value, parent) {
     if (isPromise(value)) {
         return observeNodePromise(parent, value);
     }
-    return createNode(value);
+    return createNode(value, parent);
 }
 
 function observeAttributeStore(element, store, name, isSvg) {
