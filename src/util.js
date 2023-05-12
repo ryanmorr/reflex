@@ -13,7 +13,3 @@ export function isPromise(obj) {
 export function isIterable(obj) {
     return obj != null && typeof obj !== 'string' && typeof obj[Symbol.iterator] === 'function';
 }
-
-export function isValidNodeValue(value) {
-    return value != null && typeof value != 'boolean';
-}

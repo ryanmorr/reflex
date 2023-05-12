@@ -3,7 +3,7 @@ import { createComponent } from './component';
 import { isBinding } from './bind';
 import { render } from './scheduler';
 import { cleanup } from './disposal';
-import { uuid, isStore, isPromise, isValidNodeValue } from './util';
+import { uuid, isStore, isPromise } from './util';
 
 const buildHTML = htm.bind(createElement);
 
@@ -87,6 +87,10 @@ const SVG_TAGS = [
     'view',
     'vkern'
 ];
+
+function isValidNodeValue(value) {
+    return value != null && typeof value != 'boolean';
+}
 
 function createClass(obj) {
     let output = '';
