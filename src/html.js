@@ -160,18 +160,16 @@ function createElement(nodeName, attributes, ...children) {
     if (children) {
         element.appendChild(arrayToFrag(children, element));
     }
-    if (attributes) {
-        Object.keys(attributes).forEach((name) => {
-            const value = attributes[name];
-            if (value && value.isBinding) {
-                value(element, name);
-            } else if (name === 'ref') {
-                addRef(value, element);
-            } else {
-                defineProperty(element, name, value, isSvg);
-            }
-        });
-    }
+    Object.keys(attributes).forEach((name) => {
+        const value = attributes[name];
+        if (value && value.isBinding) {
+            value(element, name);
+        } else if (name === 'ref') {
+            addRef(value, element);
+        } else {
+            defineProperty(element, name, value, isSvg);
+        }
+    });
     return element;
 }
 
