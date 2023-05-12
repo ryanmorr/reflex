@@ -109,7 +109,7 @@ function createClass(obj) {
     return output;
 }
 
-function getNode(node) {
+function getNodeRef(node) {
     if (node.nodeType === 11) {
         return Array.from(node.childNodes);
     }
@@ -172,16 +172,6 @@ function createElement(nodeName, attributes, ...children) {
     return element;
 }
 
-function defineProperty(element, name, value, isSvg) {
-    if (isStore(value)) {
-        observeAttributeStore(element, value, name, isSvg);
-    } else if (isPromise(value)) {
-        observeAttributePromise(element, value, name, isSvg);
-    } else {
-        patchAttribute(element, name, null, value, isSvg);
-    }
-}
-
 function arrayToFrag(nodes, parent) {
     return nodes.reduce((frag, value) => {
         const node = resolveNode(value, parent);
@@ -216,15 +206,15 @@ function resolveNode(value, parent) {
         return resolveNode(value(parent), parent);
     }
     if (isStore(value)) {
-        return observeNodeStore(parent, value);
+        return createNodeStoreBinding(parent, value);
     }
     if (isPromise(value)) {
-        return observeNodePromise(parent, value);
+        return createNodePromiseBinding(parent, value);
     }
     return createNode(value, parent);
 }
 
-function observeAttributeStore(element, store, name, isSvg) {
+function createAttributeStoreBinding(element, store, name, isSvg) {
     const key = uuid();
     let initialRender = true;
     let prevVal;
@@ -255,7 +245,7 @@ function observeAttributeStore(element, store, name, isSvg) {
     cleanup(element, unsubscribe);
 }
 
-function observeNodeStore(parent, store) {
+function createNodeStoreBinding(parent, store) {
     const key = uuid();
     const marker = document.createTextNode('');
     let initialRender = true;
@@ -293,7 +283,7 @@ function observeNodeStore(parent, store) {
     cleanup(marker, unsubscribe);
     if (isValidNodeValue(prevVal) && !isPromise(prevVal)) {
         const node = createNode(prevVal);
-        prevNode = getNode(node);
+        prevNode = getNodeRef(node);
         const frag = document.createDocumentFragment();
         frag.appendChild(node);
         frag.appendChild(marker);
@@ -302,7 +292,7 @@ function observeNodeStore(parent, store) {
     return marker;
 }
 
-function observeNodePromise(parent, promise) {
+function createNodePromiseBinding(parent, promise) {
     const marker = document.createTextNode('');
     promise.then((value) => {
         if (isValidNodeValue(value)) {
@@ -312,8 +302,18 @@ function observeNodePromise(parent, promise) {
     return marker;
 }
 
-function observeAttributePromise(element, promise, name, isSvg) {
+function createAttributePromiseBinding(element, promise, name, isSvg) {
     promise.then((nextVal) => render(uuid(), () => patchAttribute(element, name, null, nextVal, isSvg)));
+}
+
+function defineProperty(element, name, value, isSvg) {
+    if (isStore(value)) {
+        createAttributeStoreBinding(element, value, name, isSvg);
+    } else if (isPromise(value)) {
+        createAttributePromiseBinding(element, value, name, isSvg);
+    } else {
+        patchAttribute(element, name, null, value, isSvg);
+    }
 }
 
 function setStyle(element, name, value) {
@@ -402,7 +402,7 @@ function patchNode(parent, marker, prevNode, nextVal) {
         return null;
     }
     const nextNode = createNode(nextVal, parent);
-    const node = getNode(nextNode);
+    const node = getNodeRef(nextNode);
     if (prevNode == null) {
         parent.insertBefore(nextNode, marker);
         return node;
