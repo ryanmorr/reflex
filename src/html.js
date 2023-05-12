@@ -1,6 +1,5 @@
 import htm from 'htm';
 import { createComponent } from './component';
-import { isBinding } from './bind';
 import { render } from './scheduler';
 import { cleanup } from './disposal';
 import { uuid, isStore, isPromise } from './util';
@@ -164,7 +163,7 @@ function createElement(nodeName, attributes, ...children) {
     if (attributes) {
         Object.keys(attributes).forEach((name) => {
             const value = attributes[name];
-            if (isBinding(value)) {
+            if (value && value.isBinding) {
                 value(element, name);
             } else if (name === 'ref') {
                 addRef(value, element);
